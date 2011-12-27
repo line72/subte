@@ -1,4 +1,10 @@
 trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled
 hwy280WD1,04:50:00,04:50:00,central,1,,0,0,
-hwy280WD1,05:15:00,,summit,2,,0,0,
-hwy280WD1,05:30:00,05:30:00,marriott280E,3,,0,0,
+hwy280WD1,05:15:00,05:15:00,summit,2,,0,0,
+hwy280WD1,05:37:00,05:37:00,marriott280,3,,0,0,
+hwy280WD1,05:43:00,05:43:00,chickfila280,4,,0,0,
+hwy280WD1,05:52:00,05:57:00,walmart280,5,,0,0,
+hwy280WD1,06:03:00,06:03:00,chickfila280,6,,0,0,
+hwy280WD1,06:06:00,06:06:00,marriott280,7,,0,0,
+hwy280WD1,06:21:00,06:21:00,summit,8,,0,0,
+hwy280WD1,06:43:00,06:43:00,central,9,,0,0,
