@@ -1,0 +1,2 @@
+stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station
+central,"Central Station","Central Station",,33.5131,-86.8008,normal,,1,1
