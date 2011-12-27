@@ -1,2 +1,5 @@
 stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station
-central,"Central Station","Central Station",,33.5131,-86.8008,normal,,1,1
+central,,"Central Station",,33.5131,-86.8008,zone1,,1,1
+summit,,"Summit","Summit Shopping Center",33.44800,-86.73103,zone1,,0,0
+marriott280E,,"Marriott Grandview",,33.43550,-86.71918,zone1,,0,0
+

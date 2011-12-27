@@ -1,0 +1,4 @@
+trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled
+hwy280WD1,04:50:00,04:50:00,central,1,,0,0,
+hwy280WD1,05:15:00,,summit,2,,0,0,
+hwy280WD1,05:30:00,05:30:00,marriott280E,3,,0,0,

@@ -1,0 +1,2 @@
+fare_id,price,currency_type,payment_method,transfers,transfer_duration
+adult,1.25,USD,0,1,0,0
