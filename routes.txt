@@ -1,2 +1,2 @@
 route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_color
-hwy280,BJCTA,"HWY280",,"This route goes from Central Station, down US280 to the Super Walmart at US119",3,,,
+hwy280,bjcta,HWY280,,"This route goes from Central Station down US280 to the Super Walmart",3,,,
