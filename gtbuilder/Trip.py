@@ -21,6 +21,8 @@ class Trip(BaseObject):
         Trip.trips.append(weakref.ref(self))
 
     def add_stop(self, stop, arrival, depature = None):
+        if stop is None:
+            raise Exception('Invalid Stop')
         self.stops.append(TripStop(stop, arrival, depature))
 
     def write(self, trip_f, stop_times_f):

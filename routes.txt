@@ -1,2 +1,3 @@
 route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_color
-hwy280,bjcta,HWY280,,"This route goes from Central Station down US280 to the Super Walmart",3,,,
+route1,bjcta,1,,"South Bessemer - This route goes down US 11 to Bessemer",3,,,
+hwy280,bjcta,HWY280,,"HWY280 Limited - This route goes from Central Station down US280 to the Super Walmart",3,,,
