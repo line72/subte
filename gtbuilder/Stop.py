@@ -35,6 +35,25 @@ class Stop(BaseObject):
                     self.parent_station)
 
     @classmethod
+    def load_stops(cls, filename):
+        stops = []
+
+        f = open(filename)
+        title = f.readline()
+
+        for l in f.readlines():
+            info = l.strip().split(',')
+
+            stops.append(Stop(stop_id = info[0],
+                              name = info[1],
+                              description = info[2],
+                              latitude = float(info[3]),
+                              longitude = float(info[4]),
+                              zone_id = info[5]))
+
+        return stops
+
+    @classmethod
     def get_stop(cls, stop_id):
         for s in cls.stops:
             if s():

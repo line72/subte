@@ -3,32 +3,32 @@ import os
 import gtbuilder
 
 def build_stops():
-    stops = []
+    stops = gtbuilder.Stop.load_stops(os.path.join('timetables', 'stops.csv'))
 
-    stops.append(gtbuilder.Stop(stop_id = 'central', name = 'Central Station',
-                                latitude = 33.511878, longitude = -86.808826,
-                                zone_id = 'zone1'))
-    stops.append(gtbuilder.Stop(stop_id = 'MorrisA20S', name = 'Morris Ave & 20th Street',
-                                latitude = 33.51382, longitude = -86.80521,
-                                zone_id = 'zone1'))
-    stops.append(gtbuilder.Stop(stop_id = '5points', name = '5 Points South',
-                                latitude = 33.50062, longitude = -86.79630,
-                                zone_id = 'zone1'))
-    stops.append(gtbuilder.Stop(stop_id = 'summit', name = 'Summit', description = 'Summit Shopping Center',
-                                latitude = 33.44800, longitude = -86.73103,
-                                zone_id = 'zone1'))
-    stops.append(gtbuilder.Stop(stop_id = 'colonnade', name = 'Colonnade',
-                                latitude = 33.43941, longitude = -86.72557,
-                                zone_id = 'zone1'))
-    stops.append(gtbuilder.Stop(stop_id = 'marriott280', name = 'Marriott Grandview',
-                                latitude = 33.43841, longitude = -86.72389,
-                                zone_id = 'zone1'))
-    stops.append(gtbuilder.Stop(stop_id = 'chickfila280', name = 'Chick-fil-a',
-                                latitude = 33.428422, longitude = -86.707752,
-                                zone_id = 'zone1'))
-    stops.append(gtbuilder.Stop(stop_id = 'walmart280', name = 'Super Walmart 280',
-                                latitude = 33.42145, longitude = -86.67592,
-                                zone_id = 'zone1'))
+    # stops.append(gtbuilder.Stop(stop_id = 'central', name = 'Central Station',
+    #                             latitude = 33.511878, longitude = -86.808826,
+    #                             zone_id = 'zone1'))
+    # stops.append(gtbuilder.Stop(stop_id = 'MorrisA20S', name = 'Morris Ave & 20th Street',
+    #                             latitude = 33.51382, longitude = -86.80521,
+    #                             zone_id = 'zone1'))
+    # stops.append(gtbuilder.Stop(stop_id = '5points', name = '5 Points South',
+    #                             latitude = 33.50062, longitude = -86.79630,
+    #                             zone_id = 'zone1'))
+    # stops.append(gtbuilder.Stop(stop_id = 'summit', name = 'Summit', description = 'Summit Shopping Center',
+    #                             latitude = 33.44800, longitude = -86.73103,
+    #                             zone_id = 'zone1'))
+    # stops.append(gtbuilder.Stop(stop_id = 'colonnade', name = 'Colonnade',
+    #                             latitude = 33.43941, longitude = -86.72557,
+    #                             zone_id = 'zone1'))
+    # stops.append(gtbuilder.Stop(stop_id = 'marriott280', name = 'Marriott Grandview',
+    #                             latitude = 33.43841, longitude = -86.72389,
+    #                             zone_id = 'zone1'))
+    # stops.append(gtbuilder.Stop(stop_id = 'chickfila280', name = 'Chick-fil-a',
+    #                             latitude = 33.428422, longitude = -86.707752,
+    #                             zone_id = 'zone1'))
+    # stops.append(gtbuilder.Stop(stop_id = 'walmart280', name = 'Super Walmart 280',
+    #                             latitude = 33.42145, longitude = -86.67592,
+    #                             zone_id = 'zone1'))
     return stops
 
 def build_routes():
