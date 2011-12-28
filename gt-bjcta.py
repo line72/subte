@@ -11,6 +11,7 @@ def build_routes():
     routes = []
 
     routes.append(build_r1())
+    routes.append(build_r3())
     routes.append(build_hwy280())
     
 
@@ -29,6 +30,23 @@ def build_r1():
     r1.build_trips(os.path.join('timetables', 'R1S.csv'), saturday, 'R1S')
 
     return r1
+
+def build_r3():
+    '''Jefferson/Wenonah'''
+    r3 = gtbuilder.Route('route3', agency, '3',
+                         description = 'Jefferson/Wenonah',
+                         route_type = 3)
+
+    # our calendars
+    weekdays = gtbuilder.Calendar.get_calendar('WD')
+    saturday = gtbuilder.Calendar.get_calendar('S')
+
+    # start building our trips
+    r3.build_trips(os.path.join('timetables', 'R3WD.csv'), weekdays, 'R3WD')
+    r3.build_trips(os.path.join('timetables', 'R3S.csv'), saturday, 'R3S')
+
+    return r3
+
 
 def build_hwy280():
     # create a route
