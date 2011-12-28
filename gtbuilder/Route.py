@@ -38,26 +38,20 @@ class Route(BaseObject):
         '''build trips from a csv file.'''
         f = open(csv)
         stops = f.readline().strip().split(',')
-        print 'stops=', stops
 
         if trip_name is None:
             trip_name = csv[:-4] # remove the .csv
 
         for i, l in enumerate(f.readlines()):
-            print 'l=', l
             trip = self.add_trip('%s%d' % (trip_name, i), calendar)
             
             times = l.strip().split(',')
-            print 'times=', times
 
             previous_stop = ''
             for s, t in zip(stops, times):
-                print s, t
                 if t == '--': # skip
-                    print 'skipping'
                     continue
                 if s == previous_stop:
-                    print 'setting deapture'
                     # set the departure time
                     trip.stops[-1].departure = t
                 else:
