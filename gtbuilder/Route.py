@@ -3,6 +3,7 @@ import weakref
 
 from BaseObject import BaseObject
 from Trip import Trip
+from Stop import Stop
 
 class Route(BaseObject):
     routes = []
@@ -32,6 +33,40 @@ class Route(BaseObject):
         self.trips.append(trip)
     
         return trip
+
+    def build_trips(self, csv, calendar, trip_name = None):
+        '''build trips from a csv file.'''
+        f = open(csv)
+        stops = f.readline().strip().split(',')
+        print 'stops=', stops
+
+        if trip_name is None:
+            trip_name = csv[:-4] # remove the .csv
+
+        for i, l in enumerate(f.readlines()):
+            print 'l=', l
+            trip = self.add_trip('%s%d' % (trip_name, i), calendar)
+            
+            times = l.strip().split(',')
+            print 'times=', times
+
+            previous_stop = ''
+            for s, t in zip(stops, times):
+                print s, t
+                if t == '--': # skip
+                    print 'skipping'
+                    continue
+                if s == previous_stop:
+                    print 'setting deapture'
+                    # set the departure time
+                    trip.stops[-1].departure = t
+                else:
+                    # a blank time is ok, it just means
+                    #  google will interpolate it
+                    trip.add_stop(Stop.get_stop(s), t)
+                
+                previous_stop = s
+
 
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',

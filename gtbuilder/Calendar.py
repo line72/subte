@@ -44,3 +44,10 @@ class Calendar(BaseObject):
             if c():
                 c().write(f)
         f.close()
+
+    @classmethod
+    def get_calendar(cls, service_id):
+        for c in cls.calendars:
+            if c() and c().service_id == service_id:
+                return c()
+        return None
