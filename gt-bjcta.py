@@ -26,6 +26,7 @@ def build_r1():
 
     # start building our trips
     r1.build_trips(os.path.join('timetables', 'R1WD.csv'), weekdays, 'R1WD')
+    r1.build_trips(os.path.join('timetables', 'R1S.csv'), saturday, 'R1S')
 
     return r1
 
