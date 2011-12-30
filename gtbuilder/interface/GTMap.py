@@ -32,11 +32,21 @@ class GTMap(GtkChamplain.Embed):
         self.stop_layer.show()
         self.stop_layer.show_all_markers()
 
-        # !mwd - temp
+        # !mwd - temp zoom to birmingham
         self.view.go_to(33.511878, -86.808826)
         self.view.set_zoom_level(14)
-        self.view.set_kinetic_mode(True)
+
+        # add a fake path
+        self.route_layer = Champlain.PathLayer()
+        self.route_layer.add_node(Champlain.Coordinate.new_full(33.5154937623, -86.8141365051))
+        self.route_layer.add_node(Champlain.Coordinate.new_full(33.5124613464, -86.8070983887))
+        self.route_layer.add_node(Champlain.Coordinate.new_full(33.5134766361, -86.806588769))
+        self.route_layer.add_node(Champlain.Coordinate.new_full(33.4782565691, -86.8046361208))
+        self.route_layer.add_node(Champlain.Coordinate.new_full(33.4618785878, -86.8042445183))
+        self.view.add_layer(self.route_layer)
+        self.route_layer.show()
         
+        self.view.set_kinetic_mode(True)
         self.view.set_reactive(True)
         self.view.connect('button-release-event', self.on_click)
 
