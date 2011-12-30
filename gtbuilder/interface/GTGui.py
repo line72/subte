@@ -28,16 +28,9 @@ class GTGui(Gtk.Window):
         Gtk.Window.__init__(self, title = 'Google Transit Builder')
         self.connect('delete-event', self.on_quit)
 
-        # generate a key (32-long)
-        #self.__key = ''.join(random.choice(string.letters + string.digits) for x in range(32))
-
-        # spawn off our webserver in a new thread
-        #self.__server = GTServer()
-
         self.gtmap = GTMap()
         self.add(self.gtmap)
         
     def on_quit(self, widget, evt, data = None):
-        #self.__server.stop()
         Gtk.main_quit()
 
