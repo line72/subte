@@ -15,36 +15,58 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-from gi.repository import Gtk, WebKit
+from gi.repository import Gtk, Champlain, GtkChamplain, Clutter
 
-class GTMap(WebKit.WebView):
-    def __init__(self, key):
-        WebKit.WebView.__init__(self)
+class GTMap(GtkChamplain.Embed):
+    def __init__(self):
+        GtkChamplain.Embed.__init__(self)
+
+        # give ourselves an initial size
+        self.set_size_request(640, 480)
+
+        self.view = self.get_view()
+
+        # our bus station layer
+        self.stop_layer = Champlain.MarkerLayer()
+        self.view.add_layer(self.stop_layer)
+        self.stop_layer.show()
+        self.stop_layer.show_all_markers()
+
+        # !mwd - temp
+        self.view.go_to(33.511878, -86.808826)
+        self.view.set_zoom_level(14)
+        self.view.set_kinetic_mode(True)
         
-        self.__key = key
+        self.view.set_reactive(True)
+        self.view.connect('button-release-event', self.on_click)
 
-        self.connect('load-finished', self.on_load_finished)
+    def on_click(self, view, event):
+        print 'on-click', view, event
+        x, y = event.get_coords()
+        print view.x_to_longitude(x), view.y_to_latitude(y)
 
-        # load an initial page
-        self.load_uri('http://localhost:9876/%s' % key)
-        #self.load_uri('http://www.google.com')
+        # add a random place maker
+        import random
 
-    def on_load_finished(self, view, frame):
-        print 'finished loading'
-        
-        #print dir(self)
+        purple = Clutter.Color.new(0xf0, 0x02, 0xf0, 0xbb)
 
-        # add a callback
-        doc = self.get_dom_document()
-        #print dir(doc)
-        #print 'v=', doc.has_child_nodes()
+        marker = Champlain.Label.new_with_text('Stop %d' % random.randint(0, 1000),
+                                               'Serif 14', None, purple)
+        marker.set_use_markup(True)
+        marker.set_color(purple)
+        marker.set_location(view.y_to_latitude(y), view.x_to_longitude(x))
+        marker.set_reactive(True)
+        marker.connect('button-release-event', self.on_marker_click)
+        self.stop_layer.add_marker(marker)
 
-        map_canvas = doc.get_element_by_id('map_canvas')
-        map_canvas.connect_object('click-event', self.on_click, map_canvas)
+        #self.stop_layer.animate_in_all_markers()
+        marker.animate_in()
+        print 'marker=', marker
 
         return True
 
-    def on_click(self, p1, p2):
-        print 'on_click', p1, p2
+    def on_marker_click(self, actor, event):
+        print 'on_marker_click', actor, event
 
+        return False
     

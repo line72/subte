@@ -21,7 +21,7 @@ import random
 from gi.repository import Gtk
 
 from GTMap import GTMap
-from GTServer import GTServer
+#from GTServer import GTServer
 
 class GTGui(Gtk.Window):
     def __init__(self):
@@ -29,15 +29,15 @@ class GTGui(Gtk.Window):
         self.connect('delete-event', self.on_quit)
 
         # generate a key (32-long)
-        self.__key = ''.join(random.choice(string.letters + string.digits) for x in range(32))
+        #self.__key = ''.join(random.choice(string.letters + string.digits) for x in range(32))
 
         # spawn off our webserver in a new thread
-        self.__server = GTServer()
+        #self.__server = GTServer()
 
-        self.gtmap = GTMap(self.__key)
+        self.gtmap = GTMap()
         self.add(self.gtmap)
         
     def on_quit(self, widget, evt, data = None):
-        self.__server.stop()
+        #self.__server.stop()
         Gtk.main_quit()
 
