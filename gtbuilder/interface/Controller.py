@@ -15,16 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-#from Agency import Agency
-from Route import Route
-from Stop import Stop
-#from Calendar import Calendar
-#from Trip import Trip
-from Database import Database
-
-def write():
-    Agency.write_agencies()
-    Stop.write_stops()
-    Route.write_routes()
-    Calendar.write_calendars()
-    Trip.write_trips()
+class Controller(object):
+    '''This is a controller class. It handles all the callbacks
+    from the GUI'''
+    pass

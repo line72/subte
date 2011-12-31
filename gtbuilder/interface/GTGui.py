@@ -28,9 +28,47 @@ class GTGui(Gtk.Window):
         Gtk.Window.__init__(self, title = 'Google Transit Builder')
         self.connect('delete-event', self.on_quit)
 
+        vbox = Gtk.VBox(False)
+
+        # a tool bar
+        toolbar = self._build_tool_bar()
+        vbox.pack_start(toolbar, False, True, 0)
+
+        # a horizontal pane
+        self.main_pane = Gtk.Paned.new(Gtk.Orientation.HORIZONTAL)
+        self.info_frame = Gtk.Frame()
+        self.map_frame = Gtk.Frame()
+
+        self.main_pane.pack1(self.info_frame)
+        self.main_pane.pack2(self.map_frame)
+
+        # info frame
+        box = Gtk.VBox(False)
+        box.pack_start(Gtk.Button(label='Test'), False, False, 0)
+        self.info_frame.add(box)
+
+        # map frame
+        box = Gtk.VBox(False)
         self.gtmap = GTMap()
-        self.add(self.gtmap)
+        box.pack_start(self.gtmap, True, True, 5)
+        self.map_frame.add(box)
+
+        vbox.pack_start(self.main_pane, True, True, 15)
+
+        self.add(vbox)
         
     def on_quit(self, widget, evt, data = None):
         Gtk.main_quit()
 
+    def _build_tool_bar(self):
+        toolbar = Gtk.Toolbar()
+
+        #add_stop = Gtk.ToolButton.new_from_stock('gtk-add')
+        add_stop = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)
+        toolbar.insert(add_stop, 0)
+
+        toolbar.insert(Gtk.SeparatorToolItem(), 1)
+
+        toolbar.set_icon_size(Gtk.IconSize.LARGE_TOOLBAR)
+
+        return toolbar
