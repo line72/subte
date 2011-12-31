@@ -48,7 +48,8 @@ class GTMap(GtkChamplain.Embed):
         
         self.view.set_kinetic_mode(True)
         self.view.set_reactive(True)
-        self.view.connect('button-release-event', self.on_click)
+        #self.view.connect('button-release-event', self.on_click)
+
 
     def on_click(self, view, event):
         print 'on-click', view, event
@@ -74,6 +75,20 @@ class GTMap(GtkChamplain.Embed):
         print 'marker=', marker
 
         return True
+
+    def add_stop(self, stop):
+        purple = Clutter.Color.new(0xf0, 0x02, 0xf0, 0xbb)
+
+        marker = Champlain.Label.new_with_text('(%d) %s' % (stop.id, stop.name),
+                                               'Serif 10', None, purple)
+        marker.set_use_markup(True)
+        marker.set_color(purple)
+        marker.set_location(stop.latitude, stop.longitude)
+        marker.set_reactive(True)
+        marker.connect('button-release-event', self.on_marker_click)
+        self.stop_layer.add_marker(marker)
+
+        marker.animate_in()
 
     def on_marker_click(self, actor, event):
         print 'on_marker_click', actor, event
