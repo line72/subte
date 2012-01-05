@@ -35,6 +35,9 @@ class GTGui(Gtk.Window):
         # load up our database
         self.db = gtbuilder.Database(os.path.join(os.path.expanduser('~'), '.gtbuilder.db'))
 
+        # setup a controller
+        self.controller = Controller(self)
+
         vbox = Gtk.VBox(False)
 
         # a tool bar
@@ -58,24 +61,28 @@ class GTGui(Gtk.Window):
         combo_box.connect('changed', self.on_combo_changed)
         box.pack_start(combo_box, False, True, 5)
 
-        self.stop_tree = StopListGui()
-        box.pack_start(self.stop_tree.get_widget(), True, True, 5)
+        self.stop_list_widget = StopListGui()
+        box.pack_start(self.stop_list_widget.get_widget(), True, True, 5)
 
         self.info_frame.add(box)
 
         # map frame
         box = Gtk.VBox(False)
-        self.gtmap = GTMap()
-        box.pack_start(self.gtmap, True, True, 5)
+        self.map_widget = GTMap()        
+        box.pack_start(self.map_widget, True, True, 5)
         self.map_frame.add(box)
 
         vbox.pack_start(self.main_pane, True, True, 15)
 
         self.add(vbox)
+
+        # initialize the controller
+        self.controller.initialize()
         
-        # setup a controller
-        self.controller = Controller(map_widget = self.gtmap,
-                                     stop_list_widget = self.stop_tree)
+        # some signals
+        self.map_widget.view.connect('button-release-event', self.controller.on_map_click)
+        self.stop_list_widget.treeview.connect('cursor-changed', self.controller.on_stop_list_selected)
+
 
     def on_quit(self, widget, evt, data = None):
         Gtk.main_quit()
@@ -89,6 +96,7 @@ class GTGui(Gtk.Window):
         toolbar = Gtk.Toolbar()
 
         add_stop = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)
+        add_stop.connect('clicked', self.controller.on_add_stop)
         toolbar.insert(add_stop, 0)
 
         toolbar.insert(Gtk.SeparatorToolItem(), 1)

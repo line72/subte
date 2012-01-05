@@ -16,25 +16,25 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
 import random
+import weakref
+
 
 import gtbuilder
+
+from AddStop import AddStopDialog, AddStop
 
 class Controller(object):
     '''This is a controller class. It handles all the callbacks
     from the GUI'''
-    def __init__(self, map_widget, stop_list_widget):
-        self.map_widget = map_widget
-        self.stop_list_widget = stop_list_widget
+    def __init__(self, gui):
+        self._gui = weakref.ref(gui)
 
-        # signals
-        self.map_widget.view.connect('button-release-event', self.on_map_click)
-        self.stop_list_widget.treeview.connect('cursor-changed', self.on_stop_list_selected)
-
+    def initialize(self):
         # fill in the initial data
         # stops first
         for s in gtbuilder.Stop.select():
-            self.map_widget.add_stop(s)
-            self.stop_list_widget.add_stop(s)
+            self.gui.map_widget.add_stop(s)
+            self.gui.stop_list_widget.add_stop(s)
 
         # now routes
 
@@ -44,11 +44,14 @@ class Controller(object):
         longitude = view.x_to_longitude(x)
         
         # add a new stop
-        stop = gtbuilder.Stop(name = 'Stop%d' % random.randint(0, 100),
-                              latitude = latitude, longitude = longitude)
+        #stop = gtbuilder.Stop(name = 'Stop%d' % random.randint(0, 100),
+        #                      latitude = latitude, longitude = longitude)
 
-        self.map_widget.add_stop(stop)
-        self.stop_list_widget.add_stop(stop)
+        #self.map_widget.add_stop(stop)
+        #self.stop_list_widget.add_stop(stop)
+
+        for i in self._registered_events.get('on-map-clicked', []):
+            i(view, event)
 
         return True
 
@@ -59,5 +62,18 @@ class Controller(object):
         stop_id = store.get_value(it, 0)
         stop = gtbuilder.Stop.get(stop_id)
 
-
         return True
+
+    def on_add_stop(self, toolbutton, user_data = None):
+        print 'adding a stop'
+        stop_dialog = AddStop(self)
+
+        win = AddStopDialog()
+        win.get_content_area().add(stop_dialog)
+        win.show_all()
+
+        resp = win.run()
+        win.destroy()
+        print 'resp=', resp
+
+    gui = property(lambda x: x._gui(), None)
