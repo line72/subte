@@ -68,6 +68,8 @@ class Controller(object):
         return True
 
     def on_stop_marker_clicked(self, actor, event, stop):
+        actor.set_selected(True)
+
         if stop:
             for handler in self._registered_events.get('on-stop-selected', []):
                 handler._fn(stop, *(handler._args))
