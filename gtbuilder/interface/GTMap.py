@@ -36,19 +36,12 @@ class GTMap(GtkChamplain.Embed):
         self.view.go_to(33.511878, -86.808826)
         self.view.set_zoom_level(14)
 
-        # add a fake path
+        # add a route layer
         self.route_layer = Champlain.PathLayer()
-        self.route_layer.add_node(Champlain.Coordinate.new_full(33.5154937623, -86.8141365051))
-        self.route_layer.add_node(Champlain.Coordinate.new_full(33.5124613464, -86.8070983887))
-        self.route_layer.add_node(Champlain.Coordinate.new_full(33.5134766361, -86.806588769))
-        self.route_layer.add_node(Champlain.Coordinate.new_full(33.4782565691, -86.8046361208))
-        self.route_layer.add_node(Champlain.Coordinate.new_full(33.4618785878, -86.8042445183))
         self.view.add_layer(self.route_layer)
-        self.route_layer.show()
         
         self.view.set_kinetic_mode(True)
         self.view.set_reactive(True)
-        #self.view.connect('button-release-event', self.on_click)
 
 
     def on_click(self, view, event):
@@ -88,10 +81,28 @@ class GTMap(GtkChamplain.Embed):
         marker.set_color(purple)
         marker.set_location(stop.latitude, stop.longitude)
         marker.set_reactive(True)
-        marker.connect('button-release-event', self.on_marker_click)
+        #marker.connect('button-release-event', self.on_marker_click)
         self.stop_layer.add_marker(marker)
 
         marker.animate_in()
+
+        return marker
+
+    def remove_stop(self, stop):
+        pass
+
+    def draw_route(self, r):
+        if r is None:
+            return
+
+        # clear our route layer of any old stuff
+        self.route_layer.remove_all()
+
+        for stop in r.stops:
+            self.route_layer.add_node(Champlain.Coordinate.new_full(stop.latitude, stop.longitude))
+        self.route_layer.show()
+        
+        return self.route_layer
 
     def on_marker_click(self, actor, event):
         print 'on_marker_click', actor, event

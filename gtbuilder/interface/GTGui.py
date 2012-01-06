@@ -35,6 +35,9 @@ class GTGui(Gtk.Window):
         # load up our database
         self.db = gtbuilder.Database(os.path.join(os.path.expanduser('~'), '.gtbuilder.db'))
 
+        #!mwd - temp
+        #agency = gtbuilder.Agency(name = 'BJCTA')
+
         # setup a controller
         self.controller = Controller(self)
 
@@ -94,13 +97,40 @@ class GTGui(Gtk.Window):
 
     def _build_tool_bar(self):
         toolbar = Gtk.Toolbar()
+        toolbar.set_icon_size(Gtk.IconSize.LARGE_TOOLBAR)
+        #toolbar.set_style(Gtk.ToolbarStyle.BOTH_HORIZ)
+
+        ## STOPS
+        #!mwd - how do I add a frakin' label?
+        #stop_lbl = Gtk.ToolButton()
+        #stop_lbl.set_label('Stops:')
+        #stop_lbl.set_label_widget(Gtk.Label('Stops:'))
+        #toolbar.add(stop_lbl)
 
         add_stop = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)
-        add_stop.connect('clicked', self.controller.on_add_stop)
-        toolbar.insert(add_stop, 0)
+        add_stop.set_tooltip_text('Add a new stop')
+        add_stop.connect('clicked', self.controller.on_add_stop_clicked)
+        toolbar.add(add_stop)
 
-        toolbar.insert(Gtk.SeparatorToolItem(), 1)
+        remove_stop = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
+        remove_stop.set_tooltip_text('Remove a stop')
+        remove_stop.connect('clicked', self.controller.on_remove_stop_clicked)
+        toolbar.add(remove_stop)
 
-        toolbar.set_icon_size(Gtk.IconSize.LARGE_TOOLBAR)
+        toolbar.add(Gtk.SeparatorToolItem())
+
+        ## ROUTES
+        add_route = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)
+        add_route.set_tooltip_text('Add a new route')
+        add_route.connect('clicked', self.controller.on_add_route_clicked)
+        toolbar.add(add_route)
+
+        remove_route = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
+        remove_route.set_tooltip_text('Remove a route')
+        remove_route.connect('clicked', self.controller.on_remove_route_clicked)
+        toolbar.add(remove_route)
+
+        toolbar.add(Gtk.SeparatorToolItem())
+
 
         return toolbar

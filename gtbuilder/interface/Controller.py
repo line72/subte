@@ -23,6 +23,7 @@ from gi.repository import Gtk
 import gtbuilder
 
 from AddStop import AddStopDialog, AddStop
+from AddRoute import AddRouteDialog, AddRoute
 
 class Controller(object):
     '''This is a controller class. It handles all the callbacks
@@ -40,8 +41,7 @@ class Controller(object):
         # fill in the initial data
         # stops first
         for s in gtbuilder.Stop.select():
-            self.gui.map_widget.add_stop(s)
-            self.gui.stop_list_widget.add_stop(s)
+            self.add_stop(s)
 
         # now routes
 
@@ -61,19 +61,15 @@ class Controller(object):
             pass
 
     def on_map_click(self, view, event):
-        x, y = event.get_coords()
-        latitude = view.y_to_latitude(y)
-        longitude = view.x_to_longitude(x)
-        
-        # add a new stop
-        #stop = gtbuilder.Stop(name = 'Stop%d' % random.randint(0, 100),
-        #                      latitude = latitude, longitude = longitude)
-
-        #self.map_widget.add_stop(stop)
-        #self.stop_list_widget.add_stop(stop)
-
         for handler in self._registered_events.get('on-map-clicked', []):
             handler._fn(view, event, *(handler._args))
+
+        return True
+
+    def on_stop_marker_clicked(self, actor, event, stop):
+        if stop:
+            for handler in self._registered_events.get('on-stop-selected', []):
+                handler._fn(stop, *(handler._args))
 
         return True
 
@@ -86,7 +82,7 @@ class Controller(object):
 
         return True
 
-    def on_add_stop(self, toolbutton, user_data = None):
+    def on_add_stop_clicked(self, toolbutton, user_data = None):
         print 'adding a stop'
         stop_dialog = AddStop(self)
 
@@ -107,10 +103,60 @@ class Controller(object):
                                latitude = stop_dialog.get_latitude(),
                                longitude = stop_dialog.get_longitude())
             
-            self.gui.map_widget.add_stop(s)
-            self.gui.stop_list_widget.add_stop(s)
-
+            self.add_stop(s)
 
         win.destroy()
+
+    def on_remove_stop_clicked(self, toolbutton, user_data = None):
+        print 'removing stop'
+        stop = self.gui.stop_list_widget.get_selected()
+        if stop is None:
+            print 'Nothing selected'
+            return
+
+        # remove this from our widgets
+        self.gui.map_widget.remove_stop(stop)
+        self.gui.stop_list_widget.remove_stop(stop)
+
+        # good-bye
+        stop.destroySelf()
+
+    def on_add_route_clicked(self, toolbutton, user_data = None):
+        print 'on add route'
+        route_dialog = AddRoute(self)
+
+        win = AddRouteDialog(self._gui())
+        win.get_content_area().add(route_dialog)
+        win.show_all()
+
+        handler = self.connect('on-stop-selected', route_dialog.on_stop_selected)
+
+        resp = win.run()
+        self.disconnect('on-stop-selected', handler)
+
+        if resp == Gtk.ResponseType.ACCEPT:
+            # create a new route
+            default_agency = gtbuilder.Agency.get(1)
+            r = gtbuilder.Route(agency = default_agency, 
+                                short_name = route_dialog.get_name(),
+                                description = route_dialog.get_description())
+            for s in route_dialog.get_stops():
+                r.addStop(s)
+
+            self.add_route(r)
+            
+        win.destroy()
+
+    def on_remove_route_clicked(self, toolbutton, user_data = None):
+        print 'on remove route'
+
+    def add_stop(self, s):
+        m = self.gui.map_widget.add_stop(s)
+        m.connect('button-release-event', self.on_stop_marker_clicked, s)
+        self.gui.stop_list_widget.add_stop(s)
+
+    def add_route(self, r):
+        path = self.gui.map_widget.draw_route(r)
+        # connect a signal
 
     gui = property(lambda x: x._gui(), None)
