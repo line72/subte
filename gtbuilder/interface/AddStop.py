@@ -22,11 +22,11 @@ from gi.repository import Gtk
 import gtbuilder
 
 class AddStopDialog(Gtk.Dialog):
-    def __init__(self, *args, **kwds):
-        Gtk.Dialog.__init__(self, args, kwds)
-
-        self.add_button('Add', Gtk.ResponseType.ACCEPT)
-        self.add_button('Cancel', Gtk.ResponseType.CANCEL)
+    def __init__(self, parent):
+        Gtk.Dialog.__init__(self, 'Add Stop', parent,
+                            Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                            ('Add', Gtk.ResponseType.ACCEPT,
+                            'Cancel', Gtk.ResponseType.CANCEL))
 
 class AddStop(Gtk.VBox):
     '''A dialog that creates a new stop'''
@@ -56,3 +56,42 @@ class AddStop(Gtk.VBox):
         hbox.pack_start(self.description_txt, True, True, 5)
 
         self.pack_start(hbox, True, True, 5)
+
+        # last long
+        hbox = Gtk.HBox(False)
+        lat_lbl = Gtk.Label('Latitude: ')
+        size_group.add_widget(lat_lbl)
+        hbox.pack_start(lat_lbl, False, False, 0)
+        self.latitude_txt = Gtk.Entry()
+        hbox.pack_start(self.latitude_txt, True, True, 5)
+
+        long_lbl = Gtk.Label('Longitude: ')
+        size_group.add_widget(long_lbl)
+        hbox.pack_start(long_lbl, False, False, 0)
+        self.longitude_txt = Gtk.Entry()
+        hbox.pack_start(self.longitude_txt, True, True, 5)
+
+        self.pack_start(hbox, True, True, 5)
+
+    def get_name(self):
+        return self.name_txt.get_text()
+
+    def get_description(self):
+        b = self.description_txt.get_buffer()
+        return b.get_text(b.get_start_iter(), b.get_end_iter(), False)
+
+    def get_latitude(self):
+        return float(self.latitude_txt.get_text())
+    def get_longitude(self):
+        return float(self.longitude_txt.get_text())
+
+    def on_map_clicked(self, view, event):
+        print 'on_map_clicked', view, event
+
+        x, y = event.get_coords()
+        latitude = view.y_to_latitude(y)
+        longitude = view.x_to_longitude(x)
+
+        print latitude, longitude
+        self.latitude_txt.set_text(str(latitude))
+        self.longitude_txt.set_text(str(longitude))

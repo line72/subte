@@ -79,7 +79,10 @@ class GTMap(GtkChamplain.Embed):
     def add_stop(self, stop):
         purple = Clutter.Color.new(0xf0, 0x02, 0xf0, 0xbb)
 
-        marker = Champlain.Label.new_with_text('(%d) %s' % (stop.id, stop.name),
+        name = stop.name
+        if name is None:
+            name = stop.id
+        marker = Champlain.Label.new_with_text('(%d) %s' % (stop.id, name),
                                                'Serif 10', None, purple)
         marker.set_use_markup(True)
         marker.set_color(purple)

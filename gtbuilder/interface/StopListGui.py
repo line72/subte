@@ -41,4 +41,7 @@ class StopListGui(object):
 
     def add_stop(self, s):
         if s:
-            self.model.append([s.id, '(%s) %s' % (s.id, s.name)])
+            name = s.name
+            if name is None:
+                name = s.id
+            self.model.append([s.id, '(%s) %s' % (s.id, name)])
