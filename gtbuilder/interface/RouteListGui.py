@@ -21,6 +21,8 @@ import gtbuilder
 
 class RouteListGui(object):
     def __init__(self):
+        self.scrolled_window = Gtk.ScrolledWindow(None, None)
+
         self.model = Gtk.ListStore(GObject.TYPE_INT, str)
         self.treeview = Gtk.TreeView(model = self.model)
         self.treeview.set_rules_hint(True)
@@ -34,8 +36,10 @@ class RouteListGui(object):
         column.set_sort_column_id(0)
         self.treeview.append_column(column)
 
+        self.scrolled_window.add(self.treeview)
+
     def get_widget(self):
-        return self.treeview
+        return self.scrolled_window
 
     def get_selected(self):
         '''Returns the selected Route'''
