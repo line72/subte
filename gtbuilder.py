@@ -9,6 +9,7 @@ if __name__ == '__main__':
     GObject.threads_init()
 
     win = interface.GTGui()
+    print 'showing all'
     win.show_all()
 
     Gtk.main()
