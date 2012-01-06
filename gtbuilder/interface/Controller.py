@@ -42,8 +42,9 @@ class Controller(object):
         # stops first
         for s in gtbuilder.Stop.select():
             self.add_stop(s)
-
         # now routes
+        for r in gtbuilder.Route.select():
+            self.add_route(r)
 
     def connect(self, signal, fn, *args):
         if signal not in self._registered_events:
@@ -74,11 +75,16 @@ class Controller(object):
         return True
 
     def on_stop_list_selected(self, treeview, user_data = None):
-        selection = treeview.get_selection()
-        store, it = selection.get_selected()
+        s = self.gui.stop_list_widget.get_selected()
 
-        stop_id = store.get_value(it, 0)
-        stop = gtbuilder.Stop.get(stop_id)
+        # hi-light it?
+
+        return True
+
+    def on_route_list_selected(self, treeview, user_data = None):
+        r = self.gui.route_list_widget.get_selected()
+
+        self.gui.map_widget.draw_route(r)
 
         return True
 
@@ -158,5 +164,7 @@ class Controller(object):
     def add_route(self, r):
         path = self.gui.map_widget.draw_route(r)
         # connect a signal
+        
+        self.gui.route_list_widget.add_route(r)
 
     gui = property(lambda x: x._gui(), None)

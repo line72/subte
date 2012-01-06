@@ -26,6 +26,7 @@ import gtbuilder
 from GTMap import GTMap
 from Controller import Controller
 from StopListGui import StopListGui
+from RouteListGui import RouteListGui
 
 class GTGui(Gtk.Window):
     def __init__(self):
@@ -66,6 +67,8 @@ class GTGui(Gtk.Window):
 
         self.stop_list_widget = StopListGui()
         box.pack_start(self.stop_list_widget.get_widget(), True, True, 5)
+        self.route_list_widget = RouteListGui()
+        box.pack_start(self.route_list_widget.get_widget(), True, True, 5)
 
         self.info_frame.add(box)
 
@@ -85,6 +88,7 @@ class GTGui(Gtk.Window):
         # some signals
         self.map_widget.view.connect('button-release-event', self.controller.on_map_click)
         self.stop_list_widget.treeview.connect('cursor-changed', self.controller.on_stop_list_selected)
+        self.route_list_widget.treeview.connect('cursor-changed', self.controller.on_route_list_selected)
 
 
     def on_quit(self, widget, evt, data = None):
@@ -92,6 +96,12 @@ class GTGui(Gtk.Window):
 
     def on_combo_changed(self, widget, data = None):
         txt = widget.get_active_text()
+        if txt == 'Stops':
+            self.stop_list_widget.get_widget().show_all()
+            self.route_list_widget.get_widget().hide()
+        else:
+            self.stop_list_widget.get_widget().hide()
+            self.route_list_widget.get_widget().show_all()
 
         return True
 
