@@ -107,6 +107,9 @@ class GTMap(GtkChamplain.Embed):
         
         return self.route_layer
 
+    def remote_route(self, route):
+        pass
+
     def on_marker_click(self, actor, event):
         print 'on_marker_click', actor, event
 

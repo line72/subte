@@ -68,10 +68,22 @@ class RouteListGui(object):
             print 'appending'
             self.model.append([s.id, '(%s) %s' % (s.id, name)])
 
-    def remove_route(self, s):
-        if s:
+    def remove_route(self, route):
+        if route:
             # search for this
-            pass
+            it = self.model.get_iter_first()
+            while it:
+                route_id = self.model.get_value(it, 0)
+                r = gtbuilder.Route.get(route_id)
+
+                if r == route:
+                    print 'match'
+                    self.model.remove(it)
+                    return True
+
+                it = self.model.iter_next(it)
+
+        return False
 
     def get_routes(self):
         routes = []

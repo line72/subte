@@ -101,7 +101,6 @@ class Controller(object):
         handler = self.connect('on-map-clicked', stop_dialog.on_map_clicked)
 
         resp = win.run()
-        print 'resp=', resp
         self.disconnect('on-map-clicked', handler)
 
         if resp == Gtk.ResponseType.ACCEPT:
@@ -157,6 +156,17 @@ class Controller(object):
 
     def on_remove_route_clicked(self, toolbutton, user_data = None):
         print 'on remove route'
+        route = self.gui.route_list_wiget.get_selected()
+        if route is None:
+            print 'Nothing selected'
+            return
+
+        # remove this from our widgets
+        self.gui.map_widget.remove_route(route)
+        self.gui.route_list_widget.remove_route(route)
+
+        # good-bye
+        route.destroySelf()
 
     def add_stop(self, s):
         m = self.gui.map_widget.add_stop(s)
