@@ -143,8 +143,7 @@ class Controller(object):
 
         if resp == Gtk.ResponseType.ACCEPT:
             # create a new route
-            default_agency = gtbuilder.Agency.get(1)
-            r = gtbuilder.Route(agency = default_agency, 
+            r = gtbuilder.Route(agency = route_dialog.get_agency(), 
                                 short_name = route_dialog.get_name(),
                                 description = route_dialog.get_description())
             for s in route_dialog.get_stops():

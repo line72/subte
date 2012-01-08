@@ -22,6 +22,7 @@ from gi.repository import Gtk
 import gtbuilder
 
 from StopListGui import StopListGui
+from AgencyDialog import AgencyChoice
 
 class AddRouteDialog(Gtk.Dialog):
     def __init__(self, parent):
@@ -59,6 +60,11 @@ class AddRoute(Gtk.VBox):
 
         self.pack_start(hbox, True, True, 5)
 
+        # agency
+        self.agency_hbox = AgencyChoice()
+        size_group.add_widget(self.agency_hbox.get_label())
+        self.pack_start(self.agency_hbox, True, True, 5)
+
         # stop list
         hbox = Gtk.HBox(False)
         stop_lbl = Gtk.Label('Stops: ')
@@ -75,6 +81,9 @@ class AddRoute(Gtk.VBox):
     def get_description(self):
         b = self.description_txt.get_buffer()
         return b.get_text(b.get_start_iter(), b.get_end_iter(), False)
+
+    def get_agency(self):
+        return self.agency_hbox.get_selection()
 
     def get_stops(self):
         return self.stop_list.get_stops()
