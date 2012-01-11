@@ -43,28 +43,44 @@ class Trip(BaseObject):
         BaseObject.__init__(self)
 
         self.name = name
-        self.route = route
-        self.calendar = calendar
+        self._route = weakref.ref(route)
+        self._calendar = weakref.ref(calendar)
 
-        self.stops = []
+        self.stops = {}
 
         # add us
         Trip.trips.append(weakref.ref(self))
 
-    def add_stop(self, stop, arrival, depature = None):
+    route = property(lambda x: x._route(), None)
+    calendar = property(lambda x: x._calendar(), None)
+
+    def get_stop(self, stop):
+        if stop not in self.stops:
+            self.stops[stop] = TripStop(stop)
+
+        return self.stops[stop]
+
+    def update_stop(self, stop, arrival = None, depature = None):
         if stop is None:
             raise Exception('Invalid Stop')
-        self.stops.append(TripStop(stop, arrival, depature))
+
+        trip_stop = self.get_stop(stop)
+
+        if arrival:
+            trip_stop.arrival = arrival
+        if departure:
+            trip_stop.departure = departure
 
     def write(self, trip_f, stop_times_f):
         self._write(trip_f, '%s,%s,%s,%s,%s,%s,%s\n',
-                    self.route.route_id, self.calendar.service_id,
+                    self.route.route_id, self.calendar.calendar_id,
                     self.name, '', 0, '', '')
 
-        for i, s in enumerate(self.stops):
+        for i, s in enumerate(self.route().stops):
+            trip_stop = self.get_stop(s)
             self._write(stop_times_f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-                        self.name, s.arrival, s.departure,
-                        s.stop.stop_id, i+1, '', 0, 0, '')
+                        self.name, trip_stop.arrival, trip_stop.departure,
+                        trip_stop.stop.stop_id, i+1, '', 0, 0, '')
 
     @classmethod
     def write_trips(cls):
@@ -80,7 +96,9 @@ class Trip(BaseObject):
         f2.close()
 
 class TripStop(BaseObject):
-    def __init__(self, stop, arrival, departure = None):
+    def __init__(self, stop, arrival = None, departure = None):
         self.arrival = arrival
         self.departure = departure or arrival
-        self.stop = stop
+        self._stop = weakref.ref(stop)
+
+    stop = property(lambda x: x._stop(), None)

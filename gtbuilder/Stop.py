@@ -15,24 +15,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-# import sqlobject
-
-# class Stop(sqlobject.SQLObject):
-#     code = sqlobject.StringCol(default = None)
-#     name = sqlobject.StringCol(default = None)
-#     description = sqlobject.StringCol(default = None)
-#     latitude = sqlobject.FloatCol()
-#     longitude = sqlobject.FloatCol()
-#     zone_id = sqlobject.StringCol(default = 'zone1') # !mwd - should be a reference
-#     url = sqlobject.StringCol(default = None)
-#     location_type = sqlobject.EnumCol(enumValues = ('STATION', 'STOP'), default = 'STOP')
-#     parent_station = sqlobject.StringCol(default = None)
-#     routes = sqlobject.RelatedJoin('Route')
-#     trip_stops = sqlobject.RelatedJoin('TripStop')
-
-
-import weakref
-
 from BaseObject import BaseObject
 
 class Stop(BaseObject):

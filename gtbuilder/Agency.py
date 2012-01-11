@@ -15,18 +15,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-# import sqlobject
-
-# class Agency(sqlobject.SQLObject):
-#     name = sqlobject.StringCol()
-#     url = sqlobject.StringCol(default = None)
-#     timezone = sqlobject.StringCol(default = 'America/Chicago')
-#     language = sqlobject.StringCol(default = 'en')
-#     phone = sqlobject.StringCol(default = None)
-#     fare_url = sqlobject.StringCol(default = None)
-#     routes = sqlobject.RelatedJoin('Route')
-
-import weakref
 
 from BaseObject import BaseObject
 

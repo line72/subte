@@ -17,59 +17,6 @@
 
 import time
 import datetime
-
-# import sqlobject
-
-# class Route(sqlobject.SQLObject):
-#     agency = sqlobject.ForeignKey('Agency')
-#     short_name = sqlobject.StringCol(default = None)
-#     long_name = sqlobject.StringCol(default = None)
-#     description = sqlobject.StringCol(default = None)
-#     route_type = sqlobject.EnumCol(enumValues = ('BUS', 'SUBWAY'), default = 'BUS') #!mwd - add the rest
-#     url = sqlobject.StringCol(default = None)
-#     color = sqlobject.StringCol(default = None) # !mwd - what should this be?
-#     text_color = sqlobject.StringCol(default = None) # !mwd - what should this be?
-#     stops = sqlobject.RelatedJoin('Stop')
-#     trips = sqlobject.MultipleJoin('Trip')
-
-
-#     # perform an action when stops are added/deleted
-#     # we must automatically add/remove trip stops
-#     #  from our trips since there must be a 1:1 correlation
-#     def addStop(self, s):
-#         t = self._SO_addStop(s)
-
-#         date = datetime.time(0, 0, 0)
-
-#         for trip in self.trips:
-#             ts = gtbuilder.TripStop(arrival = None)
-#             ts.addStop(s)
-
-#             trip.addTripStop(ts)
-
-#         return t
-
-#     def removeStop(self, s):
-#         r = self._SO_removeStop(s)
-
-#         for trip in self.trips:
-#             ts = gtbuilder.TripStop.get(trip = trip,
-#                                         stop = s)
-#             if ts is not None:
-#                 trip.removeTripStop(ts)
-
-#         return r
-
-#     # when we add a trip, automatically add all the trip stops to it
-#     def addTrip(self, t):
-#         print 'ADDTRIP, building stops'
-#         r = self._SO_addTrip(t)
-
-#         for s in self.stops:
-#             t.addTripStop(gtbuilder.TripStop(arrival = None, stop = s))
-
-#         return r
-
 import weakref
 
 from BaseObject import BaseObject
@@ -103,6 +50,12 @@ class Route(BaseObject):
 
     def add_stop(self, stop):
         self.stops.append(stop)
+
+    def remove_stop(self, stop):
+        try:
+            self.stops.remove(stop)
+        except ValueError, e:
+            pass
 
     def add_trip(self, name, calendar):
         trip = Trip(name, self, calendar)

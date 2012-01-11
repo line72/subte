@@ -15,23 +15,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-# import sqlobject
-
-# class Calendar(sqlobject.SQLObject):
-#     name = sqlobject.StringCol()
-#     monday = sqlobject.BoolCol(default = False)
-#     tuesday = sqlobject.BoolCol(default = False)
-#     wednesday = sqlobject.BoolCol(default = False)
-#     thursday = sqlobject.BoolCol(default = False)
-#     friday = sqlobject.BoolCol(default = False)
-#     saturday = sqlobject.BoolCol(default = False)
-#     sunday = sqlobject.BoolCol(default = False)
-#     start = sqlobject.DateCol()
-#     end = sqlobject.DateCol()
-#     trips = sqlobject.RelatedJoin('Trip')
-
-import weakref
-
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
