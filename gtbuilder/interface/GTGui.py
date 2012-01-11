@@ -34,8 +34,8 @@ class GTGui(Gtk.Window):
         self.connect('delete-event', self.on_quit)
 
         # load up our database
-        self.db = gtbuilder.Database(os.path.join(os.path.expanduser('~'), '.gtbuilder.db'))
-        print dir(gtbuilder.Route)
+        #self.db = gtbuilder.Database(os.path.join(os.path.expanduser('~'), '.gtbuilder.db'))
+        #print dir(gtbuilder.Route)
 
         #!mwd - temp
         #agency = gtbuilder.Agency(name = 'BJCTA')

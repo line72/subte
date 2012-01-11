@@ -64,9 +64,9 @@ class StopListGui(object):
         if s:
             name = s.name
             if name is None:
-                name = s.id
+                name = s.stop_id
             print 'appending'
-            self.model.append([s.id, '(%s) %s' % (s.id, name)])
+            self.model.append([s.stop_id, '(%s) %s' % (s.stop_id, name)])
 
     def remove_stop(self, s):
         if s:

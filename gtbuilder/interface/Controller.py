@@ -40,10 +40,10 @@ class Controller(object):
     def initialize(self):
         # fill in the initial data
         # stops first
-        for s in gtbuilder.Stop.select():
+        for s in gtbuilder.Stop.stops:
             self.add_stop(s)
         # now routes
-        for r in gtbuilder.Route.select():
+        for r in gtbuilder.Route.routes:
             self.add_route(r)
 
     def connect(self, signal, fn, *args):
@@ -148,7 +148,7 @@ class Controller(object):
                                 description = route_dialog.get_description())
             for s in route_dialog.get_stops():
                 print 'calling r.addStop', s
-                r.addStop(s)
+                r.add_stop(s)
 
             self.add_route(r)
             
@@ -174,6 +174,7 @@ class Controller(object):
         self.gui.stop_list_widget.add_stop(s)
 
     def add_route(self, r):
+        print 'addroute', r
         path = self.gui.map_widget.draw_route(r)
         # connect a signal
         

@@ -64,9 +64,9 @@ class RouteListGui(object):
         if s:
             name = s.short_name
             if name is None:
-                name = s.id
+                name = s.route_id
             print 'appending'
-            self.model.append([s.id, '(%s) %s' % (s.id, name)])
+            self.model.append([s.route_id, '(%s) %s' % (s.route_id, name)])
 
     def remove_route(self, route):
         if route:

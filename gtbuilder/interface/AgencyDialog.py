@@ -75,7 +75,7 @@ class AgencyChoice(Gtk.HBox):
         self.pack_start(add_btn, False, False, 5)
 
         # add our agencies
-        for agency in gtbuilder.Agency.select():
+        for agency in gtbuilder.Agency.agencies:
             #!mwd - we shouldn't be referencing by name 
             #  but by id, just incase we have two with the 
             #  same name
@@ -87,7 +87,7 @@ class AgencyChoice(Gtk.HBox):
 
     def get_selection(self):
         selection = self.choice.get_active_text()
-        for agency in gtbuilder.Agency.select():
+        for agency in gtbuilder.Agency.agencies:
             if agency.name == selection:
                 return agency
         return None

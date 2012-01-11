@@ -20,7 +20,7 @@ from Route import Route
 from Stop import Stop
 from Calendar import Calendar
 from Trip import Trip
-from Database import Database
+#from Database import Database
 
 def write():
     Agency.write_agencies()
