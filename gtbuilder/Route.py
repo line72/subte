@@ -15,6 +15,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
+import time
+import datetime
+
 import sqlobject
 
 class Route(sqlobject.SQLObject):
@@ -29,6 +32,43 @@ class Route(sqlobject.SQLObject):
     stops = sqlobject.RelatedJoin('Stop')
     trips = sqlobject.MultipleJoin('Trip')
 
+
+    # perform an action when stops are added/deleted
+    # we must automatically add/remove trip stops
+    #  from our trips since there must be a 1:1 correlation
+    def addStop(self, s):
+        t = self._SO_addStop(s)
+
+        date = datetime.time(0, 0, 0)
+
+        for trip in self.trips:
+            ts = gtbuilder.TripStop(arrival = None)
+            ts.addStop(s)
+
+            trip.addTripStop(ts)
+
+        return t
+
+    def removeStop(self, s):
+        r = self._SO_removeStop(s)
+
+        for trip in self.trips:
+            ts = gtbuilder.TripStop.get(trip = trip,
+                                        stop = s)
+            if ts is not None:
+                trip.removeTripStop(ts)
+
+        return r
+
+    # when we add a trip, automatically add all the trip stops to it
+    def addTrip(self, t):
+        print 'ADDTRIP, building stops'
+        r = self._SO_addTrip(t)
+
+        for s in self.stops:
+            t.addTripStop(gtbuilder.TripStop(arrival = None, stop = s))
+
+        return r
 
 # import weakref
 

@@ -35,6 +35,7 @@ class GTGui(Gtk.Window):
 
         # load up our database
         self.db = gtbuilder.Database(os.path.join(os.path.expanduser('~'), '.gtbuilder.db'))
+        print dir(gtbuilder.Route)
 
         #!mwd - temp
         #agency = gtbuilder.Agency(name = 'BJCTA')

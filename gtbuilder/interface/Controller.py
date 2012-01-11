@@ -147,6 +147,7 @@ class Controller(object):
                                 short_name = route_dialog.get_name(),
                                 description = route_dialog.get_description())
             for s in route_dialog.get_stops():
+                print 'calling r.addStop', s
                 r.addStop(s)
 
             self.add_route(r)

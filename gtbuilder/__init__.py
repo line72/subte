@@ -18,8 +18,8 @@
 from Agency import Agency
 from Route import Route
 from Stop import Stop
-#from Calendar import Calendar
-#from Trip import Trip
+from Calendar import Calendar
+from Trip import Trip
 from Database import Database
 
 def write():

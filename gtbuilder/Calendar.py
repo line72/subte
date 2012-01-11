@@ -18,6 +18,7 @@
 import sqlobject
 
 class Calendar(sqlobject.SQLObject):
+    name = sqlobject.StringCol()
     monday = sqlobject.BoolCol(default = False)
     tuesday = sqlobject.BoolCol(default = False)
     wednesday = sqlobject.BoolCol(default = False)
