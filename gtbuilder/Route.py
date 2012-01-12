@@ -48,6 +48,16 @@ class Route(BaseObject):
         # add us
         Route.routes.append(self)
 
+    def destroy(self):
+        self.stops = []
+        self.trips = []
+        self.agency = None
+
+        try:
+            Route.routes.remove(self)
+        except ValueError:
+            pass
+
     def add_stop(self, stop):
         self.stops.append(stop)
 

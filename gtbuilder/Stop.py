@@ -40,6 +40,26 @@ class Stop(BaseObject):
         # add us
         Stop.stops.append(self)
 
+    def is_orphan(self):
+        '''Nothing is using this stop'''
+        from Route import Route
+        for route in Route.routes:
+            if self in route.stops:
+                return False
+
+        return True
+
+    def destroy(self):
+        # see if we are used by any routes
+        #  and if so, we can't be deleted
+        if not self.is_orphan:
+            raise Exception('Stop is in use')
+
+        try:
+            Stop.stops.remove(self)
+        except ValueError:
+            pass
+
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
                     self.stop_id, self.code,

@@ -74,9 +74,8 @@ class RouteListGui(object):
             it = self.model.get_iter_first()
             while it:
                 route_id = self.model.get_value(it, 0)
-                r = gtbuilder.Route.get(route_id)
 
-                if r == route:
+                if route.route_id == route_id:
                     print 'match'
                     self.model.remove(it)
                     return True

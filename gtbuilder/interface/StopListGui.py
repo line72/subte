@@ -74,9 +74,8 @@ class StopListGui(object):
             it = self.model.get_iter_first()
             while it:
                 stop_id = self.model.get_value(it, 0)
-                stop = gtbuilder.Stop.get(stop_id)
 
-                if s == stop:
+                if s.stop_id == stop_id:
                     print 'match'
                     self.model.remove(it)
                     return True

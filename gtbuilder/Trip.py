@@ -15,20 +15,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-# import sqlobject
-
-# class Trip(sqlobject.SQLObject):
-#     name = sqlobject.StringCol(default = None)
-#     route = sqlobject.ForeignKey('Route')
-#     calendar = sqlobject.ForeignKey('Calendar')
-#     stop_times = sqlobject.RelatedJoin('TripStop')
-
-# class TripStop(sqlobject.SQLObject):
-#     arrival = sqlobject.TimeCol()
-#     departure = sqlobject.TimeCol(default = None)
-#     trip = sqlobject.ForeignKey('Trip')
-#     stop = sqlobject.ForeignKey('Stop')
-
 import weakref
 
 from BaseObject import BaseObject

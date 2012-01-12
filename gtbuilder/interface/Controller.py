@@ -121,12 +121,21 @@ class Controller(object):
             print 'Nothing selected'
             return
 
-        # remove this from our widgets
-        self.gui.map_widget.remove_stop(stop)
-        self.gui.stop_list_widget.remove_stop(stop)
-
         # good-bye
-        stop.destroySelf()
+        try:
+            print 'destroying'
+            if stop.is_orphan():
+
+                # destroy
+                stop.destroy()
+
+                # remove from interface
+                self.gui.map_widget.remove_stop(stop)
+                self.gui.stop_list_widget.remove_stop(stop)
+
+
+        except Exception, e:
+            print 'Stop is in use by route'
 
     def on_add_route_clicked(self, toolbutton, user_data = None):
         print 'on add route'
@@ -156,7 +165,7 @@ class Controller(object):
 
     def on_remove_route_clicked(self, toolbutton, user_data = None):
         print 'on remove route'
-        route = self.gui.route_list_wiget.get_selected()
+        route = self.gui.route_list_widget.get_selected()
         if route is None:
             print 'Nothing selected'
             return
@@ -166,7 +175,7 @@ class Controller(object):
         self.gui.route_list_widget.remove_route(route)
 
         # good-bye
-        route.destroySelf()
+        route.destroy()
 
     def add_stop(self, s):
         m = self.gui.map_widget.add_stop(s)
