@@ -34,11 +34,9 @@ class GTGui(Gtk.Window):
         self.connect('delete-event', self.on_quit)
 
         # load up our database
-        #self.db = gtbuilder.Database(os.path.join(os.path.expanduser('~'), '.gtbuilder.db'))
-        #print dir(gtbuilder.Route)
-
-        #!mwd - temp
-        #agency = gtbuilder.Agency(name = 'BJCTA')
+        self._db_file = os.path.join(os.path.expanduser('~'), '.gtbuilder.db')
+        self.db = gtbuilder.Database()
+        self.db.load(self._db_file)
 
         # setup a controller
         self.controller = Controller(self)
@@ -89,6 +87,7 @@ class GTGui(Gtk.Window):
 
 
     def on_quit(self, widget, evt, data = None):
+        self.db.save(self._db_file)
         Gtk.main_quit()
 
     def _build_tool_bar(self):
