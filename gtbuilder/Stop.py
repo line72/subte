@@ -15,100 +15,108 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-import sqlobject
+from BaseObject import BaseObject
 
-class Stop(sqlobject.SQLObject):
-    code = sqlobject.StringCol(default = None)
-    name = sqlobject.StringCol(default = None)
-    description = sqlobject.StringCol(default = None)
-    latitude = sqlobject.FloatCol()
-    longitude = sqlobject.FloatCol()
-    zone_id = sqlobject.StringCol(default = 'zone1') # !mwd - should be a reference
-    url = sqlobject.StringCol(default = None)
-    location_type = sqlobject.EnumCol(enumValues = ('STATION', 'STOP'), default = 'STOP')
-    parent_station = sqlobject.StringCol(default = None)
-    routes = sqlobject.RelatedJoin('Route')
-    trip_stops = sqlobject.RelatedJoin('TripStop')
+class Stop(BaseObject):
+    stops = []
+    stop_id = 0
 
+    def __init__(self, code = None, name = None,
+                 description = None, latitude = None, longitude = None,
+                 zone_id = None, url = None, location_type = 0, parent_station = None):
+        BaseObject.__init__(self)
 
-# import weakref
+        self.stop_id = Stop.new_id()
+        self.code = code
+        self.name = name
+        self.description = description
+        self.latitude = latitude
+        self.longitude = longitude
+        self.zone_id = zone_id
+        self.url = url
+        self.location_type = location_type
+        self.parent_station = parent_station
 
-# from BaseObject import BaseObject
+        # add us
+        Stop.stops.append(self)
 
-# class Stop(BaseObject):
-#     stops = []
+    def is_orphan(self):
+        '''Nothing is using this stop'''
+        from Route import Route
+        for route in Route.routes:
+            if self in route.stops:
+                return False
 
-#     def __init__(self, stop_id = None, code = None, name = None,
-#                  description = None, latitude = None, longitude = None,
-#                  zone_id = None, url = None, location_type = 0, parent_station = None):
-#         BaseObject.__init__(self)
+        return True
 
-#         self.stop_id = stop_id
-#         self.code = code
-#         self.name = name
-#         self.description = description
-#         self.latitude = latitude
-#         self.longitude = longitude
-#         self.zone_id = zone_id
-#         self.url = url
-#         self.location_type = location_type
-#         self.parent_station = parent_station
+    def destroy(self):
+        # see if we are used by any routes
+        #  and if so, we can't be deleted
+        if not self.is_orphan:
+            raise Exception('Stop is in use')
 
-#         # add us
-#         Stop.stops.append(weakref.ref(self))
+        try:
+            Stop.stops.remove(self)
+        except ValueError:
+            pass
 
-#     def write(self, f):
-#         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-#                     self.stop_id, self.code,
-#                     self.name, self.description,
-#                     self.latitude, self.longitude,
-#                     self.zone_id, self.url,
-#                     self.location_type or 0,
-#                     self.parent_station)
+    def write(self, f):
+        self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
+                    self.stop_id, self.code,
+                    self.name, self.description,
+                    self.latitude, self.longitude,
+                    self.zone_id, self.url,
+                    self.location_type or 0,
+                    self.parent_station)
 
-#     @classmethod
-#     def load_stops(cls, filename):
-#         stops = []
+    @classmethod
+    def load_stops(cls, filename):
+        stops = []
 
-#         f = open(filename)
-#         title = f.readline()
+        f = open(filename)
+        title = f.readline()
 
-#         for l in f.readlines():
-#             info = l.strip().split(',')
+        for l in f.readlines():
+            info = l.strip().split(',')
 
-#             stops.append(Stop(stop_id = info[0],
-#                               name = info[1],
-#                               description = info[2],
-#                               latitude = float(info[3]),
-#                               longitude = float(info[4]),
-#                               zone_id = info[5]))
+            stops.append(Stop(stop_id = info[0],
+                              name = info[1],
+                              description = info[2],
+                              latitude = float(info[3]),
+                              longitude = float(info[4]),
+                              zone_id = info[5]))
 
-#         return stops
+        return stops
 
-#     @classmethod
-#     def get_stop(cls, stop_id):
-#         for s in cls.stops:
-#             if s():
-#                 if s().stop_id == stop_id:
-#                     return s()
-#         return None
+    @classmethod
+    def get(cls, stop_id):
+        for stop in cls.stops:
+            if stop.stop_id == stop_id:
+                return stop
+        return None
+
+    @classmethod
+    def new_id(cls):
+        while True:
+            cls.stop_id += 1
+            if cls.stop_id not in [x.stop_id for x in Stop.stops]:
+                return cls.stop_id
         
-#     @classmethod
-#     def write_stops(cls):
-#         f = open('stops.txt', 'w')
-#         # header
-#         f.write('stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station\n')
-#         for s in cls.stops:
-#             if s():
-#                 s().write(f)
-#         f.close()
+    @classmethod
+    def write_stops(cls):
+        f = open('stops.txt', 'w')
+        # header
+        f.write('stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station\n')
+        for s in cls.stops:
+            s.write(f)
+        f.close()
 
-# if __name__ == '__main__':
-#     s1 = Stop('central', '', 'Central Station', '',
-#               33.511878, -86.808826, 'zone1', '', 0, '')
-#     s2 = Stop('summit', '', 'Summit', 'Summit Shopping Center',
-#               33.44800, -86.73103, 'zone1', '', 0, '')
+if __name__ == '__main__':
+    s1 = Stop('central', '', 'Central Station', '',
+              33.511878, -86.808826, 'zone1', '', 0, '')
+    s2 = Stop('summit', '', 'Summit', 'Summit Shopping Center',
+              33.44800, -86.73103, 'zone1', '', 0, '')
 
-#     s1 = None
+    s1 = None
 
-#     Stop.write_stops()
+    Stop.write_stops()

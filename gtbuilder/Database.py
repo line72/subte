@@ -16,7 +16,9 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
 import os
-import sqlobject
+
+import weakref
+import cPickle as pickle
 
 from Route import Route
 from Stop import Stop
@@ -25,27 +27,68 @@ from Calendar import Calendar
 from Agency import Agency
 
 class Database(object):
-    def __init__(self, fname):
-        db_name = os.path.abspath(fname)
-
-        needs_create = False
+    def load(self, fname):
         try:
-            os.stat(db_name)
-        except OSError, e:
-            needs_create = True
+            f = open(fname)
+            d = pickle.load(f)
+            f.close()
 
-        connection_string = 'sqlite:' + db_name
-        
-        self._connection = sqlobject.connectionForURI(connection_string)
-        sqlobject.sqlhub.processConnection = self._connection
+            for i in d:
+                if isinstance(i, Agency):
+                    Agency.agencies.append(i)
+                elif isinstance(i, Calendar):
+                    Calendar.calendars.append(i)
+                elif isinstance(i, Stop):
+                    Stop.stops.append(i)
+                elif isinstance(i, Route):
+                    Route.routes.append(i)
+                elif isinstance(i, Trip):
+                    Trip.trips.append(weakref.ref(i))
+                else:
+                    print 'unknown type', i
 
-        if needs_create:
-            self._create()
+        except Exception, e:
+            print 'error loading', e
 
-    def _create(self):
-        Route.createTable()
-        Stop.createTable()
-        Trip.createTable()
-        TripStop.createTable()
-        Calendar.createTable()
-        Agency.createTable()
+    def save(self, fname):
+        d = []
+
+        for a in Agency.agencies:
+            d.append(a)
+
+        for c in Calendar.calendars:
+            d.append(c)
+
+        for s in Stop.stops:
+            d.append(s)
+
+        for r in Route.routes:
+            d.append(r)
+    
+        for t in Trip.trips:
+            d.append(t)
+
+        f = open(fname, 'w')
+        pickle.dump(d, f)
+        f.close()
+
+
+"""
+<?xml>
+<gtbuilder version="1.0">
+  <stops>
+    <stop>
+      <id>0</id>
+      <code>code</code>
+      <name>name</name>
+      <description>description</description>
+      <latitude>33.23423</latitude>
+      <longitude>-86.234</longitude>
+      <zone_id>zone_id</zone_id>
+      <url>http://</url>
+      <location_type>0</location_type>
+      <parent_station>0</parent_station>
+    </stop>
+  </stops>
+</gtbuilder>
+"""

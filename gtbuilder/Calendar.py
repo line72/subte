@@ -15,70 +15,62 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-import sqlobject
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
-class Calendar(sqlobject.SQLObject):
-    name = sqlobject.StringCol()
-    monday = sqlobject.BoolCol(default = False)
-    tuesday = sqlobject.BoolCol(default = False)
-    wednesday = sqlobject.BoolCol(default = False)
-    thursday = sqlobject.BoolCol(default = False)
-    friday = sqlobject.BoolCol(default = False)
-    saturday = sqlobject.BoolCol(default = False)
-    sunday = sqlobject.BoolCol(default = False)
-    start = sqlobject.DateCol()
-    end = sqlobject.DateCol()
-    trips = sqlobject.RelatedJoin('Trip')
+from BaseObject import BaseObject
 
-# import weakref
+class Calendar(BaseObject):
+    calendars = []
+    calendar_id = 0
 
-# from datetime import datetime
-# from dateutil.relativedelta import relativedelta
+    def __init__(self, service_name, monday = 0,
+                 tuesday = 0, wednesday = 0, thursday = 0,
+                 friday = 0, saturday = 0, sunday = 0,
+                 start_date = None, end_date = None):
+        BaseObject.__init__(self)
 
-# from BaseObject import BaseObject
+        self.calendar_id = Calendar.new_id()
+        self.name = name
+        self.days = [monday, tuesday, wednesday,
+                     thursday, friday, saturday,
+                     sunday]
+        #self.start_date = start_date or datetime.now()
+        #self.end_date = end_date or datetime.now() + relativedelta(years=+1)
+        self.start_date = start_date
+        self.end_date = end_date
 
-# class Calendar(BaseObject):
-#     calendars = []
+        # add us
+        Calendar.calendars.append(self)
 
-#     def __init__(self, service_id, monday = 0,
-#                  tuesday = 0, wednesday = 0, thursday = 0,
-#                  friday = 0, saturday = 0, sunday = 0,
-#                  start_date = None, end_date = None):
-#         BaseObject.__init__(self)
+    def write(self, f):
+        self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
+                    self.service_id,
+                    self.days[0], self.days[1], self.days[2],
+                    self.days[3], self.days[4], self.days[5], self.days[6],
+                    self.start_date,
+                    self.end_date)
 
-#         self.service_id = service_id
-#         self.days = [monday, tuesday, wednesday,
-#                      thursday, friday, saturday,
-#                      sunday]
-#         #self.start_date = start_date or datetime.now()
-#         #self.end_date = end_date or datetime.now() + relativedelta(years=+1)
-#         self.start_date = start_date
-#         self.end_date = end_date
+    @classmethod
+    def write_calendars(cls):
+        f = open('calendar.txt', 'w')
+        # header
+        f.write('service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date\n')
+        for c in cls.calendars:
+            if c():
+                c().write(f)
+        f.close()
 
-#         # add us
-#         Calendar.calendars.append(weakref.ref(self))
+    @classmethod
+    def get(cls, calendar_id):
+        for c in cls.calendars:
+            if c.calendar_id == calendar_id:
+                return c
+        return None
 
-#     def write(self, f):
-#         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-#                     self.service_id,
-#                     self.days[0], self.days[1], self.days[2],
-#                     self.days[3], self.days[4], self.days[5], self.days[6],
-#                     self.start_date,
-#                     self.end_date)
-
-#     @classmethod
-#     def write_calendars(cls):
-#         f = open('calendar.txt', 'w')
-#         # header
-#         f.write('service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date\n')
-#         for c in cls.calendars:
-#             if c():
-#                 c().write(f)
-#         f.close()
-
-#     @classmethod
-#     def get_calendar(cls, service_id):
-#         for c in cls.calendars:
-#             if c() and c().service_id == service_id:
-#                 return c()
-#         return None
+    @classmethod
+    def new_id(cls):
+        while True:
+            cls.calendar_id += 1
+            if cls.calendar_id not in [x.calendar_id for x in Calendar.calendars]:
+                return cls.calendar_id

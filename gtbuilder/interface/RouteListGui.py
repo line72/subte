@@ -64,9 +64,9 @@ class RouteListGui(object):
         if s:
             name = s.short_name
             if name is None:
-                name = s.id
+                name = s.route_id
             print 'appending'
-            self.model.append([s.id, '(%s) %s' % (s.id, name)])
+            self.model.append([s.route_id, '(%s) %s' % (s.route_id, name)])
 
     def remove_route(self, route):
         if route:
@@ -74,9 +74,8 @@ class RouteListGui(object):
             it = self.model.get_iter_first()
             while it:
                 route_id = self.model.get_value(it, 0)
-                r = gtbuilder.Route.get(route_id)
 
-                if r == route:
+                if route.route_id == route_id:
                     print 'match'
                     self.model.remove(it)
                     return True

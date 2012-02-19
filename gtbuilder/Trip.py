@@ -15,72 +15,76 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-import sqlobject
+import weakref
 
-class Trip(sqlobject.SQLObject):
-    name = sqlobject.StringCol(default = None)
-    route = sqlobject.ForeignKey('Route')
-    calendar = sqlobject.ForeignKey('Calendar')
-    stop_times = sqlobject.RelatedJoin('TripStop')
+from BaseObject import BaseObject
 
-class TripStop(sqlobject.SQLObject):
-    arrival = sqlobject.TimeCol()
-    departure = sqlobject.TimeCol(default = None)
-    trip = sqlobject.ForeignKey('Trip')
-    stop = sqlobject.ForeignKey('Stop')
+class Trip(BaseObject):
+    '''This is an individual run or a route with
+    stops and timetables listed'''
 
-# import weakref
+    trips = []
 
-# from BaseObject import BaseObject
+    def __init__(self, name, route, calendar):
+        BaseObject.__init__(self)
 
-# class Trip(BaseObject):
-#     '''This is an individual run or a route with
-#     stops and timetables listed'''
+        self.name = name
+        self._route = weakref.ref(route)
+        self._calendar = weakref.ref(calendar)
 
-#     trips = []
+        self.stops = {}
 
-#     def __init__(self, name, route, calendar):
-#         BaseObject.__init__(self)
+        # add us
+        Trip.trips.append(weakref.ref(self))
 
-#         self.name = name
-#         self.route = route
-#         self.calendar = calendar
+    route = property(lambda x: x._route(), None)
+    calendar = property(lambda x: x._calendar(), None)
 
-#         self.stops = []
+    def get_stop(self, stop):
+        if stop not in self.stops:
+            self.stops[stop] = TripStop(stop)
 
-#         # add us
-#         Trip.trips.append(weakref.ref(self))
+        return self.stops[stop]
 
-#     def add_stop(self, stop, arrival, depature = None):
-#         if stop is None:
-#             raise Exception('Invalid Stop')
-#         self.stops.append(TripStop(stop, arrival, depature))
+    def update_stop(self, stop, arrival = None, depature = None):
+        if stop is None:
+            raise Exception('Invalid Stop')
 
-#     def write(self, trip_f, stop_times_f):
-#         self._write(trip_f, '%s,%s,%s,%s,%s,%s,%s\n',
-#                     self.route.route_id, self.calendar.service_id,
-#                     self.name, '', 0, '', '')
+        trip_stop = self.get_stop(stop)
 
-#         for i, s in enumerate(self.stops):
-#             self._write(stop_times_f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-#                         self.name, s.arrival, s.departure,
-#                         s.stop.stop_id, i+1, '', 0, 0, '')
+        if arrival:
+            trip_stop.arrival = arrival
+        if departure:
+            trip_stop.departure = departure
 
-#     @classmethod
-#     def write_trips(cls):
-#         f = open('trips.txt', 'w')
-#         f2 = open('stop_times.txt', 'w')
-#         # header
-#         f.write('route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id\n')
-#         f2.write('trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled\n')
-#         for t in cls.trips:
-#             if t():
-#                 t().write(f, f2)
-#         f.close()
-#         f2.close()
+    def write(self, trip_f, stop_times_f):
+        self._write(trip_f, '%s,%s,%s,%s,%s,%s,%s\n',
+                    self.route.route_id, self.calendar.calendar_id,
+                    self.name, '', 0, '', '')
 
-# class TripStop(BaseObject):
-#     def __init__(self, stop, arrival, departure = None):
-#         self.arrival = arrival
-#         self.departure = departure or arrival
-#         self.stop = stop
+        for i, s in enumerate(self.route().stops):
+            trip_stop = self.get_stop(s)
+            self._write(stop_times_f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
+                        self.name, trip_stop.arrival, trip_stop.departure,
+                        trip_stop.stop.stop_id, i+1, '', 0, 0, '')
+
+    @classmethod
+    def write_trips(cls):
+        f = open('trips.txt', 'w')
+        f2 = open('stop_times.txt', 'w')
+        # header
+        f.write('route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id\n')
+        f2.write('trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled\n')
+        for t in cls.trips:
+            if t():
+                t().write(f, f2)
+        f.close()
+        f2.close()
+
+class TripStop(BaseObject):
+    def __init__(self, stop, arrival = None, departure = None):
+        self.arrival = arrival
+        self.departure = departure or arrival
+        self._stop = weakref.ref(stop)
+
+    stop = property(lambda x: x._stop(), None)

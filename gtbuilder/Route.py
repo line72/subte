@@ -17,138 +17,119 @@
 
 import time
 import datetime
+import weakref
 
-import sqlobject
+from BaseObject import BaseObject
+from Trip import Trip
+from Stop import Stop
 
-class Route(sqlobject.SQLObject):
-    agency = sqlobject.ForeignKey('Agency')
-    short_name = sqlobject.StringCol(default = None)
-    long_name = sqlobject.StringCol(default = None)
-    description = sqlobject.StringCol(default = None)
-    route_type = sqlobject.EnumCol(enumValues = ('BUS', 'SUBWAY'), default = 'BUS') #!mwd - add the rest
-    url = sqlobject.StringCol(default = None)
-    color = sqlobject.StringCol(default = None) # !mwd - what should this be?
-    text_color = sqlobject.StringCol(default = None) # !mwd - what should this be?
-    stops = sqlobject.RelatedJoin('Stop')
-    trips = sqlobject.MultipleJoin('Trip')
+class Route(BaseObject):
+    routes = []
+    route_id = 0
 
+    def __init__(self, agency = None, short_name = '',
+                 long_name = '', description = '',
+                 route_type = None, url = '', color = None, text_color = None):
+        BaseObject.__init__(self)
 
-    # perform an action when stops are added/deleted
-    # we must automatically add/remove trip stops
-    #  from our trips since there must be a 1:1 correlation
-    def addStop(self, s):
-        t = self._SO_addStop(s)
+        self.route_id = Route.new_id()
+        self.agency = agency
+        self.short_name = short_name
+        self.long_name = long_name
+        self.description = description
+        self.route_type = route_type
+        self.url = url
+        self.color = color
+        self.text_color = text_color
 
-        date = datetime.time(0, 0, 0)
+        self.stops = []
+        self.trips = []
 
-        for trip in self.trips:
-            ts = gtbuilder.TripStop(arrival = None)
-            ts.addStop(s)
+        # add us
+        Route.routes.append(self)
 
-            trip.addTripStop(ts)
+    def destroy(self):
+        self.stops = []
+        self.trips = []
+        self.agency = None
 
-        return t
+        try:
+            Route.routes.remove(self)
+        except ValueError:
+            pass
 
-    def removeStop(self, s):
-        r = self._SO_removeStop(s)
+    def add_stop(self, stop):
+        self.stops.append(stop)
 
-        for trip in self.trips:
-            ts = gtbuilder.TripStop.get(trip = trip,
-                                        stop = s)
-            if ts is not None:
-                trip.removeTripStop(ts)
+    def remove_stop(self, stop):
+        try:
+            self.stops.remove(stop)
+        except ValueError, e:
+            pass
 
-        return r
-
-    # when we add a trip, automatically add all the trip stops to it
-    def addTrip(self, t):
-        print 'ADDTRIP, building stops'
-        r = self._SO_addTrip(t)
-
-        for s in self.stops:
-            t.addTripStop(gtbuilder.TripStop(arrival = None, stop = s))
-
-        return r
-
-# import weakref
-
-# from BaseObject import BaseObject
-# from Trip import Trip
-# from Stop import Stop
-
-# class Route(BaseObject):
-#     routes = []
-
-#     def __init__(self, route_id, agency, short_name = '',
-#                  long_name = '', description = '',
-#                  route_type = None, url = '', color = None, text_color = None):
-#         BaseObject.__init__(self)
-
-#         self.route_id = route_id
-#         self.agency = agency
-#         self.short_name = short_name
-#         self.long_name = long_name
-#         self.description = description
-#         self.route_type = route_type
-#         self.url = url
-#         self.color = color
-#         self.text_color = text_color
-
-#         self.trips = []
-
-#         # add us
-#         Route.routes.append(weakref.ref(self))
-
-#     def add_trip(self, name, calendar):
-#         trip = Trip(name, self, calendar)
-#         self.trips.append(trip)
+    def add_trip(self, name, calendar):
+        trip = Trip(name, self, calendar)
+        self.trips.append(trip)
     
-#         return trip
+        return trip
 
-#     def build_trips(self, csv, calendar, trip_name = None):
-#         '''build trips from a csv file.'''
-#         f = open(csv)
-#         stops = f.readline().strip().split(',')
+    def build_trips(self, csv, calendar, trip_name = None):
+        '''build trips from a csv file.'''
+        f = open(csv)
+        stops = f.readline().strip().split(',')
 
-#         if trip_name is None:
-#             trip_name = csv[:-4] # remove the .csv
+        if trip_name is None:
+            trip_name = csv[:-4] # remove the .csv
 
-#         for i, l in enumerate(f.readlines()):
-#             trip = self.add_trip('%s%d' % (trip_name, i), calendar)
+        for i, l in enumerate(f.readlines()):
+            trip = self.add_trip('%s%d' % (trip_name, i), calendar)
             
-#             times = l.strip().split(',')
+            times = l.strip().split(',')
 
-#             previous_stop = ''
-#             for s, t in zip(stops, times):
-#                 if t == '--': # skip
-#                     continue
-#                 if s == previous_stop:
-#                     # set the departure time
-#                     trip.stops[-1].departure = t
-#                 else:
-#                     # a blank time is ok, it just means
-#                     #  google will interpolate it
-#                     trip.add_stop(Stop.get_stop(s), t)
+            previous_stop = ''
+            for s, t in zip(stops, times):
+                if t == '--': # skip
+                    continue
+                if s == previous_stop:
+                    # set the departure time
+                    trip.stops[-1].departure = t
+                else:
+                    # a blank time is ok, it just means
+                    #  google will interpolate it
+                    trip.add_stop(Stop.get_stop(s), t)
                 
-#                 previous_stop = s
+                previous_stop = s
 
 
-#     def write(self, f):
-#         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-#                     self.route_id, self.agency.agency_id,
-#                     self.short_name or '', self.long_name or '',
-#                     self.description or '', self.route_type or 3,
-#                     self.url or '', self.color or '',
-#                     self.text_color or '')
+    def write(self, f):
+        self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
+                    self.route_id, self.agency.agency_id,
+                    self.short_name or '', self.long_name or '',
+                    self.description or '', self.route_type or 3,
+                    self.url or '', self.color or '',
+                    self.text_color or '')
 
-#     @classmethod
-#     def write_routes(cls):
-#         f = open('routes.txt', 'w')
-#         # header
-#         f.write('route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_color\n')
-#         for r in cls.routes:
-#             if r():
-#                 r().write(f)
-#         f.close()
+    @classmethod
+    def get(cls, route_id):
+        for route in cls.routes:
+            if route.route_id == route_id:
+                return route
+        return None
+        
+    @classmethod
+    def new_id(cls):
+        while True:
+            cls.route_id += 1
+            if cls.route_id not in [x.route_id for x in Route.routes]:
+                return cls.route_id
+
+    @classmethod
+    def write_routes(cls):
+        f = open('routes.txt', 'w')
+        # header
+        f.write('route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_color\n')
+        for r in cls.routes:
+            r.write(f)
+        f.close()
 
 

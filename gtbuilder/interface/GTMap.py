@@ -107,8 +107,9 @@ class GTMap(GtkChamplain.Embed):
         
         return self.route_layer
 
-    def remote_route(self, route):
-        pass
+    def remove_route(self, route):
+        self.route_layer.remove_all()
+        self.route_layer.show()
 
     def on_marker_click(self, actor, event):
         print 'on_marker_click', actor, event

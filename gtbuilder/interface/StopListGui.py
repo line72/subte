@@ -64,9 +64,9 @@ class StopListGui(object):
         if s:
             name = s.name
             if name is None:
-                name = s.id
+                name = s.stop_id
             print 'appending'
-            self.model.append([s.id, '(%s) %s' % (s.id, name)])
+            self.model.append([s.stop_id, '(%s) %s' % (s.stop_id, name)])
 
     def remove_stop(self, s):
         if s:
@@ -74,9 +74,8 @@ class StopListGui(object):
             it = self.model.get_iter_first()
             while it:
                 stop_id = self.model.get_value(it, 0)
-                stop = gtbuilder.Stop.get(stop_id)
 
-                if s == stop:
+                if s.stop_id == stop_id:
                     print 'match'
                     self.model.remove(it)
                     return True
