@@ -24,6 +24,7 @@ import gtbuilder
 
 from AddStop import AddStopDialog, AddStop
 from AddRoute import AddRouteDialog, AddRoute
+from TripList import TripListDialog, TripList
 
 class Controller(object):
     '''This is a controller class. It handles all the callbacks
@@ -188,5 +189,17 @@ class Controller(object):
         # connect a signal
         
         self.gui.route_list_widget.add_route(r)
+
+    def on_route_cell_pressed(self, widget, event):
+        if event.button == 3:
+            sel = self.gui.route_list_widget.get_selected()
+
+            if sel:
+                trip_dialog = TripListDialog(self.gui, sel)
+                trip_dialog.show_all()
+
+                resp = trip_dialog.run()
+
+                trip_dialog.destroy()
 
     gui = property(lambda x: x._gui(), None)

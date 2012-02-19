@@ -31,7 +31,7 @@ class Calendar(BaseObject):
         BaseObject.__init__(self)
 
         self.calendar_id = Calendar.new_id()
-        self.name = name
+        self.name = service_name
         self.days = [monday, tuesday, wednesday,
                      thursday, friday, saturday,
                      sunday]
@@ -45,7 +45,7 @@ class Calendar(BaseObject):
 
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-                    self.service_id,
+                    self.calendar_id,
                     self.days[0], self.days[1], self.days[2],
                     self.days[3], self.days[4], self.days[5], self.days[6],
                     self.start_date,
