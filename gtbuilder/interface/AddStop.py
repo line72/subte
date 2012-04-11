@@ -88,7 +88,7 @@ class AddStop(Gtk.VBox):
     def on_map_clicked(self, view, event):
         print 'on_map_clicked', view, event
 
-        x, y = event.get_coords()
+        x, y = event.x, event.y
         latitude = view.y_to_latitude(y)
         longitude = view.x_to_longitude(x)
 
