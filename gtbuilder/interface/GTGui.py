@@ -18,6 +18,7 @@
 import string
 import random
 import os
+import sys
 
 from gi.repository import Gtk
 
@@ -39,10 +40,11 @@ class GTGui(Gtk.Window):
         self.db.load(self._db_file)
 
         #TEMP
-        #gtbuilder.Calendar('WD', 1, 1, 1, 1, 1,
-        #                   start_date = '01012012',
-        #                   end_date = '01012014')
-        print gtbuilder.Calendar.get(1)
+        if gtbuilder.Calendar.get(1) is None:
+            print >> sys.stderr, "Warning!!! You don't have a calendar yet!"
+            gtbuilder.Calendar('Weekday', 1, 1, 1, 1, 1,
+                               start_date = '01012012',
+                               end_date = '01012014')
 
         # setup a controller
         self.controller = Controller(self)
