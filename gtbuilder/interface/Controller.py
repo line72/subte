@@ -211,6 +211,21 @@ class Controller(object):
         # good-bye
         route.destroy()
 
+    def on_export(self, toolbutton, user_data = None):
+        # pop up a save dialg
+        dlg = Gtk.FileChooserDialog('Export to...', self._gui(),
+                                    Gtk.FileChooserAction.SELECT_FOLDER,
+                                    (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                     Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
+        resp = dlg.run()
+        if resp == Gtk.ResponseType.ACCEPT:
+            directory = dlg.get_filename()
+            gtbuilder.Database.export(directory)
+
+        dlg.destroy()
+
+        return True
+
     def add_stop(self, s):
         m = self.gui.map_widget.add_stop(s)
         m.connect('button-release-event', self.on_stop_marker_clicked, s)

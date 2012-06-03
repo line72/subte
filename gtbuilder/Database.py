@@ -73,6 +73,13 @@ class Database(object):
         pickle.dump(d, f)
         f.close()
 
+    @classmethod
+    def export(cls, directory):
+        Agency.write_agencies(directory)
+        Calendar.write_calendars(directory)
+        Stop.write_stops(directory)
+        Route.write_routes(directory)
+        Trip.write_trips(directory)
 
 """
 <?xml>
