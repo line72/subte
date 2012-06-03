@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
 import weakref
+import sys
 
 from gi.repository import Gtk
 
@@ -30,10 +31,16 @@ class AddRouteDialog(Gtk.Dialog):
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
                             ('Add', Gtk.ResponseType.ACCEPT,
                             'Cancel', Gtk.ResponseType.CANCEL))
+class EditRouteDialog(Gtk.Dialog):
+    def __init__(self, parent):
+        Gtk.Dialog.__init__(self, 'Edit Route', parent,
+                            Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                            ('Edit', Gtk.ResponseType.ACCEPT,
+                            'Cancel', Gtk.ResponseType.CANCEL))
 
 class AddRoute(Gtk.VBox):
     '''A dialog that creates a new route'''
-    def __init__(self, controller):
+    def __init__(self, controller, route = None):
         Gtk.VBox.__init__(self, False)
         
         self._controller = weakref.ref(controller)
@@ -91,12 +98,19 @@ class AddRoute(Gtk.VBox):
 
         self.pack_start(hbox, True, True, 5)
 
+        self._fill(route)
+
     def get_name(self):
         return self.name_txt.get_text()
 
     def get_description(self):
         b = self.description_txt.get_buffer()
         return b.get_text(b.get_start_iter(), b.get_end_iter(), False)
+
+    def set_description(self, desc):
+        b = Gtk.TextBuffer()
+        b.set_text(desc)
+        self.description_txt.set_buffer(b)
 
     def get_agency(self):
         return self.agency_hbox.get_selection()
@@ -109,6 +123,10 @@ class AddRoute(Gtk.VBox):
         # !mwd - are duplicate stops ok?
         #  We may use the same stops just in
         #  a different direction.
+        # !mwd - I really don't think we
+        #  should allow duplicates, it 
+        #  breaks things. We should have
+        #  two stops, one going each direction
         self.stop_list.add_stop(stop)
 
         return True
@@ -127,3 +145,15 @@ class AddRoute(Gtk.VBox):
         self.stop_list.lower_selection()
 
         return True
+
+    def _fill(self, route):
+        if route is None:
+            return
+
+        self.name_txt.set_text(route.short_name)
+        self.set_description(route.description)
+        self.agency_hbox.set_selection(route.agency.name)
+        # fill the stops
+
+        for s in route.stops:
+            self.stop_list.add_stop(s)

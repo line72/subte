@@ -60,12 +60,10 @@ class RouteListGui(object):
         self.model.clear()
 
     def add_route(self, s):
-        print 'add_route', s
         if s:
             name = s.short_name
             if name is None:
                 name = s.route_id
-            print 'appending'
             self.model.append([s.route_id, '(%s) %s' % (s.route_id, name)])
 
     def remove_route(self, route):
@@ -76,13 +74,33 @@ class RouteListGui(object):
                 route_id = self.model.get_value(it, 0)
 
                 if route.route_id == route_id:
-                    print 'match'
                     self.model.remove(it)
                     return True
 
                 it = self.model.iter_next(it)
 
         return False
+
+    def update_route(self, route):
+        if route:
+            # search for this
+            it = self.model.get_iter_first()
+            while it:
+                route_id = self.model.get_value(it, 0)
+
+                if route.route_id == route_id:
+                    name = route.short_name
+                    if name is None:
+                        name = route.route_id
+
+                    self.model.set_value(it, 1, '(%s) %s' % (route.route_id, name))
+
+                    return True
+
+                it = self.model.iter_next(it)
+
+        return False
+
 
     def get_routes(self):
         routes = []
