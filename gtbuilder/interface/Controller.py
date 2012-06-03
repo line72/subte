@@ -23,7 +23,7 @@ from gi.repository import Gtk
 import gtbuilder
 
 from AddStop import AddStopDialog, AddStop
-from AddRoute import AddRouteDialog, AddRoute
+from AddRoute import AddRouteDialog, EditRouteDialog, AddRoute
 from TripList import TripListDialog, TripList
 
 class Controller(object):
@@ -164,6 +164,39 @@ class Controller(object):
             
         win.destroy()
 
+    def on_edit_route_clicked(self, toolbutton, user_data = None):
+        print 'on edit route'
+
+        route = self.gui.route_list_widget.get_selected()
+        if route is None:
+            print 'Nothing selected'
+            return
+
+        route_dialog = AddRoute(self, route)
+
+        win = EditRouteDialog(self._gui())
+        win.get_content_area().add(route_dialog)
+        win.show_all()
+
+        handler = self.connect('on-stop-selected', route_dialog.on_stop_selected)
+
+        resp = win.run()
+        self.disconnect('on-stop-selected', handler)
+
+        if resp == Gtk.ResponseType.ACCEPT:
+            # update the route
+            route.agency = route_dialog.get_agency()
+            route.short_name = route_dialog.get_name()
+            route.description = route_dialog.get_description()
+            route.stops = []
+            for s in route_dialog.get_stops():
+                route.add_stop(s)
+
+            self.update_route(route)
+
+        win.destroy()
+
+
     def on_remove_route_clicked(self, toolbutton, user_data = None):
         print 'on remove route'
         route = self.gui.route_list_widget.get_selected()
@@ -189,6 +222,11 @@ class Controller(object):
         # connect a signal
         
         self.gui.route_list_widget.add_route(r)
+
+    def update_route(self, r):
+        path = self.gui.map_widget.draw_route(r)
+
+        self.gui.route_list_widget.update_route(r)
 
     def on_route_cell_pressed(self, widget, event):
         if event.button == 3:

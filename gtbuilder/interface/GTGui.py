@@ -129,6 +129,11 @@ class GTGui(Gtk.Window):
         add_route.connect('clicked', self.controller.on_add_route_clicked)
         toolbar.add(add_route)
 
+        edit_route = Gtk.ToolButton.new_from_stock(Gtk.STOCK_EDIT)
+        edit_route.set_tooltip_text('Edit a route')
+        edit_route.connect('clicked', self.controller.on_edit_route_clicked)
+        toolbar.add(edit_route)
+
         remove_route = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
         remove_route.set_tooltip_text('Remove a route')
         remove_route.connect('clicked', self.controller.on_remove_route_clicked)

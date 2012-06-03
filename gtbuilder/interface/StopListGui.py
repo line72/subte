@@ -84,6 +84,47 @@ class StopListGui(object):
 
         return False
 
+    def remove_selection(self):
+        selection = self.treeview.get_selection()
+        if selection is None:
+            return False
+
+        store, it = selection.get_selected()
+        if store is None or it is None:
+            return False
+
+        self.model.remove(it)
+
+    def raise_selection(self):
+        '''move the selected item up'''
+        selection = self.treeview.get_selection()
+        if selection is None:
+            return False
+
+        store, it = selection.get_selected()
+        if store is None or it is None:
+            return False
+
+        it2 = self.model.iter_previous(it)
+        if it2 is not None:
+            self.model.move_before(it, it2)
+
+
+    def lower_selection(self):
+        '''move the selected item down'''
+        selection = self.treeview.get_selection()
+        if selection is None:
+            return False
+
+        store, it = selection.get_selected()
+        if store is None or it is None:
+            return False
+
+        it2 = self.model.iter_next(it)
+        if it2 is not None:
+            self.model.move_after(it, it2)
+
+
     def get_stops(self):
         stops = []
 
