@@ -25,10 +25,12 @@ class Trip(BaseObject):
     stops and timetables listed'''
 
     trips = []
+    trip_id = 0
 
     def __init__(self, name, route, calendar):
         BaseObject.__init__(self)
 
+        self.trip_id = Trip.new_id()
         self.name = name
         self._route = weakref.ref(route)
         self._calendar = weakref.ref(calendar)
@@ -47,7 +49,7 @@ class Trip(BaseObject):
 
         return self.stops[stop]
 
-    def update_stop(self, stop, arrival = None, depature = None):
+    def update_stop(self, stop, arrival = None, departure = None):
         if stop is None:
             raise Exception('Invalid Stop')
 
@@ -61,13 +63,20 @@ class Trip(BaseObject):
     def write(self, trip_f, stop_times_f):
         self._write(trip_f, '%s,%s,%s,%s,%s,%s,%s\n',
                     self.route.route_id, self.calendar.calendar_id,
-                    self.name, '', 0, '', '')
+                    self.trip_id, '', 0, '', '')
 
-        for i, s in enumerate(self.route().stops):
+        for i, s in enumerate(self.route.stops):
             trip_stop = self.get_stop(s)
             self._write(stop_times_f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-                        self.name, trip_stop.arrival, trip_stop.departure,
+                        self.trip_id, trip_stop.arrival, trip_stop.departure,
                         trip_stop.stop.stop_id, i+1, '', 0, 0, '')
+
+    @classmethod
+    def new_id(cls):
+        while True:
+            cls.trip_id += 1
+            if cls.trip_id not in [x().trip_id for x in Trip.trips]:
+                return cls.trip_id
 
     @classmethod
     def write_trips(cls, directory = '.'):
@@ -84,6 +93,7 @@ class Trip(BaseObject):
 
 class TripStop(BaseObject):
     def __init__(self, stop, arrival = None, departure = None):
+        BaseObject.__init__(self)
         self.arrival = arrival
         self.departure = departure or arrival
         self._stop = weakref.ref(stop)

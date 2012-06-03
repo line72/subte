@@ -32,7 +32,7 @@ class Calendar(BaseObject):
         BaseObject.__init__(self)
 
         self.calendar_id = Calendar.new_id()
-        self.name = name
+        self.name = service_name
         self.days = [monday, tuesday, wednesday,
                      thursday, friday, saturday,
                      sunday]

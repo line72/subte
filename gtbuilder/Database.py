@@ -63,10 +63,11 @@ class Database(object):
             d.append(s)
 
         for r in Route.routes:
+            r.trips = [] # !mwd - Weakref HACK!
             d.append(r)
     
-        for t in Trip.trips:
-            d.append(t)
+        #for t in Trip.trips:
+        #    d.append(t)
 
         f = open(fname, 'w')
         pickle.dump(d, f)

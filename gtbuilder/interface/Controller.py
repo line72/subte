@@ -24,6 +24,7 @@ import gtbuilder
 
 from AddStop import AddStopDialog, AddStop
 from AddRoute import AddRouteDialog, EditRouteDialog, AddRoute
+from TripList import TripListDialog, TripList
 
 class Controller(object):
     '''This is a controller class. It handles all the callbacks
@@ -95,7 +96,7 @@ class Controller(object):
         stop_dialog = AddStop(self)
 
         win = AddStopDialog(self._gui())
-        win.get_content_area().add(stop_dialog)
+        win.get_content_area().pack_start(stop_dialog, True, True, 5)
         win.show_all()
 
         handler = self.connect('on-map-clicked', stop_dialog.on_map_clicked)
@@ -142,7 +143,7 @@ class Controller(object):
         route_dialog = AddRoute(self)
 
         win = AddRouteDialog(self._gui())
-        win.get_content_area().add(route_dialog)
+        win.get_content_area().pack_start(route_dialog, True, True, 5)
         win.show_all()
 
         handler = self.connect('on-stop-selected', route_dialog.on_stop_selected)
@@ -174,7 +175,7 @@ class Controller(object):
         route_dialog = AddRoute(self, route)
 
         win = EditRouteDialog(self._gui())
-        win.get_content_area().add(route_dialog)
+        win.get_content_area().pack_start(route_dialog, True, True, 5)
         win.show_all()
 
         handler = self.connect('on-stop-selected', route_dialog.on_stop_selected)
@@ -241,5 +242,17 @@ class Controller(object):
         path = self.gui.map_widget.draw_route(r)
 
         self.gui.route_list_widget.update_route(r)
+
+    def on_route_cell_pressed(self, widget, event):
+        if event.button == 3:
+            sel = self.gui.route_list_widget.get_selected()
+
+            if sel:
+                trip_dialog = TripListDialog(self.gui, sel)
+                trip_dialog.show_all()
+
+                resp = trip_dialog.run()
+
+                trip_dialog.destroy()
 
     gui = property(lambda x: x._gui(), None)

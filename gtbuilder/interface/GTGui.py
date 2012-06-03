@@ -18,6 +18,7 @@
 import string
 import random
 import os
+import sys
 
 from gi.repository import Gtk
 
@@ -38,12 +39,20 @@ class GTGui(Gtk.Window):
         self.db = gtbuilder.Database()
         self.db.load(self._db_file)
 
+        #TEMP
+        if gtbuilder.Calendar.get(1) is None:
+            print >> sys.stderr, "Warning!!! You don't have a calendar yet!"
+            gtbuilder.Calendar('Weekday', 1, 1, 1, 1, 1,
+                               start_date = '01012012',
+                               end_date = '01012014')
+
         # setup a controller
         self.controller = Controller(self)
 
         vbox = Gtk.VBox(False)
 
         # a tool bar
+
         toolbar = self._build_tool_bar()
         vbox.pack_start(toolbar, False, True, 0)
 
@@ -84,7 +93,7 @@ class GTGui(Gtk.Window):
         self.map_widget.view.connect('button-release-event', self.controller.on_map_click)
         self.stop_list_widget.treeview.connect('cursor-changed', self.controller.on_stop_list_selected)
         self.route_list_widget.treeview.connect('cursor-changed', self.controller.on_route_list_selected)
-
+        self.route_list_widget.treeview.connect('button-press-event', self.controller.on_route_cell_pressed)
 
     def on_quit(self, widget, evt, data = None):
         self.db.save(self._db_file)
