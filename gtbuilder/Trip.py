@@ -47,7 +47,7 @@ class Trip(BaseObject):
 
         return self.stops[stop]
 
-    def update_stop(self, stop, arrival = None, depature = None):
+    def update_stop(self, stop, arrival = None, departure = None):
         if stop is None:
             raise Exception('Invalid Stop')
 
@@ -84,6 +84,7 @@ class Trip(BaseObject):
 
 class TripStop(BaseObject):
     def __init__(self, stop, arrival = None, departure = None):
+        BaseObject.__init__(self)
         self.arrival = arrival
         self.departure = departure or arrival
         self._stop = weakref.ref(stop)
