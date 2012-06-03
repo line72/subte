@@ -38,7 +38,7 @@ class Trip(BaseObject):
         self.stops = {}
 
         # add us
-        Trip.trips.append(weakref.ref(self))
+        Trip.trips.append(self)
 
     route = property(lambda x: x._route(), None)
     calendar = property(lambda x: x._calendar(), None)
@@ -86,8 +86,7 @@ class Trip(BaseObject):
         f.write('route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id\n')
         f2.write('trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled\n')
         for t in cls.trips:
-            if t():
-                t().write(f, f2)
+            t.write(f, f2)
         f.close()
         f2.close()
 
