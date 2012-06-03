@@ -46,8 +46,8 @@ class GTMap(GtkChamplain.Embed):
 
     def on_click(self, view, event):
         print 'on-click', view, event
-        x, y = event.get_coords()
-        print view.x_to_longitude(x), view.y_to_latitude(y)
+
+        print view.x_to_longitude(event.x), view.y_to_latitude(event.y)
 
         # add a random place maker
         import random
@@ -58,7 +58,7 @@ class GTMap(GtkChamplain.Embed):
                                                'Serif 14', None, purple)
         marker.set_use_markup(True)
         marker.set_color(purple)
-        marker.set_location(view.y_to_latitude(y), view.x_to_longitude(x))
+        marker.set_location(view.y_to_latitude(event.y), view.x_to_longitude(event.x))
         marker.set_reactive(True)
         marker.connect('button-release-event', self.on_marker_click)
         self.stop_layer.add_marker(marker)
