@@ -27,7 +27,7 @@ class TripListDialog(Gtk.Dialog):
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
                             ('Close', Gtk.ResponseType.CLOSE,))
 
-        self.get_content_area().add(TripList(route))
+        self.get_content_area().pack_start(TripList(route), True, True, 5)
 
 class TripList(Gtk.VBox):
     def __init__(self, route):
@@ -38,7 +38,7 @@ class TripList(Gtk.VBox):
         # calendar editor
         self.calendar_hbox = CalendarChoice()
         self.calendar_hbox.choice.connect('changed', self.on_calendar_changed)
-        self.pack_start(self.calendar_hbox, True, False, 5)
+        self.pack_start(self.calendar_hbox, False, False, 5)
 
         # trip editor
         trip_hbox = Gtk.HBox(False)
@@ -76,9 +76,11 @@ class TripList(Gtk.VBox):
         trip_hbox.pack_start(self.scrolled_window, True, True, 5)
 
         # create an add button
+        vbox = Gtk.VBox(False)
         add_button = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
         add_button.connect('clicked', self.on_add_trip)
-        trip_hbox.pack_start(add_button, False, False, 5)
+        vbox.pack_start(add_button, False, False, 0)
+        trip_hbox.pack_start(vbox, False, False, 5)
 
     def update_model(self):
         # update the model to show the trips based on the 

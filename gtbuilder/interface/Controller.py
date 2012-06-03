@@ -96,7 +96,7 @@ class Controller(object):
         stop_dialog = AddStop(self)
 
         win = AddStopDialog(self._gui())
-        win.get_content_area().add(stop_dialog)
+        win.get_content_area().pack_start(stop_dialog, True, True, 5)
         win.show_all()
 
         handler = self.connect('on-map-clicked', stop_dialog.on_map_clicked)
@@ -143,7 +143,7 @@ class Controller(object):
         route_dialog = AddRoute(self)
 
         win = AddRouteDialog(self._gui())
-        win.get_content_area().add(route_dialog)
+        win.get_content_area().pack_start(route_dialog, True, True, 5)
         win.show_all()
 
         handler = self.connect('on-stop-selected', route_dialog.on_stop_selected)
@@ -175,7 +175,7 @@ class Controller(object):
         route_dialog = AddRoute(self, route)
 
         win = EditRouteDialog(self._gui())
-        win.get_content_area().add(route_dialog)
+        win.get_content_area().pack_start(route_dialog, True, True, 5)
         win.show_all()
 
         handler = self.connect('on-stop-selected', route_dialog.on_stop_selected)
