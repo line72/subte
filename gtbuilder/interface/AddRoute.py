@@ -72,6 +72,22 @@ class AddRoute(Gtk.VBox):
         hbox.pack_start(stop_lbl, False, False, 0)
         self.stop_list = StopListGui()
         hbox.pack_start(self.stop_list.get_widget(), True, True, 5)
+        # actions
+        vbox = Gtk.VBox(True)
+        add_btn = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
+        rm_btn = Gtk.Button.new_from_stock(Gtk.STOCK_REMOVE)
+        up_btn = Gtk.Button.new_from_stock(Gtk.STOCK_GO_UP)
+        down_btn = Gtk.Button.new_from_stock(Gtk.STOCK_GO_DOWN)
+
+        rm_btn.connect('clicked', self.on_remove_stop)
+        up_btn.connect('clicked', self.on_raise_stop)
+        down_btn.connect('clicked', self.on_lower_stop)
+
+        vbox.pack_start(add_btn, False, False, 5)
+        vbox.pack_start(rm_btn, False, False, 5)
+        vbox.pack_start(up_btn, False, False, 5)
+        vbox.pack_start(down_btn, False, False, 5)
+        hbox.pack_start(vbox, False, False, 0)
 
         self.pack_start(hbox, True, True, 5)
 
@@ -95,4 +111,15 @@ class AddRoute(Gtk.VBox):
         #  a different direction.
         self.stop_list.add_stop(stop)
 
+        return True
+
+    def on_remove_stop(self, btn, user_data = None):
+        self.stop_list.remove_selection()
+
+        return True
+
+    def on_raise_stop(self, btn, user_data = None):
+        return True
+
+    def on_lower_stop(self, btn, user_data = None):
         return True

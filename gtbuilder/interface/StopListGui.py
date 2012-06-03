@@ -84,6 +84,17 @@ class StopListGui(object):
 
         return False
 
+    def remove_selection(self):
+        selection = self.treeview.get_selection()
+        if selection is None:
+            return False
+
+        store, it = selection.get_selected()
+        if store is None or it is None:
+            return False
+
+        self.model.remove(it)
+
     def get_stops(self):
         stops = []
 
