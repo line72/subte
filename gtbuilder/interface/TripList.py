@@ -19,6 +19,8 @@ from gi.repository import Gtk, GObject
 
 import gtbuilder
 
+from CalendarDialog import CalendarChoice
+
 class TripListDialog(Gtk.Dialog):
     def __init__(self, parent, route):
         Gtk.Dialog.__init__(self, 'Edit Trips', parent,
@@ -27,11 +29,20 @@ class TripListDialog(Gtk.Dialog):
 
         self.get_content_area().add(TripList(route))
 
-class TripList(Gtk.HBox):
+class TripList(Gtk.VBox):
     def __init__(self, route):
-        Gtk.HBox.__init__(self, False)
+        Gtk.VBox.__init__(self, False)
 
         self._route = route
+
+        # calendar editor
+        self.calendar_hbox = CalendarChoice()
+        self.calendar_hbox.choice.connect('changed', self.on_calendar_changed)
+        self.pack_start(self.calendar_hbox, True, False, 5)
+
+        # trip editor
+        trip_hbox = Gtk.HBox(False)
+        self.pack_start(trip_hbox, True, True, 5)
 
         self.scrolled_window = Gtk.ScrolledWindow(None, None)
 
@@ -58,24 +69,37 @@ class TripList(Gtk.HBox):
             self.treeview.append_column(column)
 
         # add the trips
-        for i, t in enumerate(route.trips):
+        self.update_model()
+
+        self.scrolled_window.add(self.treeview)
+
+        trip_hbox.pack_start(self.scrolled_window, True, True, 5)
+
+        # create an add button
+        add_button = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
+        add_button.connect('clicked', self.on_add_trip)
+        trip_hbox.pack_start(add_button, False, False, 5)
+
+    def update_model(self):
+        # update the model to show the trips based on the 
+        #  current calendar
+        self.clear_model()
+
+        calendar = self.get_calendar()
+
+        # add the trips that use this calendar
+        for i, t in enumerate(self._route.get_trips_with_calendar(calendar)):
             trip = [i]
             for s in self._route.stops:
                 ts = t.get_stop(s)
                 trip.append(ts.arrival)
             self.model.append(trip)
 
-        self.scrolled_window.add(self.treeview)
-
-        self.pack_start(self.scrolled_window, True, True, 5)
-
-        # create an add button
-        add_button = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
-        add_button.connect('clicked', self.on_add_trip)
-        self.pack_start(add_button, False, False, 5)
-
     def clear_model(self):
         self.model.clear()
+
+    def get_calendar(self):
+        return self.calendar_hbox.get_selection()
 
     def add_trip(self, t):
         trip = [len(self._route.trips)]
@@ -85,8 +109,14 @@ class TripList(Gtk.HBox):
 
         self.model.append(trip)
 
+    def on_calendar_changed(self, widget, user_data = None):
+        self.update_model()
+
     def on_add_trip(self, btn, user_data = None):
-        t = self._route.add_trip('trip0', gtbuilder.Calendar.get(1))
+        if self.get_calendar() is None:
+            return
+
+        t = self._route.add_trip('trip0', self.get_calendar())
         self.add_trip(t)
 
         return True
@@ -99,8 +129,9 @@ class TripList(Gtk.HBox):
         self.model.set_value(it, column, text)
 
         # update our model
+        trips = self._route.get_trips_with_calendar(self.get_calendar())
         try:
-            trip = self._route.trips[int(path)]
+            trip = trips[int(path)]
             stop = self._route.stops[column-1]
             trip_stop = trip.get_stop(stop)
             trip_stop.arrival = text

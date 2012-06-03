@@ -73,6 +73,15 @@ class Route(BaseObject):
     
         return trip
 
+    def get_trips_with_calendar(self, calendar):
+        trips = []
+
+        for t in self.trips:
+            if t.calendar == calendar:
+                trips.append(t)
+
+        return trips
+
     def build_trips(self, csv, calendar, trip_name = None):
         '''build trips from a csv file.'''
         f = open(csv)
