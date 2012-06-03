@@ -119,7 +119,11 @@ class AddRoute(Gtk.VBox):
         return True
 
     def on_raise_stop(self, btn, user_data = None):
+        self.stop_list.raise_selection()
+
         return True
 
     def on_lower_stop(self, btn, user_data = None):
+        self.stop_list.lower_selection()
+
         return True
