@@ -15,6 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
+import os
+
 from BaseObject import BaseObject
 
 class Stop(BaseObject):
@@ -103,8 +105,8 @@ class Stop(BaseObject):
                 return cls.stop_id
         
     @classmethod
-    def write_stops(cls):
-        f = open('stops.txt', 'w')
+    def write_stops(cls, directory = '.'):
+        f = open(os.path.join(directory, 'stops.txt'), 'w')
         # header
         f.write('stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station\n')
         for s in cls.stops:

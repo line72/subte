@@ -15,6 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
+import os
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -45,20 +46,19 @@ class Calendar(BaseObject):
 
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-                    self.service_id,
+                    self.calendar_id,
                     self.days[0], self.days[1], self.days[2],
                     self.days[3], self.days[4], self.days[5], self.days[6],
                     self.start_date,
                     self.end_date)
 
     @classmethod
-    def write_calendars(cls):
-        f = open('calendar.txt', 'w')
+    def write_calendars(cls, directory = '.'):
+        f = open(os.path.join(directory, 'calendar.txt'), 'w')
         # header
         f.write('service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date\n')
         for c in cls.calendars:
-            if c():
-                c().write(f)
+            c.write(f)
         f.close()
 
     @classmethod
