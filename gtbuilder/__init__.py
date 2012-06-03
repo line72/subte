@@ -22,9 +22,3 @@ from Calendar import Calendar
 from Trip import Trip
 from Database import Database
 
-def write():
-    Agency.write_agencies()
-    Stop.write_stops()
-    Route.write_routes()
-    Calendar.write_calendars()
-    Trip.write_trips()

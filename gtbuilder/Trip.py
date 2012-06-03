@@ -15,6 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
+import os
 import weakref
 
 from BaseObject import BaseObject
@@ -69,9 +70,9 @@ class Trip(BaseObject):
                         trip_stop.stop.stop_id, i+1, '', 0, 0, '')
 
     @classmethod
-    def write_trips(cls):
-        f = open('trips.txt', 'w')
-        f2 = open('stop_times.txt', 'w')
+    def write_trips(cls, directory = '.'):
+        f = open(os.path.join(directory, 'trips.txt'), 'w')
+        f2 = open(os.path.join(directory, 'stop_times.txt'), 'w')
         # header
         f.write('route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id\n')
         f2.write('trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled\n')

@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-
+import os
 from BaseObject import BaseObject
 
 class Agency(BaseObject):
@@ -60,13 +60,12 @@ class Agency(BaseObject):
 
 
     @classmethod
-    def write_agencies(cls):
-        f = open('agency.txt', 'w')
+    def write_agencies(cls, directory = '.'):
+        f = open(os.path.join(directory, 'agency.txt'), 'w')
         # header
         f.write('agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone,agency_fare_url\n')
         for a in cls.agencies:
-            if a():
-                a().write(f)
+            a.write(f)
         f.close()
 
 if __name__ == '__main__':

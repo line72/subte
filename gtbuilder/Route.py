@@ -15,6 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
+import os
 import time
 import datetime
 import weakref
@@ -124,8 +125,8 @@ class Route(BaseObject):
                 return cls.route_id
 
     @classmethod
-    def write_routes(cls):
-        f = open('routes.txt', 'w')
+    def write_routes(cls, directory = '.'):
+        f = open(os.path.join(directory, 'routes.txt'), 'w')
         # header
         f.write('route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_color\n')
         for r in cls.routes:

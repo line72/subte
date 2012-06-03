@@ -132,4 +132,12 @@ class GTGui(Gtk.Window):
 
         toolbar.add(Gtk.SeparatorToolItem())
 
+        ## EXPORT
+        export = Gtk.ToolButton('Export')
+        export.set_tooltip_text('Export to Google')
+        export.connect('clicked', self.controller.on_export)
+        toolbar.add(export)
+
+        toolbar.add(Gtk.SeparatorToolItem())
+
         return toolbar
