@@ -47,10 +47,23 @@ class TripList(Gtk.HBox):
         self.clear_model()
 
         # add the columns
-        for i in route.stops:
+        for c, i in enumerate(route.stops):
             renderer = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(i.name, renderer, text = 1)
+            renderer.props.editable = True
+            renderer.connect('edited', self.on_cell_edited, c+1)
+            #!mwd - text is the column in the list store where
+            #  we get our text from. Since our first column (id)
+            #  is hidden, it is c+1
+            column = Gtk.TreeViewColumn(i.name, renderer, text = c+1)
             self.treeview.append_column(column)
+
+        # add the trips
+        for i, t in enumerate(route.trips):
+            trip = [i]
+            for s in self._route.stops:
+                ts = t.get_stop(s)
+                trip.append(ts.arrival)
+            self.model.append(trip)
 
         self.scrolled_window.add(self.treeview)
 
@@ -65,7 +78,7 @@ class TripList(Gtk.HBox):
         self.model.clear()
 
     def add_trip(self, t):
-        trip = [0]
+        trip = [len(self._route.trips)]
         for s in self._route.stops:
             ts = t.get_stop(s)
             trip.append(ts.arrival)
@@ -75,5 +88,24 @@ class TripList(Gtk.HBox):
     def on_add_trip(self, btn, user_data = None):
         t = self._route.add_trip('trip0', gtbuilder.Calendar.get(1))
         self.add_trip(t)
+
+        return True
+
+    def on_cell_edited(self, renderer, path, text, column):
+        # !mwd - validate
+
+        # update the gtk model
+        it = self.model.get_iter_from_string(path)
+        self.model.set_value(it, column, text)
+
+        # update our model
+        try:
+            trip = self._route.trips[int(path)]
+            stop = self._route.stops[column-1]
+            trip_stop = trip.get_stop(stop)
+            trip_stop.arrival = text
+        except (AttributeError, IndexError), e:
+            print 'Warning->', e
+            return False
 
         return True
