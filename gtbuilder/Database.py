@@ -20,6 +20,9 @@ import os
 import weakref
 import cPickle as pickle
 
+import xml.etree.ElementTree as ElementTree
+import xml.parsers.expat
+
 from Route import Route
 from Stop import Stop
 from Trip import Trip, TripStop
@@ -29,49 +32,241 @@ from Agency import Agency
 class Database(object):
     def load(self, fname):
         try:
-            f = open(fname)
-            d = pickle.load(f)
-            f.close()
+            d = os.path.dirname(fname)
+            tree = ElementTree.parse(os.path.join(d, '.gtbuilder.xml'))
 
-            for i in d:
-                if isinstance(i, Agency):
-                    Agency.agencies.append(i)
-                elif isinstance(i, Calendar):
-                    Calendar.calendars.append(i)
-                elif isinstance(i, Stop):
-                    Stop.stops.append(i)
-                elif isinstance(i, Route):
-                    Route.routes.append(i)
-                elif isinstance(i, Trip):
-                    Trip.trips.append(weakref.ref(i))
-                else:
-                    print 'unknown type', i
+            for agency_node in tree.getroot().findall('Agency'):
+                agency_id = agency_node.get('id', Agency.new_id())
+                name = agency_node.findtext('name')
+                url = agency_node.findtext('url')
+                timezone = agency_node.findtext('timezone')
+                language = agency_node.findtext('language')
+                phone = agency_node.findtext('phone')
+                fare_url = agency_node.findtext('fare_url')
 
-        except Exception, e:
-            print 'error loading', e
+                a = Agency(name = name, url = url, timezone = timezone, language = language,
+                           phone = phone, fare_url = fare_url)
+                a.agency_id = int(agency_id)
+            
+            for calendar_node in tree.getroot().findall('Calendar'):
+                calendar_id = calendar_node.get('id', Calendar.new_id())
+                name = calendar_node.findtext('name')
+                days = calendar_node.findtext('days')
+                start_date = calendar_node.findtext('start_date')
+                end_date = calendar_node.findtext('end_date')
+
+                days = [int(x) for x in days.split()]
+                c = Calendar(service_name = name, monday = days[0],
+                             tuesday = days[1], wednesday = days[2],
+                             thursday = days[3], friday = days[4],
+                             saturday = days[5], sunday = days[6],
+                             start_date = start_date, end_date = end_date)
+                c.calendar_id = int(calendar_id)
+
+            for stop_node in tree.getroot().findall('Stop'):
+                stop_id = stop_node.get('id', Stop.new_id())
+                code = stop_node.findtext('code')
+                name = stop_node.findtext('name')
+                description = stop_node.findtext('description')
+                latitude = stop_node.findtext('latitude')
+                longitude = stop_node.findtext('longitude')
+                zone_id = stop_node.findtext('zone_id')
+                url = stop_node.findtext('url')
+                location_type = stop_node.findtext('location_type')
+                parent_station = stop_node.findtext('parent_station')
+
+                try: location_type = int(location_type)
+                except: pass
+
+                s = Stop(code = code, name = name, description = description,
+                         latitude = float(latitude), longitude = float(longitude),
+                         zone_id = zone_id, url = url, location_type = location_type,
+                         parent_station = parent_station)
+                s.stop_id = int(stop_id)
+
+            for route_node in tree.getroot().findall('Route'):
+                route_id = route_node.get('id', Route.new_id())
+                agency_id = route_node.findtext('agency_id')
+                short_name = route_node.findtext('short_name')
+                long_name = route_node.findtext('long_name')
+                description = route_node.findtext('description')
+                route_type = route_node.findtext('route_node')
+                url = route_node.findtext('url')
+                color = route_node.findtext('color')
+                text_color = route_node.findtext('text_color')
+
+                agency_id = int(agency_id)
+                r = Route(agency = Agency.get(agency_id),
+                          short_name = short_name, long_name = long_name,
+                          description = description, route_type = route_type,
+                          url = url, color = color, text_color = text_color)
+                r.route_id = int(route_id)
+
+                # stops
+                stops_node = route_node.find('Stops')
+                for stop_node in stops_node.findall('Stop'):
+                    stop_id = stop_node.get('id', None)
+                    if stop_id is None:
+                        print >> sys.stderr, 'Invalid Route stop', stop_id
+                    else:
+                        r.add_stop(Stop.get(int(stop_id)))
+
+            for trip_node in tree.getroot().findall('Trip'):
+                trip_id = trip_node.get('id', Trip.new_id())
+                name = trip_node.findtext('name')
+                calendar_id = trip_node.findtext('calendar_id')
+                route_id = trip_node.findtext('route_id')
+
+                route = Route.get(int(route_id))
+
+                t = Trip(name = name, route = route,
+                         calendar = Calendar.get(int(calendar_id)))
+                t.trip_id = int(trip_id)
+
+                # add to our route
+                route.trips.append(t)
+
+                # trip stops
+                trip_stops_node = trip_node.find('TripStops')
+                for trip_stop_node in trip_stops_node.findall('TripStop'):
+                    stop_id = trip_stop_node.findtext('stop_id')
+                    arrival = trip_stop_node.findtext('arrival')
+                    departure = trip_stop_node.findtext('departure')
+
+                    stop = Stop.get(int(stop_id))
+                    ts = TripStop(stop = stop, arrival = arrival, departure = departure)
+
+                    # add to our trip
+                    t.stops[stop] = ts
+
+
+        except (IOError, xml.parsers.expat.ExpatError), e:
+            print 'Error loading saved state', e
+            return
+            
 
     def save(self, fname):
-        d = []
+        # save the xml
+        root = ElementTree.Element('gtbuilder')
 
+        # the agencies
         for a in Agency.agencies:
-            d.append(a)
-
+            node = ElementTree.SubElement(root, 'Agency')
+            node.attrib['id'] = '%s' % a.agency_id
+            e = ElementTree.SubElement(node, 'name')
+            e.text = a.name
+            e = ElementTree.SubElement(node, 'url')
+            e.text = a.url
+            e = ElementTree.SubElement(node, 'timezone')
+            e.text = a.timezone
+            e = ElementTree.SubElement(node, 'language')
+            e.text = a.language
+            e = ElementTree.SubElement(node, 'phone')
+            e.text = a.phone
+            e = ElementTree.SubElement(node, 'fare_url')
+            e.text = a.fare_url
+        # the calendars
         for c in Calendar.calendars:
-            d.append(c)
-
+            node = ElementTree.SubElement(root, 'Calendar')
+            node.attrib['id'] = '%s' % c.calendar_id
+            e = ElementTree.SubElement(node, 'name')
+            e.text = c.name
+            e = ElementTree.SubElement(node, 'days')
+            e.text = ' '.join([str(x) for x in c.days])
+            e = ElementTree.SubElement(node, 'start_date')
+            e.text = '%s' % (c.start_date or '')
+            e = ElementTree.SubElement(node, 'end_date')
+            e.text = '%s' % (c.end_date or '')
+        # the stops
         for s in Stop.stops:
-            d.append(s)
+            node = ElementTree.SubElement(root, 'Stop')
+            node.attrib['id'] = '%s' % s.stop_id
+            e = ElementTree.SubElement(node, 'code')
+            e.text = s.code or ''
+            e = ElementTree.SubElement(node, 'name')
+            e.text = s.name or ''
+            e = ElementTree.SubElement(node, 'description')
+            e.text = s.description or ''
+            e = ElementTree.SubElement(node, 'latitude')
+            e.text = '%s' % (s.latitude or '')
+            e = ElementTree.SubElement(node, 'longitude')
+            e.text = '%s' % (s.longitude or '')
+            e = ElementTree.SubElement(node, 'zone_id')
+            e.text = '%s' % (s.zone_id or '')
+            e = ElementTree.SubElement(node, 'url')
+            e.text = '%s' % (s.url or '')
+            e = ElementTree.SubElement(node, 'location_type')
+            e.text = '%s' % (s.location_type or '')
+            e = ElementTree.SubElement(node, 'parent_station')
+            e.text = '%s' % (s.parent_station or '')
 
+        # the routes
         for r in Route.routes:
-            r.trips = [] # !mwd - Weakref HACK!
-            d.append(r)
-    
-        #for t in Trip.trips:
-        #    d.append(t)
+            node = ElementTree.SubElement(root, 'Route')
+            node.attrib['id'] = '%s' % r.route_id
+            e = ElementTree.SubElement(node, 'agency_id')
+            e.text = '%s' % r.agency.agency_id
+            e = ElementTree.SubElement(node, 'short_name')
+            e.text = r.short_name or ''
+            e = ElementTree.SubElement(node, 'long_name')
+            e.text = r.long_name or ''
+            e = ElementTree.SubElement(node, 'description')
+            e.text = r.description or ''
+            e = ElementTree.SubElement(node, 'route_type')
+            e.text = '%s' % (r.route_type or '')
+            e = ElementTree.SubElement(node, 'url')
+            e.text = '%s' % (r.url or '')
+            e = ElementTree.SubElement(node, 'color')
+            e.text = '%s' % (r.color or '')
+            e = ElementTree.SubElement(node, 'text_color')
+            e.text = '%s' % (r.text_color or '')
+            # this routes stops
+            stop_node = ElementTree.SubElement(node, 'Stops')
+            for s in r.stops:
+                n = ElementTree.SubElement(stop_node, 'Stop')
+                n.attrib['id'] = '%s' % s.stop_id
+            
+        # the trips
+        for t in Trip.trips:
+            node = ElementTree.SubElement(root, 'Trip')
+            node.attrib['id'] = '%s' % t.trip_id
+            e = ElementTree.SubElement(node, 'name')
+            e.text = '%s' % t.name
+            e = ElementTree.SubElement(node, 'calendar_id')
+            e.text = '%s' % t.calendar.calendar_id
+            e = ElementTree.SubElement(node, 'route_id')
+            e.text = '%s' % t.route.route_id
+            # this trips stops
+            stop_node = ElementTree.SubElement(node, 'TripStops')
+            for k, v in t.stops.iteritems():
+                n = ElementTree.SubElement(stop_node, 'TripStop')
+                e = ElementTree.SubElement(n, 'stop_id')
+                e.text = '%s' % v.stop.stop_id
+                e = ElementTree.SubElement(n, 'arrival')
+                e.text = '%s' % (v.arrival or '')
+                e = ElementTree.SubElement(n, 'departure')
+                e.text = '%s' % (v.departure or '')
 
-        f = open(fname, 'w')
-        pickle.dump(d, f)
-        f.close()
+
+        # make a tree and save it
+        self.__indent(root)
+        tree = ElementTree.ElementTree(root)
+        d = os.path.dirname(fname)
+        tree.write(os.path.join(d, '.gtbuilder.xml'), encoding = 'UTF-8')
+
+    def __indent(self, elem, level = 0):
+        i = "\n" + level * "  "
+        if len(elem):
+            if not elem.text or not elem.text.strip():
+                elem.text = i + "  "
+            for elem in elem:
+                self.__indent(elem, level + 1)
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+        else:
+            if level and (not elem.tail or not elem.tail.strip()):
+                elem.tail = i
+
 
     @classmethod
     def export(cls, directory):
