@@ -75,7 +75,7 @@ class Trip(BaseObject):
     def new_id(cls):
         while True:
             cls.trip_id += 1
-            if cls.trip_id not in [x().trip_id for x in Trip.trips]:
+            if cls.trip_id not in [x.trip_id for x in Trip.trips]:
                 return cls.trip_id
 
     @classmethod
