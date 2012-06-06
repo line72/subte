@@ -67,6 +67,22 @@ class Trip(BaseObject):
 
         for i, s in enumerate(self.route.stops):
             trip_stop = self.get_stop(s)
+
+
+            #!mwd - This isn't correct
+            #  If we have a '-' that means this stop isn't included
+            #   in this trip, so we *should* make a different trip
+            #   for it
+            # If a stop has a time, add the seconds onto it
+            if trip_stop.arrival == '-' or len(trip_stop.arrival) == 0:
+                trip_stop.arrival = ''
+            else:
+                trip_stop.arrival = '%s:00' % trip_stop.arrival
+            if trip_stop.departure == '-' or len(trip_stop.departure) == 0:
+                trip_stop.departure = ''
+            else:
+                trip_stop.departure = '%s:00' % trip_stop.departure
+
             self._write(stop_times_f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
                         self.trip_id, trip_stop.arrival, trip_stop.departure,
                         trip_stop.stop.stop_id, i+1, '', 0, 0, '')

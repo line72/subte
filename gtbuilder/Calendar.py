@@ -28,7 +28,7 @@ class Calendar(BaseObject):
     def __init__(self, service_name, monday = 0,
                  tuesday = 0, wednesday = 0, thursday = 0,
                  friday = 0, saturday = 0, sunday = 0,
-                 start_date = None, end_date = None):
+                 start_date = '20120101', end_date = '20140101'):
         BaseObject.__init__(self)
 
         self.calendar_id = Calendar.new_id()
