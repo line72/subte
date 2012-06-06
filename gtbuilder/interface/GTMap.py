@@ -17,6 +17,8 @@
 
 from gi.repository import Gtk, Champlain, GtkChamplain, Clutter
 
+from PictureMarker import PictureMarker
+
 class GTMap(GtkChamplain.Embed):
     def __init__(self):
         GtkChamplain.Embed.__init__(self)
@@ -31,6 +33,17 @@ class GTMap(GtkChamplain.Embed):
         self.view.add_layer(self.stop_layer)
         self.stop_layer.show()
         self.stop_layer.show_all_markers()
+
+        # our picture of stops layer
+        self.picture_layer = Champlain.MarkerLayer()
+        self.view.add_layer(self.picture_layer)
+        self.picture_layer.show()
+        self.picture_layer.show_all_markers()
+        # temp add one
+        marker = PictureMarker()
+        marker.set_location(33.511, -86.808)
+        self.picture_layer.add_marker(marker)
+        marker.animate_in()
 
         # !mwd - temp zoom to birmingham
         self.view.go_to(33.511878, -86.808826)
