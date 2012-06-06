@@ -34,17 +34,6 @@ class GTMap(GtkChamplain.Embed):
         self.stop_layer.show()
         self.stop_layer.show_all_markers()
 
-        # our picture of stops layer
-        self.picture_layer = Champlain.MarkerLayer()
-        self.view.add_layer(self.picture_layer)
-        self.picture_layer.show()
-        self.picture_layer.show_all_markers()
-        # temp add one
-        marker = PictureMarker()
-        marker.set_location(33.511, -86.808)
-        self.picture_layer.add_marker(marker)
-        marker.animate_in()
-
         # !mwd - temp zoom to birmingham
         self.view.go_to(33.511878, -86.808826)
         self.view.set_zoom_level(14)
@@ -52,6 +41,18 @@ class GTMap(GtkChamplain.Embed):
         # add a route layer
         self.route_layer = Champlain.PathLayer()
         self.view.add_layer(self.route_layer)
+
+        # our picture of stops layer
+        self.picture_layer = Champlain.MarkerLayer()
+        self.view.add_layer(self.picture_layer)
+        self.picture_layer.show()
+        self.picture_layer.show_all_markers()
+        # # temp add one
+        # marker = PictureMarker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0161_2.JPG')
+        # marker.set_location(33.511, -86.808)
+        # self.picture_layer.add_marker(marker)
+        # marker.animate_in()
+
         
         self.view.set_kinetic_mode(True)
         self.view.set_reactive(True)
@@ -106,6 +107,11 @@ class GTMap(GtkChamplain.Embed):
 
     def remove_stop(self, stop):
         pass
+
+    def add_picture_marker(self, img):
+        m = PictureMarker(img)
+        self.picture_layer.add_marker(m)
+        m.animate_in()
 
     def draw_route(self, r):
         if r is None:

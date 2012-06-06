@@ -47,6 +47,16 @@ class Controller(object):
         for r in gtbuilder.Route.routes:
             self.add_route(r)
 
+        # add our pictures
+        self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0161.JPG')
+        self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0162.JPG')
+        self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0163.JPG')
+        self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0164.JPG')
+        self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0165.JPG')
+        self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0166.JPG')
+        self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0167.JPG')
+        self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0168.JPG')
+
     def connect(self, signal, fn, *args):
         if signal not in self._registered_events:
             self._registered_events[signal] = []
@@ -230,6 +240,9 @@ class Controller(object):
         m = self.gui.map_widget.add_stop(s)
         m.connect('button-release-event', self.on_stop_marker_clicked, s)
         self.gui.stop_list_widget.add_stop(s)
+
+    def add_picture_marker(self, img):
+        self.gui.map_widget.add_picture_marker(img)
 
     def add_route(self, r):
         print 'addroute', r

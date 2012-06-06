@@ -15,11 +15,18 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-from gi.repository import Gtk, Champlain, Clutter
+import sys
+from gi.repository import Gtk, Champlain, Clutter, GLib
+
+import EXIF
 
 class PictureMarker(Champlain.CustomMarker):
-    def __init__(self):
+    def __init__(self, img):
         Champlain.CustomMarker.__init__(self)
+
+        lat_long = [0, 0]
+
+        self._img = img
 
         # draw our clickable marker
         marker = Clutter.Actor()
@@ -40,16 +47,67 @@ class PictureMarker(Champlain.CustomMarker):
         # just drawn a rectange or something
         rect = Clutter.Actor()
         c = Clutter.Color()
-        c.from_string('#33FF33AA')
+        c.from_string('#FFFFFFEE')
         rect.set_background_color(c)
-        rect.set_size(100, 100)
-        rect.set_position(0, 0)
+        rect.set_size(200, 300)
+        rect.set_position(0, 10)
         rect.set_anchor_point(0, 0)
         self.group.add_child(rect)
+
+        self.name = Clutter.Text()
+        self.name.set_text('Test Text')
+        self.name.set_size(190, 25)
+        self.name.set_position(5, 15)
+        self.name.set_anchor_point(0, 0)
+        self.group.add_child(self.name)
+
+        try:
+            self.picture = Clutter.Texture()
+            self.picture.set_from_file(self._img)
+            self.picture.set_size(150, 150)
+            self.picture.set_position(25, 50)
+            self.picture.set_anchor_point(0, 0)
+            self.group.add_child(self.picture)
+
+            # get the exif info
+            f = open(self._img, 'rb')
+            tags = EXIF.process_file(f, details=False)
+            lat = tags.get('GPS GPSLatitude', None)
+            lon = tags.get('GPS GPSLongitude', None)
+            lat_ref = tags.get('GPS GPSLatitudeRef', 'N')
+            lon_ref = tags.get('GPS GPSLongitudeRef', 'W')
+
+            # convert to lat/long
+            # from:
+            # http://www.nihilogic.dk/labs/gps_exif_google_maps/
+            
+            i = 1 if lat_ref is 'N' else -1
+            flat = (lat.values[0].num / float(lat.values[0].den)) + \
+                (lat.values[1].num / float(lat.values[1].den)) / 60.0 + \
+                (lat.values[2].num /float(lat.values[2].den)) / 3600.0 * i
+
+            j = 1 if lon_ref is 'W' else -1
+            flon = (lon.values[0].num / float(lon.values[0].den)) + \
+                (lon.values[1].num / float(lon.values[1].den)) / 60.0 + \
+                (lon.values[2].num /float(lon.values[2].den)) / 3600.0 * j
+
+            lat_long = [flat, flon]
+
+            print lat_long
+            
+
+        except GLib.GError, e:
+            print >> sys.stderr, e
+            #!mwd - load a broken image instead?
+        except IOError, e:
+            print >> sys.stderr, 'No GPS tags?', e
 
         # hide our meta
         self.group.hide_all()
         self._visible = False
+
+        # our position
+        self.set_location(lat_long[0], -lat_long[1])
 
         self.connect('button-release-event', self.on_click)
 
