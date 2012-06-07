@@ -35,6 +35,7 @@ class PictureMarker(Champlain.CustomMarker):
         marker.set_size(15, 15)
         marker.set_position(0, 0)
         marker.set_anchor_point(0, 0)
+        marker.set_reactive(True)
         self.add_actor(marker)
         marker.show()
 
@@ -108,8 +109,10 @@ class PictureMarker(Champlain.CustomMarker):
 
         # our position
         self.set_location(lat_long[0], -lat_long[1])
+        
+        marker.connect('button-release-event', self.on_click)
 
-        self.connect('button-release-event', self.on_click)
+        self.set_reactive(False)
 
     def on_click(self, actor, event):
         print 'on click', self._visible, actor, event
