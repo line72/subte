@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
 import sys
+import math
 from gi.repository import Gtk, Champlain, Clutter, GLib
 
 import EXIF
@@ -96,6 +97,18 @@ class PictureMarker(Champlain.CustomMarker):
 
             print lat_long
             
+            # orientation
+            orientation_tag = tags.get('Image Orientation', None)
+            
+            if orientation_tag is not None:
+                orientation = orientation_tag.values
+
+                if orientation[0] == 8: # counter clock wise
+                    self.picture.set_z_rotation_from_gravity(-90, Clutter.Gravity.CENTER)
+                elif orientation[0] == 6: # clock wise
+                    self.picture.set_z_rotation_from_gravity(90, Clutter.Gravity.CENTER)
+                elif orientation[0] == 3: # 180
+                    self.picture.set_z_rotation_from_gravity(180, Clutter.Gravity.CENTER)
 
         except GLib.GError, e:
             print >> sys.stderr, e
