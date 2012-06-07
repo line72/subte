@@ -66,7 +66,9 @@ class PictureMarker(Champlain.CustomMarker):
         try:
             self.picture = Clutter.Texture()
             self.picture.set_from_file(self._img)
-            self.picture.set_size(150, 150)
+            self.picture.set_keep_aspect_ratio(True)
+            #self.picture.set_size(150, 150)
+            self.picture.set_width(150)
             self.picture.set_position(25, 50)
             self.picture.set_anchor_point(0, 0)
             self.group.add_child(self.picture)
@@ -109,6 +111,7 @@ class PictureMarker(Champlain.CustomMarker):
                     self.picture.set_z_rotation_from_gravity(90, Clutter.Gravity.CENTER)
                 elif orientation[0] == 3: # 180
                     self.picture.set_z_rotation_from_gravity(180, Clutter.Gravity.CENTER)
+
 
         except GLib.GError, e:
             print >> sys.stderr, e
