@@ -15,6 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
+import sys
 import os
 
 import weakref
@@ -28,6 +29,7 @@ from Stop import Stop
 from Trip import Trip, TripStop
 from Calendar import Calendar
 from Agency import Agency
+from Picture import Picture
 
 class Database(object):
     def load(self, fname):
@@ -139,6 +141,22 @@ class Database(object):
                     # add to our trip
                     t.stops[stop] = ts
 
+            for picture_node in tree.getroot().findall('Picture'):
+                picture_id = picture_node.get('id', Picture.new_id())
+                image = picture_node.findtext('image')
+                stop_id = picture_node.findtext('stop_id')
+                ignored = picture_node.findtext('ignored')
+
+                try:
+                    stop_id = int(stop_id)
+                    ignored = bool(int(ignored))
+
+                    stop = Stop.get(stop_id)
+
+                    p = Picture(image, stop)
+                    p.picture_id = int(picture_id)
+                except Exception, e:
+                    print >> sys.stderr, 'Invalid picture: %s' % e
 
         except (IOError, xml.parsers.expat.ExpatError), e:
             print 'Error loading saved state', e
@@ -247,6 +265,16 @@ class Database(object):
                 e = ElementTree.SubElement(n, 'departure')
                 e.text = '%s' % (v.departure or '')
 
+        # the pictures
+        for p in Picture.pictures:
+            node = ElementTree.SubElement(root, 'Picture')
+            node.attrib['id'] = '%s' % p.picture_id
+            e = ElementTree.SubElement(node, 'image')
+            e.text = '%s' % p.image
+            e = ElementTree.SubElement(node, 'stop_id')
+            e.text = '%s' % p.stop_id
+            e = ElementTree.SubElement(node, 'ignored')
+            e.text = '%s' % int(p.ignored)
 
         # make a tree and save it
         self.__indent(root)

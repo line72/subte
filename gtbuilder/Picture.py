@@ -70,6 +70,7 @@ class Picture(object):
         Picture.pictures.append(self)
 
     image = property(lambda x: x._img, None)
+    stop_id = property(lambda x: x.stop.stop_id if x.stop else -1)
 
     def destroy(self):
         self.stop = None
