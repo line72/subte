@@ -17,17 +17,20 @@
 
 import sys
 import math
+from StringIO import StringIO
+
 from gi.repository import Gtk, Champlain, Clutter, GLib
 
 import EXIF
 
 class PictureMarker(Champlain.CustomMarker):
-    def __init__(self, img):
+    def __init__(self, img, thumb):
         Champlain.CustomMarker.__init__(self)
 
         lat_long = [0, 0]
 
         self._img = img
+        self._thumbnail = thumb
 
         # draw our clickable marker
         marker = Clutter.Actor()
@@ -63,16 +66,9 @@ class PictureMarker(Champlain.CustomMarker):
         self.name.set_anchor_point(0, 0)
         self.group.add_child(self.name)
 
+        thumb = None
+        self.orientation = 0
         try:
-            self.picture = Clutter.Texture()
-            self.picture.set_from_file(self._img)
-            self.picture.set_keep_aspect_ratio(True)
-            #self.picture.set_size(150, 150)
-            self.picture.set_width(150)
-            self.picture.set_position(25, 50)
-            self.picture.set_anchor_point(0, 0)
-            self.group.add_child(self.picture)
-
             # get the exif info
             f = open(self._img, 'rb')
             tags = EXIF.process_file(f, details=False)
@@ -97,25 +93,27 @@ class PictureMarker(Champlain.CustomMarker):
 
             lat_long = [flat, flon]
 
-            print lat_long
-            
             # orientation
             orientation_tag = tags.get('Image Orientation', None)
             
             if orientation_tag is not None:
-                orientation = orientation_tag.values
+                orientation_v = orientation_tag.values
 
-                if orientation[0] == 8: # counter clock wise
-                    self.picture.set_z_rotation_from_gravity(-90, Clutter.Gravity.CENTER)
-                elif orientation[0] == 6: # clock wise
-                    self.picture.set_z_rotation_from_gravity(90, Clutter.Gravity.CENTER)
-                elif orientation[0] == 3: # 180
-                    self.picture.set_z_rotation_from_gravity(180, Clutter.Gravity.CENTER)
+                if orientation_v[0] == 8: # counter clock wise
+                    self.orientation = -90
+                    #self.picture.set_z_rotation_from_gravity(-90, Clutter.Gravity.CENTER)
+                elif orientation_v[0] == 6: # clock wise
+                    #self.picture.set_z_rotation_from_gravity(90, Clutter.Gravity.CENTER)
+                    self.orientation = 90
+                elif orientation_v[0] == 3: # 180
+                    #self.picture.set_z_rotation_from_gravity(180, Clutter.Gravity.CENTER)
+                    self.orientation = 180
 
+            # thumbnail
+            #t = tags.get('JPEGThumbnail', None)
+            #if t:
+            #    thumbnail = StringIO(t)
 
-        except GLib.GError, e:
-            print >> sys.stderr, e
-            #!mwd - load a broken image instead?
         except IOError, e:
             print >> sys.stderr, 'No GPS tags?', e
 
@@ -131,13 +129,32 @@ class PictureMarker(Champlain.CustomMarker):
         self.set_reactive(False)
 
     def on_click(self, actor, event):
-        print 'on click', self._visible, actor, event
         self._visible = not self._visible
 
         if self._visible:
+            # create our texture
+            try:
+                self.picture = Clutter.Texture()
+                if self._thumbnail:
+                    self.picture.set_from_file(self._thumbnail)
+                else:
+                    self.picture.set_from_file(self._img)
+                self.picture.set_keep_aspect_ratio(True)
+                #self.picture.set_size(150, 150)
+                self.picture.set_width(150)
+                self.picture.set_position(25, 50)
+                self.picture.set_anchor_point(0, 0)
+                self.picture.set_z_rotation_from_gravity(self.orientation, Clutter.Gravity.CENTER)
+                self.group.add_child(self.picture)
+            except GLib.GError, e:
+                print >> sys.stderr, e
+                #!mwd - load a broken image instead?
+
             self.group.show_all()
         else:
             self.group.hide_all()
+            self.group.remove_child(self.picture)
+            self.picture = None
 
         return True
 

@@ -22,3 +22,4 @@ from Calendar import Calendar
 from Trip import Trip
 from Database import Database
 
+from Picture import Picture

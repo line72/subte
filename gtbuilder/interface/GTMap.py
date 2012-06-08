@@ -108,10 +108,13 @@ class GTMap(GtkChamplain.Embed):
     def remove_stop(self, stop):
         pass
 
-    def add_picture_marker(self, img):
-        m = PictureMarker(img)
+    def add_picture(self, picture):
+        m = PictureMarker(picture.image, picture.thumbnail)
         self.picture_layer.add_marker(m)
         m.animate_in()
+
+    def remove_picture(self, picture):
+        pass
 
     def draw_route(self, r):
         if r is None:
