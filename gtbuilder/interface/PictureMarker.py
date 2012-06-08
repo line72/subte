@@ -24,13 +24,12 @@ from gi.repository import Gtk, Champlain, Clutter, GLib
 import EXIF
 
 class PictureMarker(Champlain.CustomMarker):
-    def __init__(self, img, thumb):
+    def __init__(self, picture):
         Champlain.CustomMarker.__init__(self)
 
-        lat_long = [0, 0]
+        self.picture = picture
 
-        self._img = img
-        self._thumbnail = thumb
+        lat_long = [0, 0]
 
         # draw our clickable marker
         marker = Clutter.Actor()
@@ -66,11 +65,10 @@ class PictureMarker(Champlain.CustomMarker):
         self.name.set_anchor_point(0, 0)
         self.group.add_child(self.name)
 
-        thumb = None
         self.orientation = 0
         try:
             # get the exif info
-            f = open(self._img, 'rb')
+            f = open(self.picture.image, 'rb')
             tags = EXIF.process_file(f, details=False)
             lat = tags.get('GPS GPSLatitude', None)
             lon = tags.get('GPS GPSLongitude', None)
@@ -109,11 +107,6 @@ class PictureMarker(Champlain.CustomMarker):
                     #self.picture.set_z_rotation_from_gravity(180, Clutter.Gravity.CENTER)
                     self.orientation = 180
 
-            # thumbnail
-            #t = tags.get('JPEGThumbnail', None)
-            #if t:
-            #    thumbnail = StringIO(t)
-
         except IOError, e:
             print >> sys.stderr, 'No GPS tags?', e
 
@@ -134,18 +127,18 @@ class PictureMarker(Champlain.CustomMarker):
         if self._visible:
             # create our texture
             try:
-                self.picture = Clutter.Texture()
-                if self._thumbnail:
-                    self.picture.set_from_file(self._thumbnail)
+                self.picture_box = Clutter.Texture()
+                if self.picture.thumbnail:
+                    self.picture_box.set_from_file(self.picture.thumbnail)
                 else:
-                    self.picture.set_from_file(self._img)
-                self.picture.set_keep_aspect_ratio(True)
-                #self.picture.set_size(150, 150)
-                self.picture.set_width(150)
-                self.picture.set_position(25, 50)
-                self.picture.set_anchor_point(0, 0)
-                self.picture.set_z_rotation_from_gravity(self.orientation, Clutter.Gravity.CENTER)
-                self.group.add_child(self.picture)
+                    self.picture_box.set_from_file(self.picture.image)
+                self.picture_box.set_keep_aspect_ratio(True)
+                #self.picture_box.set_size(150, 150)
+                self.picture_box.set_width(150)
+                self.picture_box.set_position(25, 50)
+                self.picture_box.set_anchor_point(0, 0)
+                self.picture_box.set_z_rotation_from_gravity(self.orientation, Clutter.Gravity.CENTER)
+                self.group.add_child(self.picture_box)
             except GLib.GError, e:
                 print >> sys.stderr, e
                 #!mwd - load a broken image instead?
@@ -153,8 +146,8 @@ class PictureMarker(Champlain.CustomMarker):
             self.group.show_all()
         else:
             self.group.hide_all()
-            self.group.remove_child(self.picture)
-            self.picture = None
+            self.group.remove_child(self.picture_box)
+            self.picture_box = None
 
         return True
 

@@ -62,7 +62,10 @@ class PictureListGui(object):
     def add_picture(self, s):
         print 'add_picture', s
         if s:
-            self.model.append([s.picture_id, '%s' % (s.picture_id)])
+            if s.stop:
+                self.model.append([s.picture_id, '(%s) %s' % (s.picture_id, s.stop.name)])
+            else:
+                self.model.append([s.picture_id, '%s' % (s.picture_id)])
 
     def remove_picture(self, s):
         if s:

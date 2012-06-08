@@ -47,12 +47,6 @@ class GTMap(GtkChamplain.Embed):
         self.view.add_layer(self.picture_layer)
         self.picture_layer.show()
         self.picture_layer.show_all_markers()
-        # # temp add one
-        # marker = PictureMarker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0161_2.JPG')
-        # marker.set_location(33.511, -86.808)
-        # self.picture_layer.add_marker(marker)
-        # marker.animate_in()
-
         
         self.view.set_kinetic_mode(True)
         self.view.set_reactive(True)
@@ -109,12 +103,18 @@ class GTMap(GtkChamplain.Embed):
         pass
 
     def add_picture(self, picture):
-        m = PictureMarker(picture.image, picture.thumbnail)
+        m = PictureMarker(picture)
         self.picture_layer.add_marker(m)
         m.animate_in()
 
     def remove_picture(self, picture):
-        pass
+        m = None
+        for i in self.picture_layer.get_markers():
+            if i.picture == picture:
+                m = i
+                break
+        if m:
+            self.picture_layer.remove_marker(m)
 
     def draw_route(self, r):
         if r is None:
