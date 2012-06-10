@@ -17,17 +17,22 @@
 
 import sys
 import math
-from StringIO import StringIO
+import weakref
 
 from gi.repository import Gtk, Champlain, Clutter, GLib
 
 import EXIF
 
 class PictureMarker(Champlain.CustomMarker):
-    def __init__(self, picture):
+    def __init__(self, gtmap, picture):
         Champlain.CustomMarker.__init__(self)
 
+        self._gtmap = None
+        self.gtmap = gtmap
+
         self.picture = picture
+
+        self.picture_box = None
 
         lat_long = [0, 0]
 
@@ -150,6 +155,18 @@ class PictureMarker(Champlain.CustomMarker):
 
         self.set_reactive(False)
 
+    @property
+    def gtmap(self):
+        if self._gtmap:
+            return self._gtmap()
+        return None
+    @gtmap.setter
+    def gtmap(self, m):
+        if m:
+            self._gtmap = weakref.ref(m)
+        else:
+            self._gtmap = None
+
     def on_link_stop(self, actor, event):
         print >> sys.stderr, 'Link stop'
         return False
@@ -172,6 +189,11 @@ class PictureMarker(Champlain.CustomMarker):
         self.unlink_stop.set_reactive(False)
 
         if self._visible:
+            self.gtmap.unshow_pictures()
+
+            # we are visible
+            self._visible = True
+
             # update our name
             if self.picture.stop:
                 self.name.set_text('%s) Stop: (%s) %s' % (self.picture.picture_id, self.picture.stop.stop_id, self.picture.stop.name))
@@ -205,9 +227,18 @@ class PictureMarker(Champlain.CustomMarker):
                 self.unlink_stop.hide()
                 self.link_stop.set_reactive(True)
         else:
-            self.group.hide_all()
-            self.group.remove_child(self.picture_box)
-            self.picture_box = None
+            self.hide()
 
         return True
 
+
+    def _show(self):
+        pass
+
+    def hide(self):
+        self.group.hide_all()
+        if self.picture_box:
+            self.group.remove_child(self.picture_box)
+            self.picture_box = None
+
+        self._visible = False
