@@ -23,6 +23,8 @@ from gi.repository import Gtk, Champlain, Clutter, GLib
 
 import EXIF
 
+import gtbuilder
+
 import GTGui
 from AddStop import AddStop, AddStopDialog
 
@@ -177,38 +179,39 @@ class PictureMarker(Champlain.CustomMarker):
         print >> sys.stderr, 'Link stop'
 
         gtgui = GTGui.GTGui.instance()
-        print >> sys.stderr, 'instance=', gtgui
 
         stop_dialog = AddStop(gtgui.controller)
-        print >> sys.stderr, 'created dialog', stop_dialog
 
         win = AddStopDialog(gtgui)
-        print >> sys.stderr, 'created dialog window', win
         # set the lat/long
-        #stop_dialog.latitude_txt.set_text('%s' % self.latitude)
-        #stop_dialog.longitude_txt.set_text('%s' % self.longitude)
+        stop_dialog.latitude_txt.set_text('%s' % self.latitude)
+        stop_dialog.longitude_txt.set_text('%s' % self.longitude)
         win.get_content_area().pack_start(stop_dialog, True, True, 5)
-        print >> sys.stderr, 'packed it'
-        win.show_all()
-        print >> sys.stderr, 'showing'
 
-        resp = win.run()
-        print >> sys.stderr, 'running'
+        # We can't seem to pop up a dialog in a callback
+        #  here, it freezes everything. Instead, run the
+        #  dialog, and set an on_reponse so that
+        #  we get the response code when it closes
+        def on_response(win, resp, user_data = None):
+            print >> sys.stderr, 'on response', resp
+            if resp == Gtk.ResponseType.ACCEPT:
+                print >> sys.stderr, 'resp is ACCEPT', resp
+                # create a new stop
+                s = gtbuilder.Stop(name = stop_dialog.get_name(),
+                                   description = stop_dialog.get_description(),
+                                   latitude = stop_dialog.get_latitude(),
+                                   longitude = stop_dialog.get_longitude())
 
-        if resp == Gtk.ResponseType.ACCEPT:
-            print >> sys.stderr, 'resp is ACCEPT', resp
-            # create a new stop
-            s = gtbuilder.Stop(name = stop_dialog.get_name(),
-                               description = stop_dialog.get_description(),
-                               latitude = stop_dialog.get_latitude(),
-                               longitude = stop_dialog.get_longitude())
+                self.picture.stop = s
 
-            self.picture.stop = s
+                gtgui.controller.add_stop(s)
+
+            win.destroy()
             
-            gtgui.controller.add_stop(s)
 
-        print >> sys.stderr, 'destroying'
-        win.destroy()
+        win.connect('response', on_response)
+        win.show_all()
+
 
         return False
     def on_unlink_stop(self, actor, event):
