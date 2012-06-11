@@ -23,6 +23,9 @@ from gi.repository import Gtk, Champlain, Clutter, GLib
 
 import EXIF
 
+import GTGui
+from AddStop import AddStop, AddStopDialog
+
 class PictureMarker(Champlain.CustomMarker):
     def __init__(self, gtmap, picture):
         Champlain.CustomMarker.__init__(self)
@@ -34,7 +37,8 @@ class PictureMarker(Champlain.CustomMarker):
 
         self.picture_box = None
 
-        lat_long = [0, 0]
+        self.latitude = 0.0
+        self.longitude = 0.0
 
         # draw our clickable marker
         marker = Clutter.Actor()
@@ -111,19 +115,21 @@ class PictureMarker(Champlain.CustomMarker):
             # from:
             # http://www.nihilogic.dk/labs/gps_exif_google_maps/
             
-            i = 1 if lat_ref is 'N' else -1
-            flat = (lat.values[0].num / float(lat.values[0].den)) + \
-                (lat.values[1].num / float(lat.values[1].den)) / 60.0 + \
-                (lat.values[2].num /float(lat.values[2].den)) / 3600.0 * i
+            i = -1 if lat_ref is 'N' else 1
+            flat = ((lat.values[0].num / float(lat.values[0].den)) + \
+                        ((lat.values[1].num / float(lat.values[1].den)) / 60.0) + \
+                        ((lat.values[2].num /float(lat.values[2].den)) / 3600.0)) * i
 
             j = 1 if lon_ref is 'W' else -1
-            flon = (lon.values[0].num / float(lon.values[0].den)) + \
-                (lon.values[1].num / float(lon.values[1].den)) / 60.0 + \
-                (lon.values[2].num /float(lon.values[2].den)) / 3600.0 * j
+            print >> sys.stderr, 'j=', j, 'lon_ref=', lon_ref
+            flon = ((lon.values[0].num / float(lon.values[0].den)) + \
+                        ((lon.values[1].num / float(lon.values[1].den)) / 60.0) + \
+                        ((lon.values[2].num /float(lon.values[2].den)) / 3600.0)) * j
 
-            lat_long = [flat, flon]
+            self.latitude = flat
+            self.longitude = flon
 
-            self.info.set_markup('<markup><big><b>GPS Info:</b></big>\n<b>Latitude:</b> %s\n<b>Longitude:</b> %s</markup>' % (lat_long[0], lat_long[1]))
+            self.info.set_markup('<markup><big><b>GPS Info:</b></big>\n<b>Latitude:</b> %s\n<b>Longitude:</b> %s</markup>' % (self.latitude, self.longitude))
 
             # orientation
             orientation_tag = tags.get('Image Orientation', None)
@@ -149,7 +155,7 @@ class PictureMarker(Champlain.CustomMarker):
         self._visible = False
 
         # our position
-        self.set_location(lat_long[0], -lat_long[1])
+        self.set_location(self.latitude, self.longitude)
         
         marker.connect('button-release-event', self.on_click)
 
@@ -169,6 +175,41 @@ class PictureMarker(Champlain.CustomMarker):
 
     def on_link_stop(self, actor, event):
         print >> sys.stderr, 'Link stop'
+
+        gtgui = GTGui.GTGui.instance()
+        print >> sys.stderr, 'instance=', gtgui
+
+        stop_dialog = AddStop(gtgui.controller)
+        print >> sys.stderr, 'created dialog', stop_dialog
+
+        win = AddStopDialog(gtgui)
+        print >> sys.stderr, 'created dialog window', win
+        # set the lat/long
+        #stop_dialog.latitude_txt.set_text('%s' % self.latitude)
+        #stop_dialog.longitude_txt.set_text('%s' % self.longitude)
+        win.get_content_area().pack_start(stop_dialog, True, True, 5)
+        print >> sys.stderr, 'packed it'
+        win.show_all()
+        print >> sys.stderr, 'showing'
+
+        resp = win.run()
+        print >> sys.stderr, 'running'
+
+        if resp == Gtk.ResponseType.ACCEPT:
+            print >> sys.stderr, 'resp is ACCEPT', resp
+            # create a new stop
+            s = gtbuilder.Stop(name = stop_dialog.get_name(),
+                               description = stop_dialog.get_description(),
+                               latitude = stop_dialog.get_latitude(),
+                               longitude = stop_dialog.get_longitude())
+
+            self.picture.stop = s
+            
+            gtgui.controller.add_stop(s)
+
+        print >> sys.stderr, 'destroying'
+        win.destroy()
+
         return False
     def on_unlink_stop(self, actor, event):
         print >> sys.stderr, 'Unlink stop'

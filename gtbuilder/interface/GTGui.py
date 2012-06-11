@@ -19,6 +19,7 @@ import string
 import random
 import os
 import sys
+import weakref
 
 from gi.repository import Gtk
 
@@ -31,8 +32,12 @@ from RouteListGui import RouteListGui
 from PictureListGui import PictureListGui
 
 class GTGui(Gtk.Window):
+    instance = None
     def __init__(self):
         Gtk.Window.__init__(self, title = 'Google Transit Builder')
+
+        GTGui.instance = weakref.ref(self)
+
         self.connect('delete-event', self.on_quit)
 
         # load up our database
@@ -93,6 +98,7 @@ class GTGui(Gtk.Window):
 
     def on_quit(self, widget, evt, data = None):
         self.db.save(self._db_file)
+        GTGui.instance = None
         Gtk.main_quit()
 
     def _build_tool_bar(self):
