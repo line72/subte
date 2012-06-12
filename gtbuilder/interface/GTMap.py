@@ -15,6 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
+import sys
+
 from gi.repository import Gtk, Champlain, GtkChamplain, Clutter
 
 from PictureMarker import PictureMarker
@@ -47,6 +49,13 @@ class GTMap(GtkChamplain.Embed):
         self.view.add_layer(self.picture_layer)
         self.picture_layer.show()
         self.picture_layer.show_all_markers()
+
+        # our big image layer
+        self.image_layer = Champlain.MarkerLayer()
+        self.view.add_layer(self.image_layer)
+        # our picture
+        self.picture_group = Clutter.Group()
+        self.view.bin_layout_add(self.picture_group, Clutter.BinAlignment.CENTER, Clutter.BinAlignment.CENTER)
         
         self.view.set_kinetic_mode(True)
         self.view.set_reactive(True)
@@ -142,3 +151,14 @@ class GTMap(GtkChamplain.Embed):
 
         return False
     
+    def show_image(self, img):
+        self.picture_group.remove_all()
+
+        self.picture_group.add_child(img)
+        self.image_layer.show()
+
+    def remove_image(self, img):
+        if img:
+            self.picture_group.remove_child(img)
+
+        self.image_layer.hide()

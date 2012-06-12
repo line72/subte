@@ -38,6 +38,7 @@ class PictureMarker(Champlain.CustomMarker):
         self.picture = picture
 
         self.picture_box = None
+        self.full_picture_box = None
 
         self.latitude = 0.0
         self.longitude = 0.0
@@ -123,7 +124,6 @@ class PictureMarker(Champlain.CustomMarker):
                         ((lat.values[2].num /float(lat.values[2].den)) / 3600.0)) * i
 
             j = 1 if lon_ref is 'W' else -1
-            print >> sys.stderr, 'j=', j, 'lon_ref=', lon_ref
             flon = ((lon.values[0].num / float(lon.values[0].den)) + \
                         ((lon.values[1].num / float(lon.values[1].den)) / 60.0) + \
                         ((lon.values[2].num /float(lon.values[2].den)) / 3600.0)) * j
@@ -257,6 +257,8 @@ class PictureMarker(Champlain.CustomMarker):
                 self.picture_box.set_position(25, 60)
                 self.picture_box.set_anchor_point(0, 0)
                 self.picture_box.set_z_rotation_from_gravity(self.orientation, Clutter.Gravity.CENTER)
+                self.picture_box.connect('button-release-event', self.on_expand_picture)
+                self.picture_box.set_reactive(True)
                 self.group.add_child(self.picture_box)
             except GLib.GError, e:
                 print >> sys.stderr, e
@@ -275,8 +277,52 @@ class PictureMarker(Champlain.CustomMarker):
 
         return True
 
+    def on_expand_picture(self, actor, event):
+        self.full_picture_box = Clutter.Texture()
+        self.full_picture_box.set_from_file(self.picture.image)
+        self.full_picture_box.set_keep_aspect_ratio(True)
 
-    def _show(self):
+        size = self.gtmap.get_allocated_width(), self.gtmap.get_allocated_height()
+        r1 = size[0] / float(size[1])
+        size2 = self.full_picture_box.get_base_size()
+
+        if self.orientation == 0 or self.orientation == 180:
+            r2 = size2[0] / float(size2[1])
+        else:
+            r2 = size2[1] / float(size2[0])
+
+        self.full_picture_box.set_position(0, 0)
+        self.full_picture_box.set_z_rotation_from_gravity(self.orientation, Clutter.Gravity.CENTER)
+
+        if r1 > r2: # use width
+            w = size[1] * r2
+            h = size[1] 
+        else: # use height
+            w = size[0]
+            h = size[0] / r2
+
+        if self.orientation != 0 and self.orientation != 180:
+            w, h = h, w # reverse
+        self.full_picture_box.set_size(w, h)
+
+
+        self.full_picture_box.set_reactive(True)
+        self.full_picture_box.connect('button-release-event', self.on_close_picture)
+        self.full_picture_box.show_all()
+
+        self.gtmap.show_image(self.full_picture_box)
+
+        return False
+
+    def on_close_picture(self, actor, event):
+        if self.full_picture_box:
+            self.gtmap.remove_image(self.full_picture_box)
+            self.full_picture_box.hide_all()
+        self.full_picture_box = None
+
+        return False
+
+    def show(self):
         pass
 
     def hide(self):
