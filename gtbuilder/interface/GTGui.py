@@ -19,6 +19,7 @@ import string
 import random
 import os
 import sys
+import weakref
 
 from gi.repository import Gtk
 
@@ -28,23 +29,21 @@ from GTMap import GTMap
 from Controller import Controller
 from StopListGui import StopListGui
 from RouteListGui import RouteListGui
+from PictureListGui import PictureListGui
 
 class GTGui(Gtk.Window):
+    instance = None
     def __init__(self):
         Gtk.Window.__init__(self, title = 'Google Transit Builder')
+
+        GTGui.instance = weakref.ref(self)
+
         self.connect('delete-event', self.on_quit)
 
         # load up our database
         self._db_file = os.path.join(os.path.expanduser('~'), '.gtbuilder.db')
         self.db = gtbuilder.Database()
         self.db.load(self._db_file)
-
-        #TEMP
-        if gtbuilder.Calendar.get(1) is None:
-            print >> sys.stderr, "Warning!!! You don't have a calendar yet!"
-            gtbuilder.Calendar('Weekday', 1, 1, 1, 1, 1,
-                               start_date = '01012012',
-                               end_date = '01012014')
 
         # setup a controller
         self.controller = Controller(self)
@@ -73,6 +72,8 @@ class GTGui(Gtk.Window):
         notebook.append_page(self.stop_list_widget.get_widget(), Gtk.Label('Stops'))
         self.route_list_widget = RouteListGui()
         notebook.append_page(self.route_list_widget.get_widget(), Gtk.Label('Routes'))
+        self.picture_list_widget = PictureListGui()
+        notebook.append_page(self.picture_list_widget.get_widget(), Gtk.Label('Pictures'))
 
         self.info_frame.add(box)
 
@@ -97,6 +98,7 @@ class GTGui(Gtk.Window):
 
     def on_quit(self, widget, evt, data = None):
         self.db.save(self._db_file)
+        GTGui.instance = None
         Gtk.main_quit()
 
     def _build_tool_bar(self):
@@ -138,6 +140,19 @@ class GTGui(Gtk.Window):
         remove_route.set_tooltip_text('Remove a route')
         remove_route.connect('clicked', self.controller.on_remove_route_clicked)
         toolbar.add(remove_route)
+
+        toolbar.add(Gtk.SeparatorToolItem())
+
+        ## PICTURES
+        add_picture = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)
+        add_picture.set_tooltip_text('Add a new picture')
+        add_picture.connect('clicked', self.controller.on_add_picture_clicked)
+        toolbar.add(add_picture)
+
+        remove_picture = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
+        remove_picture.set_tooltip_text('Remove a picture')
+        remove_picture.connect('clicked', self.controller.on_remove_picture_clicked)
+        toolbar.add(remove_picture)
 
         toolbar.add(Gtk.SeparatorToolItem())
 

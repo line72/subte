@@ -17,6 +17,8 @@
 
 import random
 import weakref
+import os
+import md5
 
 from gi.repository import Gtk
 
@@ -46,6 +48,18 @@ class Controller(object):
         # now routes
         for r in gtbuilder.Route.routes:
             self.add_route(r)
+
+        # add our pictures
+        for p in gtbuilder.Picture.pictures:
+            self.add_picture(p)
+        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0161.JPG')
+        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0162.JPG')
+        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0163.JPG')
+        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0164.JPG')
+        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0165.JPG')
+        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0166.JPG')
+        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0167.JPG')
+        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0168.JPG')
 
     def connect(self, signal, fn, *args):
         if signal not in self._registered_events:
@@ -211,6 +225,53 @@ class Controller(object):
         # good-bye
         route.destroy()
 
+    def on_add_picture_clicked(self, toolbutton, user_data = None):
+        print 'on add picture'
+        # pop up a load dialg
+        dlg = Gtk.FileChooserDialog('Export to...', self._gui(),
+                                    Gtk.FileChooserAction.SELECT_FOLDER,
+                                    (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                     Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
+
+        resp = dlg.run()
+        if resp == Gtk.ResponseType.ACCEPT:
+            directory = dlg.get_filename()
+            
+            # iterate through all the .jpg files
+            for i in os.listdir(directory):
+                if not i.lower().endswith('.jpg'):
+                    continue
+
+                im = os.path.join(directory, i)
+
+                # check for a duplicate
+                f = open(im, 'rb')
+                md5sum = md5.md5(f.read()).hexdigest()
+                if gtbuilder.Picture.is_duplicate(md5sum):
+                    continue
+                
+                # load it!
+                p = gtbuilder.Picture(im)
+
+                # add it
+                self.add_picture(p)
+            
+        dlg.destroy()
+
+    def on_remove_picture_clicked(self, toolbutton, user_data = None):
+        print 'on remove picture'
+        picture = self.gui.picture_list_widget.get_selected()
+        if picture is None:
+            print 'Nothing selected'
+            return
+
+        # remove this from our widgets
+        self.gui.map_widget.remove_picture(picture)
+        self.gui.picture_list_widget.remove_picture(picture)
+
+        # good-bye
+        picture.destroy()
+
     def on_export(self, toolbutton, user_data = None):
         # pop up a save dialg
         dlg = Gtk.FileChooserDialog('Export to...', self._gui(),
@@ -230,6 +291,10 @@ class Controller(object):
         m = self.gui.map_widget.add_stop(s)
         m.connect('button-release-event', self.on_stop_marker_clicked, s)
         self.gui.stop_list_widget.add_stop(s)
+
+    def add_picture(self, p):
+        self.gui.map_widget.add_picture(p)
+        self.gui.picture_list_widget.add_picture(p)
 
     def add_route(self, r):
         print 'addroute', r
