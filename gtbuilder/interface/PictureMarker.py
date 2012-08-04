@@ -109,6 +109,10 @@ class PictureMarker(Champlain.CustomMarker):
             # get the exif info
             f = open(self.picture.image, 'rb')
             tags = EXIF.process_file(f, details=False)
+            if len(tags) == 0:
+                raise IOError
+
+
             lat = tags.get('GPS GPSLatitude', None)
             lon = tags.get('GPS GPSLongitude', None)
             lat_ref = tags.get('GPS GPSLatitudeRef', 'N')
