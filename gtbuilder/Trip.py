@@ -74,17 +74,20 @@ class Trip(BaseObject):
             #   in this trip, so we *should* make a different trip
             #   for it
             # If a stop has a time, add the seconds onto it
-            if trip_stop.arrival == '-' or len(trip_stop.arrival) == 0:
-                trip_stop.arrival = ''
-            else:
-                trip_stop.arrival = '%s:00' % trip_stop.arrival
-            if trip_stop.departure == '-' or len(trip_stop.departure) == 0:
-                trip_stop.departure = ''
-            else:
-                trip_stop.departure = '%s:00' % trip_stop.departure
+            arrival = trip_stop.arrival
+            departure = trip_stop.departure
+
+            if trip_stop.arrival == '-' or trip_stop.arrival is None or len(trip_stop.arrival) == 0:
+                arrival = ''
+            elif len(trip_stop.arrival.split(':')) == 1:
+                arrival = '%s:00' % trip_stop.arrival
+            if trip_stop.departure == '-' or trip_stop.departure is None or len(trip_stop.departure) == 0:
+                departure = arrival
+            elif len(trip_stop.departure.split(':')) == 1:
+                departure = '%s:00' % trip_stop.departure
 
             self._write(stop_times_f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-                        self.trip_id, trip_stop.arrival, trip_stop.departure,
+                        self.trip_id, arrival, departure,
                         trip_stop.stop.stop_id, i+1, '', 0, 0, '')
 
     @classmethod
