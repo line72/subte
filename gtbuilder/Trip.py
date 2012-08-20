@@ -61,10 +61,7 @@ class Trip(BaseObject):
             trip_stop.departure = departure
 
     def write(self, trip_f, stop_times_f):
-        self._write(trip_f, '%s,%s,%s,%s,%s,%s,%s\n',
-                    self.route.route_id, self.calendar.calendar_id,
-                    self.trip_id, '', 0, '', '')
-
+        has_trips = False
         for i, s in enumerate(self.route.stops):
             trip_stop = self.get_stop(s)
 
@@ -77,18 +74,32 @@ class Trip(BaseObject):
             arrival = trip_stop.arrival
             departure = trip_stop.departure
 
-            if trip_stop.arrival == '-' or trip_stop.arrival is None or len(trip_stop.arrival) == 0:
+            if trip_stop.arrival == '-':
+                # not included in this trip
+                continue
+
+            has_trips = True
+
+            if trip_stop.arrival is None or len(trip_stop.arrival) == 0:
                 arrival = ''
-            elif len(trip_stop.arrival.split(':')) == 1:
+            elif len(trip_stop.arrival.split(':')) == 2:
                 arrival = '%s:00' % trip_stop.arrival
+
             if trip_stop.departure == '-' or trip_stop.departure is None or len(trip_stop.departure) == 0:
                 departure = arrival
-            elif len(trip_stop.departure.split(':')) == 1:
+            elif len(trip_stop.departure.split(':')) == 2:
                 departure = '%s:00' % trip_stop.departure
 
             self._write(stop_times_f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
                         self.trip_id, arrival, departure,
                         trip_stop.stop.stop_id, i+1, '', 0, 0, '')
+
+        if has_trips:
+            self._write(trip_f, '%s,%s,%s,%s,%s,%s,%s\n',
+                        self.route.route_id, self.calendar.calendar_id,
+                        self.trip_id, '', 0, '', '')
+
+
 
     @classmethod
     def new_id(cls):
