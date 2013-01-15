@@ -25,12 +25,16 @@ class Picture(object):
     pictures = []
     picture_id = 0
 
-    def __init__(self, img, stop = None):
+    def __init__(self, img, stop = None, latitude = None, longitude = None, orientation = 0):
         self.picture_id = Picture.new_id()
         self._stop = None
 
         self._img = img
         self.stop = stop
+
+        self.orientation = orientation
+        self._latitude = latitude
+        self._longitude = longitude
 
         self.md5sum = None
         self.thumbnail = None
@@ -66,6 +70,9 @@ class Picture(object):
 
         self.ignored = False
 
+        if self._latitude is None or self._longitude is None:
+            self._load_gps_coords()
+
         # add us
         Picture.pictures.append(self)
 
@@ -91,6 +98,71 @@ class Picture(object):
         else:
             self._stop = None
 
+    @property
+    def latitude(self):
+        if self.stop:
+            return self.stop.latitude
+        else:
+            return self._latitude
+
+    @property
+    def longitude(self):
+        if self.stop:
+            return self.stop.longitude
+        else:
+            return self._longitude 
+
+    def _load_gps_coords(self):
+        # get the exif info
+        try:
+            f = open(self._img, 'rb')
+            tags = EXIF.process_file(f, details=False)
+            if len(tags) == 0:
+                raise IOError("No EXIF tags")
+
+            lat = tags.get('GPS GPSLatitude', None)
+            lon = tags.get('GPS GPSLongitude', None)
+            lat_ref = tags.get('GPS GPSLatitudeRef', 'N')
+            lon_ref = tags.get('GPS GPSLongitudeRef', 'W')
+
+            # convert to lat/long
+            # from:
+            # http://www.nihilogic.dk/labs/gps_exif_google_maps/
+
+            i = -1 if lat_ref is 'N' else 1
+            flat = ((lat.values[0].num / float(lat.values[0].den)) + \
+                        ((lat.values[1].num / float(lat.values[1].den)) / 60.0) + \
+                        ((lat.values[2].num /float(lat.values[2].den)) / 3600.0)) * i
+
+            j = 1 if lon_ref is 'W' else -1
+            flon = ((lon.values[0].num / float(lon.values[0].den)) + \
+                        ((lon.values[1].num / float(lon.values[1].den)) / 60.0) + \
+                        ((lon.values[2].num /float(lon.values[2].den)) / 3600.0)) * j
+
+            self._latitude = flat
+            self._longitude = flon
+
+            # orientation
+            orientation_tag = tags.get('Image Orientation', None)
+
+            if orientation_tag is not None:
+                orientation_v = orientation_tag.values
+
+                if orientation_v[0] == 8: # counter clock wise
+                    self.orientation = -90
+                elif orientation_v[0] == 6: # clock wise
+                    self.orientation = 90
+                elif orientation_v[0] == 3: # 180
+                    self.orientation = 180
+            else:
+                self.orientation = 0
+
+        except IOError, e:
+            print >> sys.stderr, 'Error loading gps coords:', e
+            self._latitude = 0
+            self._longitude = 0
+            self.orientation = 0
+        
 
     @classmethod
     def is_duplicate(cls, md5sum):

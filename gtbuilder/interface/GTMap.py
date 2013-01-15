@@ -19,6 +19,7 @@ import sys
 
 from gi.repository import Gtk, Champlain, GtkChamplain, Clutter
 
+from StopMarker import StopMarker
 from PictureMarker import PictureMarker
 
 class GTMap(GtkChamplain.Embed):
@@ -61,55 +62,22 @@ class GTMap(GtkChamplain.Embed):
         self.view.set_reactive(True)
 
 
-    def on_click(self, view, event):
-        print 'on-click', view, event
-
-        print view.x_to_longitude(event.x), view.y_to_latitude(event.y)
-
-        # add a random place maker
-        import random
-
-        purple = Clutter.Color.new(0xf0, 0x02, 0xf0, 0xbb)
-
-        marker = Champlain.Label.new_with_text('Stop %d' % random.randint(0, 1000),
-                                               'Serif 14', None, purple)
-        marker.set_use_markup(True)
-        marker.set_color(purple)
-        marker.set_location(view.y_to_latitude(event.y), view.x_to_longitude(event.x))
-        marker.set_reactive(True)
-        marker.connect('button-release-event', self.on_marker_click)
-        self.stop_layer.add_marker(marker)
-
-        #self.stop_layer.animate_in_all_markers()
-        marker.animate_in()
-        print 'marker=', marker
-
-        return True
-
     def add_stop(self, stop):
-        purple = Clutter.Color.new(0xf0, 0x02, 0xf0, 0xbb)
-        yellow = Clutter.Color.new(0xce, 0xe7, 0x51, 0xbb)
+        m = StopMarker(self, stop)
+        self.stop_layer.add_marker(m)
+        m.animate_in()
 
-        name = stop.name
-        if name is None:
-            name = stop.id
-        #marker = Champlain.Label.new_with_text('(%d) %s' % (stop.id, name),
-        #                                       'Serif 10', None, purple)
-        marker = Champlain.Point.new()
-        #marker.set_use_markup(True)
-        marker.set_color(purple)
-        marker.set_selection_color(yellow)
-        marker.set_location(stop.latitude, stop.longitude)
-        marker.set_reactive(True)
-        #marker.connect('button-release-event', self.on_marker_click)
-        self.stop_layer.add_marker(marker)
-
-        marker.animate_in()
-
-        return marker
+        return m
 
     def remove_stop(self, stop):
-        pass
+        m = None
+        for i in self.stop_layer.get_markers():
+            if i.stop == stop:
+                m = i
+                break
+        if m:
+            self.stop_layer.remove_marker(m)
+
 
     def add_picture(self, picture):
         m = PictureMarker(self, picture)
@@ -124,6 +92,10 @@ class GTMap(GtkChamplain.Embed):
                 break
         if m:
             self.picture_layer.remove_marker(m)
+
+    def unshow_stop_info(self):
+        for m in self.stop_layer.get_markers():
+            m.hide()
 
     def unshow_pictures(self):
         for m in self.picture_layer.get_markers():
@@ -146,11 +118,6 @@ class GTMap(GtkChamplain.Embed):
         self.route_layer.remove_all()
         self.route_layer.show()
 
-    def on_marker_click(self, actor, event):
-        print 'on_marker_click', actor, event
-
-        return False
-    
     def show_image(self, img):
         self.picture_group.remove_all()
 

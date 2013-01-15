@@ -146,6 +146,9 @@ class Database(object):
                 image = picture_node.findtext('image')
                 stop_id = picture_node.findtext('stop_id')
                 ignored = picture_node.findtext('ignored')
+                latitude = picture_node.findtext('latitude')
+                longitude = picture_node.findtext('longitude')
+                orientation = picture_node.findtext('orientation')
 
                 try:
                     stop_id = int(stop_id)
@@ -153,7 +156,11 @@ class Database(object):
 
                     stop = Stop.get(stop_id)
 
-                    p = Picture(image, stop)
+                    if latitude is not None and longitude is not None and orientation is not None:
+                        p = Picture(image, latitude = float(latitude), longitude = float(longitude), orientation = int(orientation))
+                    else:
+                        p = Picture(image)
+                    stop.add_picture(p)
                     p.picture_id = int(picture_id)
                 except Exception, e:
                     print >> sys.stderr, 'Invalid picture: %s' % e
@@ -275,6 +282,12 @@ class Database(object):
             e.text = '%s' % p.stop_id
             e = ElementTree.SubElement(node, 'ignored')
             e.text = '%s' % int(p.ignored)
+            e = ElementTree.SubElement(node, 'latitude')
+            e.text = '%s' % p._latitude
+            e = ElementTree.SubElement(node, 'longitude')
+            e.text = '%s' % p._longitude
+            e = ElementTree.SubElement(node, 'orientation')
+            e.text = '%s' % p.orientation
 
         # make a tree and save it
         self.__indent(root)

@@ -228,7 +228,7 @@ class Controller(object):
     def on_add_picture_clicked(self, toolbutton, user_data = None):
         print 'on add picture'
         # pop up a load dialg
-        dlg = Gtk.FileChooserDialog('Export to...', self._gui(),
+        dlg = Gtk.FileChooserDialog('Import from...', self._gui(),
                                     Gtk.FileChooserAction.SELECT_FOLDER,
                                     (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                                      Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
@@ -252,9 +252,13 @@ class Controller(object):
                 
                 # load it!
                 p = gtbuilder.Picture(im)
+                # now create a new stop associated with this picture
+                s = gtbuilder.Stop(latitude = p.latitude, longitude = p.longitude)
+                s.add_picture(p)
 
                 # add it
-                self.add_picture(p)
+                #self.add_picture(p)
+                self.add_stop(s)
             
         dlg.destroy()
 
@@ -293,6 +297,9 @@ class Controller(object):
         self.gui.stop_list_widget.add_stop(s)
 
     def add_picture(self, p):
+        #!mwd
+        return
+
         self.gui.map_widget.add_picture(p)
         self.gui.picture_list_widget.add_picture(p)
 

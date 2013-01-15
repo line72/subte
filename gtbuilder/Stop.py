@@ -39,6 +39,8 @@ class Stop(BaseObject):
         self.location_type = location_type
         self.parent_station = parent_station
 
+        self.pictures = []
+
         # add us
         Stop.stops.append(self)
 
@@ -50,6 +52,22 @@ class Stop(BaseObject):
                 return False
 
         return True
+
+    def add_picture(self, p):
+        if p in self.pictures:
+            return
+
+        # A picture can only be associated with
+        #  a single stop
+        if p.stop:
+            p.stop.remove_picture(p)
+
+        self.pictures.append(p)
+        p.stop = self
+
+    def remove_picture(self, p):
+        try: self.pictures.remove(p)
+        except ValueError, e: pass
 
     def destroy(self):
         # see if we are used by any routes
