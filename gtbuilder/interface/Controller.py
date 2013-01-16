@@ -73,8 +73,9 @@ class Controller(object):
 
         return True
 
-    def on_stop_marker_clicked(self, actor, event, stop):
-        actor.set_selected(True)
+    def on_stop_marker_clicked(self, actor, event, marker, stop):
+        print 'on_stop_marker_clicked', self, actor, event, stop
+        marker.selected(True)
 
         if stop:
             for handler in self._registered_events.get('on-stop-selected', []):
@@ -152,10 +153,13 @@ class Controller(object):
         win = MergeStopsDialog(self._gui())
         win.get_content_area().pack_start(merge_stop_dialog, True, True, 5)
 
-        def on_response(widget, response_id, user_data = None):
-            widget.destroy()
+        handler = self.connect('on-stop-selected', merge_stop_dialog.on_stop_selected)
 
-        win.connect('response', on_response)
+        def on_response(widget, response_id, handler):
+            widget.destroy()
+            self.disconnect('on-stop-selected', handler)
+
+        win.connect('response', on_response, handler)
 
         win.show_all()
 
@@ -300,7 +304,9 @@ class Controller(object):
 
     def add_stop(self, s):
         m = self.gui.map_widget.add_stop(s)
-        m.connect('button-release-event', self.on_stop_marker_clicked, s)
+        #!mwd - this doesn't work since we have a custom marker
+        #m.connect('button-release-event', self.on_stop_marker_clicked, s)
+        m.marker.connect('button-release-event', self.on_stop_marker_clicked, m, s)
         self.gui.stop_list_widget.add_stop(s)
 
     def add_route(self, r):

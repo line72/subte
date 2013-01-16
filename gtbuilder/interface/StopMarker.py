@@ -37,15 +37,15 @@ class StopMarker(Champlain.CustomMarker):
         self.full_picture_box = None
 
         # draw our clickable marker
-        marker = Clutter.Actor()
+        self.marker = Clutter.Actor()
         purple = Clutter.Color.new(0xf0, 0x02, 0xf0, 0xbb)
-        marker.set_background_color(purple)
-        marker.set_size(15, 15)
-        marker.set_position(0, 0)
-        marker.set_anchor_point(0, 0)
-        marker.set_reactive(True)
-        self.add_actor(marker)
-        marker.show()
+        self.marker.set_background_color(purple)
+        self.marker.set_size(15, 15)
+        self.marker.set_position(0, 0)
+        self.marker.set_anchor_point(0, 0)
+        self.marker.set_reactive(True)
+        self.add_actor(self.marker)
+        self.marker.show()
 
         # our meta info
         self.group = Clutter.Group()
@@ -88,7 +88,9 @@ class StopMarker(Champlain.CustomMarker):
 
         self.set_location(self.stop.latitude, self.stop.longitude)
 
-        marker.connect('button-release-event', self.on_click)
+        # trying to capture it, then make us emit a signal doesn't
+        #  seem to be working
+        #self.marker.connect('button-release-event', self.on_click)
 
         self.set_reactive(False)
 
@@ -116,40 +118,21 @@ class StopMarker(Champlain.CustomMarker):
         else:
             self._stop = None
             
-    def on_click(self, actor, event):
-        self._visible = not self._visible
+    def selected(self, status):
+        if status == self._visible: # nothing to do here
+            return True
 
-        if self._visible:
-            self.gtmap.unshow_stop_info()
-
-            # see if we have a picture (or more)
-            if len(self.stop.pictures) > 0:
-                try:
-                    self.picture_box = Clutter.Texture()
-
-                    # just use the first picture for now
-                    picture = self.stop.pictures[0]
-
-                    if picture.thumbnail:
-                        self.picture_box.set_from_file(picture.thumbnail)
-                    else:
-                        self.picture_box.set_from_file(picture.image)
-                    self.picture_box.set_keep_aspect_ratio(True)
-                    self.picture_box.set_width(150)
-                    self.picture_box.set_position(25, 60)
-                    self.picture_box.set_anchor_point(0, 0)
-                    self.picture_box.set_z_rotation_from_gravity(picture.orientation, Clutter.Gravity.CENTER)
-                    self.picture_box.connect('button-release-event', self.on_expand_picture, picture)
-                    self.picture_box.set_reactive(True)
-                    self.group.add_child(self.picture_box)
-                except GLib.GError, e:
-                    print >> sys.stderr, 'Error loading image', e
-
-            self.group.show_all()
-
+        if status:
+            self.show()
         else:
             self.hide()
 
+        return True
+
+    def on_click(self, actor, event, user_data = None):
+        #!mwd - this doesn't work :(
+        print 'on_click and emitting', actor, event
+        self.emit('button-release-event', event)
         return True
 
     def on_expand_picture(self, actor, event, picture):
@@ -198,7 +181,35 @@ class StopMarker(Champlain.CustomMarker):
         return False
 
     def show(self):
-        pass
+        print 'show'
+        self.gtmap.unshow_stop_info()
+
+        # see if we have a picture (or more)
+        if len(self.stop.pictures) > 0:
+            try:
+                self.picture_box = Clutter.Texture()
+
+                # just use the first picture for now
+                picture = self.stop.pictures[0]
+
+                if picture.thumbnail:
+                    self.picture_box.set_from_file(picture.thumbnail)
+                else:
+                    self.picture_box.set_from_file(picture.image)
+                self.picture_box.set_keep_aspect_ratio(True)
+                self.picture_box.set_width(150)
+                self.picture_box.set_position(25, 60)
+                self.picture_box.set_anchor_point(0, 0)
+                self.picture_box.set_z_rotation_from_gravity(picture.orientation, Clutter.Gravity.CENTER)
+                self.picture_box.connect('button-release-event', self.on_expand_picture, picture)
+                self.picture_box.set_reactive(True)
+                self.group.add_child(self.picture_box)
+            except GLib.GError, e:
+                print >> sys.stderr, 'Error loading image', e
+
+        self.group.show_all()
+
+        self._visible = True
 
     def hide(self):
         self.group.hide_all()

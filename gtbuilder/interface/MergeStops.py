@@ -33,6 +33,12 @@ class MergeStops(Gtk.VBox):
     def __init__(self, controller):
         Gtk.VBox.__init__(self, False)
 
+        self._stop1 = None
+        self._stop2 = None
+
+        self._stop1_selection_active = False
+        self._stop2_selection_active = False
+
         self._controller = weakref.ref(controller)
 
         size_group = Gtk.SizeGroup(mode = Gtk.SizeGroupMode.HORIZONTAL)
@@ -64,7 +70,29 @@ class MergeStops(Gtk.VBox):
         self.pack_start(hbox, True, True, 5)
 
     def on_stop1_clicked(self, widget, data = None):
-        pass
+        self._stop1_selection_active = True
+        return True
 
     def on_stop2_clicked(self, widget, data = None):
-        pass
+        self._stop2_selection_active = True
+        return True
+
+    def on_stop_selected(self, stop):
+        print 'on_stop_selected', stop
+        name = stop.name
+        if name is None:
+            name = stop.stop_id
+
+        print 'stop1', self._stop1_selection_active
+        print 'stop2', self._stop2_selection_active
+
+        if self._stop1_selection_active:
+            self.stop1_input.set_text(name)
+            self._stop1 = stop
+            self._stop1_selection_active = False
+        elif self._stop2_selection_active:
+            self.stop2_input.set_text(name)
+            self._stop2 = stop
+            self._stop2_selection_active = False
+
+        return True
