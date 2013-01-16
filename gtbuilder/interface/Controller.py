@@ -155,11 +155,25 @@ class Controller(object):
 
         handler = self.connect('on-stop-selected', merge_stop_dialog.on_stop_selected)
 
-        def on_response(widget, response_id, handler):
+        def on_response(widget, response_id, dlg, handler):
+            if response_id == Gtk.ResponseType.ACCEPT:
+                print 'merging', dlg.stop1, dlg.stop2
+                if dlg.stop1 and dlg.stop2:
+                    dlg.stop1.merge_with(dlg.stop2)
+
+                    # destroy
+                    dlg.stop2.destroy()
+                    # remove from interface
+                    self.gui.map_widget.remove_stop(dlg.stop2)
+                    self.gui.stop_list_widget.remove_stop(dlg.stop2)
+
+                else:
+                    print 'Invalid stops selected'
+
             widget.destroy()
             self.disconnect('on-stop-selected', handler)
 
-        win.connect('response', on_response, handler)
+        win.connect('response', on_response, merge_stop_dialog, handler)
 
         win.show_all()
 

@@ -69,6 +69,13 @@ class MergeStops(Gtk.VBox):
 
         self.pack_start(hbox, True, True, 5)
 
+    @property
+    def stop1(self):
+        return self._stop1
+    @property
+    def stop2(self):
+        return self._stop2
+
     def on_stop1_clicked(self, widget, data = None):
         self._stop1_selection_active = True
         return True
@@ -78,13 +85,9 @@ class MergeStops(Gtk.VBox):
         return True
 
     def on_stop_selected(self, stop):
-        print 'on_stop_selected', stop
         name = stop.name
         if name is None:
             name = stop.stop_id
-
-        print 'stop1', self._stop1_selection_active
-        print 'stop2', self._stop2_selection_active
 
         if self._stop1_selection_active:
             self.stop1_input.set_text(name)
