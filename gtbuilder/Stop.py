@@ -53,6 +53,32 @@ class Stop(BaseObject):
 
         return True
 
+    def merge_with(self, stop):
+        '''Merge stop into us'''
+        from Route import Route
+        from Trip import Trip, TripStop
+
+        # collect their pictures
+        for pic in stop.pictures:
+            self.add_picture(pic)
+
+        # any routes that have them as a stop
+        #  need to be changed to us
+        for route in Route.routes:
+            if stop in route.stops:
+                i = route.stops.index(stop)
+                # insert us
+                route.stops.insert(i, self)
+                # remove the original
+                route.stops.remove(stop)
+
+                # any trips that have them as a stop
+                #  need to be changed to us
+                for trip in route.trips:
+                    if stop in trip.stops:
+                        trip.stops[self] = trip.stops[stop]
+                        trip.stops.pop(stop)
+
     def add_picture(self, p):
         if p in self.pictures:
             return

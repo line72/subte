@@ -29,7 +29,6 @@ from GTMap import GTMap
 from Controller import Controller
 from StopListGui import StopListGui
 from RouteListGui import RouteListGui
-from PictureListGui import PictureListGui
 
 class GTGui(Gtk.Window):
     instance = None
@@ -72,8 +71,6 @@ class GTGui(Gtk.Window):
         notebook.append_page(self.stop_list_widget.get_widget(), Gtk.Label('Stops'))
         self.route_list_widget = RouteListGui()
         notebook.append_page(self.route_list_widget.get_widget(), Gtk.Label('Routes'))
-        self.picture_list_widget = PictureListGui()
-        notebook.append_page(self.picture_list_widget.get_widget(), Gtk.Label('Pictures'))
 
         self.info_frame.add(box)
 
@@ -91,7 +88,7 @@ class GTGui(Gtk.Window):
         self.controller.initialize()
         
         # some signals
-        self.map_widget.view.connect('button-release-event', self.controller.on_map_click)
+        self.map_widget.view.connect('button-release-event', self.controller.on_map_click, self.map_widget)
         self.stop_list_widget.treeview.connect('cursor-changed', self.controller.on_stop_list_selected)
         self.route_list_widget.treeview.connect('cursor-changed', self.controller.on_route_list_selected)
         self.route_list_widget.treeview.connect('button-press-event', self.controller.on_route_cell_pressed)
@@ -123,6 +120,11 @@ class GTGui(Gtk.Window):
         remove_stop.connect('clicked', self.controller.on_remove_stop_clicked)
         toolbar.add(remove_stop)
 
+        merge_stop = Gtk.ToolButton.new_from_stock(Gtk.STOCK_EDIT)
+        merge_stop.set_tooltip_text('Merge two stops')
+        merge_stop.connect('clicked', self.controller.on_merge_stops_clicked)
+        toolbar.add(merge_stop)
+
         toolbar.add(Gtk.SeparatorToolItem())
 
         ## ROUTES
@@ -148,13 +150,14 @@ class GTGui(Gtk.Window):
         add_picture.set_tooltip_text('Add a new picture')
         add_picture.connect('clicked', self.controller.on_add_picture_clicked)
         toolbar.add(add_picture)
-
+        
         remove_picture = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
         remove_picture.set_tooltip_text('Remove a picture')
         remove_picture.connect('clicked', self.controller.on_remove_picture_clicked)
         toolbar.add(remove_picture)
-
+        
         toolbar.add(Gtk.SeparatorToolItem())
+
 
         ## EXPORT
         export = Gtk.ToolButton('Export')

@@ -20,7 +20,6 @@ import sys
 from gi.repository import Gtk, Champlain, GtkChamplain, Clutter
 
 from StopMarker import StopMarker
-from PictureMarker import PictureMarker
 
 class GTMap(GtkChamplain.Embed):
     def __init__(self):
@@ -44,12 +43,6 @@ class GTMap(GtkChamplain.Embed):
         # add a route layer
         self.route_layer = Champlain.PathLayer()
         self.view.add_layer(self.route_layer)
-
-        # our picture of stops layer
-        self.picture_layer = Champlain.MarkerLayer()
-        self.view.add_layer(self.picture_layer)
-        self.picture_layer.show()
-        self.picture_layer.show_all_markers()
 
         # our big image layer
         self.image_layer = Champlain.MarkerLayer()
@@ -78,27 +71,8 @@ class GTMap(GtkChamplain.Embed):
         if m:
             self.stop_layer.remove_marker(m)
 
-
-    def add_picture(self, picture):
-        m = PictureMarker(self, picture)
-        self.picture_layer.add_marker(m)
-        m.animate_in()
-
-    def remove_picture(self, picture):
-        m = None
-        for i in self.picture_layer.get_markers():
-            if i.picture == picture:
-                m = i
-                break
-        if m:
-            self.picture_layer.remove_marker(m)
-
     def unshow_stop_info(self):
         for m in self.stop_layer.get_markers():
-            m.hide()
-
-    def unshow_pictures(self):
-        for m in self.picture_layer.get_markers():
             m.hide()
 
     def draw_route(self, r):

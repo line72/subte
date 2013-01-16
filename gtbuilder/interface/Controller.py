@@ -26,6 +26,7 @@ import gtbuilder
 
 from AddStop import AddStopDialog, AddStop
 from AddRoute import AddRouteDialog, EditRouteDialog, AddRoute
+from MergeStops import MergeStopsDialog, MergeStops
 from TripList import TripListDialog, TripList
 
 class Controller(object):
@@ -49,18 +50,6 @@ class Controller(object):
         for r in gtbuilder.Route.routes:
             self.add_route(r)
 
-        # add our pictures
-        for p in gtbuilder.Picture.pictures:
-            self.add_picture(p)
-        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0161.JPG')
-        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0162.JPG')
-        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0163.JPG')
-        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0164.JPG')
-        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0165.JPG')
-        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0166.JPG')
-        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0167.JPG')
-        #self.add_picture_marker('/home/dillavou/misc/bjcta/stop_pictures/IMG_0168.JPG')
-
     def connect(self, signal, fn, *args):
         if signal not in self._registered_events:
             self._registered_events[signal] = []
@@ -76,9 +65,11 @@ class Controller(object):
         except Exception:
             pass
 
-    def on_map_click(self, view, event):
+    def on_map_click(self, view, event, gtmap):
         for handler in self._registered_events.get('on-map-clicked', []):
             handler._fn(view, event, *(handler._args))
+
+        gtmap.unshow_stop_info()
 
         return True
 
@@ -151,6 +142,23 @@ class Controller(object):
 
         except Exception, e:
             print 'Stop is in use by route'
+
+    def on_merge_stops_clicked(self, toolbutton, user_data = None):
+        print 'merging stops'
+
+        # open the dialog
+        merge_stop_dialog = MergeStops(self)
+
+        win = MergeStopsDialog(self._gui())
+        win.get_content_area().pack_start(merge_stop_dialog, True, True, 5)
+
+        def on_response(widget, response_id, user_data = None):
+            widget.destroy()
+
+        win.connect('response', on_response)
+
+        win.show_all()
+
 
     def on_add_route_clicked(self, toolbutton, user_data = None):
         print 'on add route'
@@ -257,7 +265,6 @@ class Controller(object):
                 s.add_picture(p)
 
                 # add it
-                #self.add_picture(p)
                 self.add_stop(s)
             
         dlg.destroy()
@@ -295,13 +302,6 @@ class Controller(object):
         m = self.gui.map_widget.add_stop(s)
         m.connect('button-release-event', self.on_stop_marker_clicked, s)
         self.gui.stop_list_widget.add_stop(s)
-
-    def add_picture(self, p):
-        #!mwd
-        return
-
-        self.gui.map_widget.add_picture(p)
-        self.gui.picture_list_widget.add_picture(p)
 
     def add_route(self, r):
         print 'addroute', r
