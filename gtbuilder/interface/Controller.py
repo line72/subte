@@ -19,6 +19,7 @@ import random
 import weakref
 import os
 import md5
+import sys
 
 from gi.repository import Gtk
 
@@ -75,13 +76,12 @@ class Controller(object):
 
     def on_stop_marker_clicked(self, actor, event, marker, stop):
         print 'on_stop_marker_clicked', self, actor, event, stop
-        marker.clicked(True)
 
-        if stop:
-            for handler in self._registered_events.get('on-stop-selected', []):
-                handler._fn(stop, *(handler._args))
-
-            # hi light it in the list
+        # select the list widget
+        #  This will calls its callback
+        #  which properly centers the map and
+        #  shows everything
+        self.gui.stop_list_widget.set_selected(stop)
 
         return True
 

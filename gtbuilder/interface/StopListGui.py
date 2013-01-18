@@ -55,6 +55,21 @@ class StopListGui(object):
 
         return stop
 
+    def set_selected(self, stop):
+        if not stop:
+            return
+
+        it = self.model.get_iter_first()
+        while it:
+            stop_id = self.model.get_value(it, 0)
+
+            if stop_id == stop.stop_id:
+                self.treeview.set_cursor(self.model.get_path(it))
+                return True
+
+            it = self.model.iter_next(it)
+        return False
+
     def clear_model(self):
         # clear the old model
         self.model.clear()
