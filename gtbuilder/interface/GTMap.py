@@ -20,6 +20,7 @@ import sys
 from gi.repository import Gtk, Champlain, GtkChamplain, Clutter
 
 from StopMarker import StopMarker
+from PopupMarker import PopupMarker
 
 class GTMap(GtkChamplain.Embed):
     def __init__(self):
@@ -43,6 +44,10 @@ class GTMap(GtkChamplain.Embed):
         # add a route layer
         self.route_layer = Champlain.PathLayer()
         self.view.add_layer(self.route_layer)
+
+        # our popup layer
+        self.popup_layer = Champlain.MarkerLayer()
+        self.view.add_layer(self.popup_layer)
 
         # our big image layer
         self.image_layer = Champlain.MarkerLayer()
@@ -71,6 +76,14 @@ class GTMap(GtkChamplain.Embed):
         if m:
             self.stop_layer.remove_marker(m)
 
+    def show_stop(self, stop):
+        for i in self.stop_layer.get_markers():
+            if i.stop == stop:
+                # zoom here
+                self.view.go_to(i.stop.latitude, i.stop.longitude)
+                i.clicked(True)
+                break
+
     def unshow_stop_info(self):
         for m in self.stop_layer.get_markers():
             m.hide()
@@ -92,6 +105,23 @@ class GTMap(GtkChamplain.Embed):
         self.route_layer.remove_all()
         self.route_layer.show()
 
+    def show_popup(self, stop_marker, group):
+        if stop_marker is None or group is None:
+            return
+
+        self.popup_layer.remove_all()
+        group.show_all()
+        self.popup_layer.add_marker(PopupMarker(group, stop_marker.stop.latitude, stop_marker.stop.longitude))
+
+        self.popup_layer.show()
+
+    def unshow_popup(self, stop_marker):
+        if stop_marker is None:
+            return
+
+        self.popup_layer.remove_all()
+        self.popup_layer.hide()            
+        
     def show_image(self, img):
         self.picture_group.remove_all()
 

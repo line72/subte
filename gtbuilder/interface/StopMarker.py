@@ -33,13 +33,14 @@ class StopMarker(Champlain.CustomMarker):
         self._stop = None
         self.stop = stop
 
-        self.picture_box = None
         self.full_picture_box = None
 
         # draw our clickable marker
         self.marker = Clutter.Actor()
         purple = Clutter.Color.new(0xf0, 0x02, 0xf0, 0xbb)
+        yellow = Clutter.Color.new(0xfd, 0xfd, 0x02, 0xbb)
         self.marker.set_background_color(purple)
+        #self.marker.set_selection_color(yellow)
         self.marker.set_size(15, 15)
         self.marker.set_position(0, 0)
         self.marker.set_anchor_point(0, 0)
@@ -47,43 +48,6 @@ class StopMarker(Champlain.CustomMarker):
         self.add_actor(self.marker)
         self.marker.show()
 
-        # our meta info
-        self.group = Clutter.Group()
-        self.group.set_position(20, 0)
-        self.group.set_anchor_point(0, 0)
-        self.add_actor(self.group)
-
-        # just drawn a rectange or something
-        rect = Clutter.Actor()
-        c = Clutter.Color.new(0xf0, 0xf0, 0xf0, 0xfe)
-        rect.set_background_color(c)
-        rect.set_size(200, 270)
-        rect.set_position(0, 10)
-        rect.set_anchor_point(0, 0)
-        self.group.add_child(rect)
-
-        self.name = Clutter.Text()
-        if self.stop.name:
-            self.name.set_text(self.stop.name)
-        else:
-            self.name.set_text('%s' % self.stop.stop_id)
-        self.name.set_size(190, 25)
-        self.name.set_position(20, 15)
-        self.name.set_anchor_point(0, 0)
-        self.group.add_child(self.name)
-
-        self.info = Clutter.Text()
-        self.info.set_use_markup(True)
-        self.info.set_text('')
-        self.info.set_size(190, 150)
-        self.info.set_position(5, 210)
-        self.info.set_anchor_point(0, 0)
-        self.group.add_child(self.info)
-
-        self.info.set_markup('<markup><big><b>GPS Info:</b></big>\n<b>Latitude:</b> %s\n<b>Longitude:</b> %s</markup>' % (self.stop.latitude, self.stop.longitude))
-
-        # hide our meta
-        self.group.hide_all()
         self._visible = False
 
         self.set_location(self.stop.latitude, self.stop.longitude)
@@ -119,6 +83,10 @@ class StopMarker(Champlain.CustomMarker):
             self._stop = None
             
     def selected(self, status):
+        #self.marker.selected = status
+        return True
+
+    def clicked(self, status):
         if status == self._visible: # nothing to do here
             return True
 
@@ -184,39 +152,69 @@ class StopMarker(Champlain.CustomMarker):
         print 'show'
         self.gtmap.unshow_stop_info()
 
+        # our meta info
+        group = Clutter.Group()
+        group.set_position(20, 0)
+        group.set_anchor_point(0, 0)
+        #self.add_actor(group)
+
+        # just drawn a rectange or something
+        rect = Clutter.Actor()
+        c = Clutter.Color.new(0xf0, 0xf0, 0xf0, 0xfe)
+        rect.set_background_color(c)
+        rect.set_size(200, 270)
+        rect.set_position(0, 10)
+        rect.set_anchor_point(0, 0)
+        group.add_child(rect)
+
+        name = Clutter.Text()
+        if self.stop.name:
+            name.set_text(self.stop.name)
+        else:
+            name.set_text('%s' % self.stop.stop_id)
+        name.set_size(190, 25)
+        name.set_position(20, 15)
+        name.set_anchor_point(0, 0)
+        group.add_child(name)
+
+        info = Clutter.Text()
+        info.set_use_markup(True)
+        info.set_text('')
+        info.set_size(190, 150)
+        info.set_position(5, 210)
+        info.set_anchor_point(0, 0)
+        group.add_child(info)
+
+        info.set_markup('<markup><big><b>GPS Info:</b></big>\n<b>Latitude:</b> %s\n<b>Longitude:</b> %s</markup>' % (self.stop.latitude, self.stop.longitude))
+
         # see if we have a picture (or more)
         if len(self.stop.pictures) > 0:
             try:
-                self.picture_box = Clutter.Texture()
+                picture_box = Clutter.Texture()
 
                 # just use the first picture for now
                 picture = self.stop.pictures[0]
 
                 if picture.thumbnail:
-                    self.picture_box.set_from_file(picture.thumbnail)
+                    picture_box.set_from_file(picture.thumbnail)
                 else:
-                    self.picture_box.set_from_file(picture.image)
-                self.picture_box.set_keep_aspect_ratio(True)
-                self.picture_box.set_width(150)
-                self.picture_box.set_position(25, 60)
-                self.picture_box.set_anchor_point(0, 0)
-                self.picture_box.set_z_rotation_from_gravity(picture.orientation, Clutter.Gravity.CENTER)
-                self.picture_box.connect('button-release-event', self.on_expand_picture, picture)
-                self.picture_box.set_reactive(True)
-                self.group.add_child(self.picture_box)
+                    picture_box.set_from_file(picture.image)
+                picture_box.set_keep_aspect_ratio(True)
+                picture_box.set_width(150)
+                picture_box.set_position(25, 60)
+                picture_box.set_anchor_point(0, 0)
+                picture_box.set_z_rotation_from_gravity(picture.orientation, Clutter.Gravity.CENTER)
+                picture_box.connect('button-release-event', self.on_expand_picture, picture)
+                picture_box.set_reactive(True)
+                group.add_child(picture_box)
             except GLib.GError, e:
                 print >> sys.stderr, 'Error loading image', e
 
-        self.group.show_all()
+        self.gtmap.show_popup(self, group)
 
         self._visible = True
 
     def hide(self):
-        self.group.hide_all()
-
-        if self.picture_box:
-            self.group.remove_child(self.picture_box)
-            self.picture_box = None
-
-
+        self.gtmap.unshow_popup(self)
+            
         self._visible = False

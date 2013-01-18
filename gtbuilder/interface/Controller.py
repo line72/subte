@@ -75,11 +75,13 @@ class Controller(object):
 
     def on_stop_marker_clicked(self, actor, event, marker, stop):
         print 'on_stop_marker_clicked', self, actor, event, stop
-        marker.selected(True)
+        marker.clicked(True)
 
         if stop:
             for handler in self._registered_events.get('on-stop-selected', []):
                 handler._fn(stop, *(handler._args))
+
+            # hi light it in the list
 
         return True
 
@@ -87,6 +89,11 @@ class Controller(object):
         s = self.gui.stop_list_widget.get_selected()
 
         # hi-light it?
+        if s:
+            self.gui.map_widget.show_stop(s)
+
+            for handler in self._registered_events.get('on-stop-selected', []):
+                handler._fn(stop, *(handler._args))
 
         return True
 
