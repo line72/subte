@@ -20,6 +20,8 @@ import os
 
 import weakref
 import cPickle as pickle
+import string
+import random
 
 import xml.etree.ElementTree as ElementTree
 import xml.parsers.expat
@@ -296,7 +298,15 @@ class Database(object):
         self.__indent(root)
         tree = ElementTree.ElementTree(root)
         d = os.path.dirname(fname)
-        tree.write(os.path.join(d, '.gtbuilder.xml'), encoding = 'UTF-8')
+        tmpname = ''.join([random.choice(string.ascii_letters) for i in range(8)])
+        # write out a temporary
+        tree.write(os.path.join(d, tmpname), encoding = 'UTF-8')
+        # make a backup
+        try: os.rename(os.path.join(d, '.gtbuilder.xml'), os.path.join(d, '.gtbuilder.xml-bk'))
+        except OSError, e: pass
+        # move the temporary to the new
+        try: os.rename(os.path.join(d, tmpname), os.path.join(d, '.gtbuilder.xml'))
+        except OSError, e: pass
 
     def __indent(self, elem, level = 0):
         i = "\n" + level * "  "
