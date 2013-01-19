@@ -112,6 +112,9 @@ class Stop(BaseObject):
         if not self.is_orphan:
             raise Exception('Stop is in use')
 
+        for i in self.pictures:
+            i.ignored = True
+
         try:
             Stop.stops.remove(self)
         except ValueError:

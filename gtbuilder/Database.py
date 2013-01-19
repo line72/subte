@@ -144,7 +144,7 @@ class Database(object):
             for picture_node in tree.getroot().findall('Picture'):
                 picture_id = picture_node.get('id', Picture.new_id())
                 image = picture_node.findtext('image')
-                stop_id = picture_node.findtext('stop_id')
+                stop_id = picture_node.findtext('stop_id', -1)
                 ignored = picture_node.findtext('ignored')
                 latitude = picture_node.findtext('latitude')
                 longitude = picture_node.findtext('longitude')
@@ -160,7 +160,10 @@ class Database(object):
                         p = Picture(image, latitude = float(latitude), longitude = float(longitude), orientation = int(orientation))
                     else:
                         p = Picture(image)
-                    stop.add_picture(p)
+
+                    if stop:
+                        stop.add_picture(p)
+
                     p.picture_id = int(picture_id)
                 except Exception, e:
                     print >> sys.stderr, 'Invalid picture: %s' % e
