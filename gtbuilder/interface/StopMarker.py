@@ -22,6 +22,7 @@ import weakref
 from gi.repository import Gtk, Champlain, Clutter, GLib
 
 import gtbuilder
+import shapes
 
 class StopMarker(Champlain.CustomMarker):
     def __init__(self, gtmap, stop):
@@ -149,43 +150,47 @@ class StopMarker(Champlain.CustomMarker):
         return False
 
     def show(self):
-        print 'show'
         self.gtmap.unshow_stop_info()
+
+        width = 500
+        height = 200
 
         # our meta info
         group = Clutter.Group()
-        group.set_position(20, 0)
-        group.set_anchor_point(0, 0)
-        #self.add_actor(group)
+        group.set_position(8, -8)
+        group.set_anchor_point(width / 2, height)
 
         # just drawn a rectange or something
-        rect = Clutter.Actor()
-        c = Clutter.Color.new(0xf0, 0xf0, 0xf0, 0xfe)
-        rect.set_background_color(c)
-        rect.set_size(200, 270)
-        rect.set_position(0, 10)
+        rect = shapes.Bubble()
+        c = Clutter.Color.new(0xde, 0xde, 0xde, 0xfe)
+        rect.set_color(c)
+        rect.set_has_outline(True)
+        rect.set_outline_color(Clutter.Color.new(0x00, 0x00, 0x00, 0xff))
+        rect.set_size(width, height)
+        rect.set_position(0, 8)
         rect.set_anchor_point(0, 0)
+        rect.set_has_shadow(True)
         group.add_child(rect)
 
         name = Clutter.Text()
         if self.stop.name:
-            name.set_text(self.stop.name)
+            name.set_markup('<markup><b>%s</b></markup>' % self.stop.name.replace('&', '&amp;'))
         else:
-            name.set_text('%s' % self.stop.stop_id)
-        name.set_size(190, 25)
-        name.set_position(20, 15)
+            name.set_markup('<markup><b>%s</b></markup>' % self.stop.stop_id)
+        name.set_size(400, 25)
+        name.set_position(10, 15)
         name.set_anchor_point(0, 0)
         group.add_child(name)
 
         info = Clutter.Text()
         info.set_use_markup(True)
         info.set_text('')
-        info.set_size(190, 150)
-        info.set_position(5, 210)
+        info.set_size(200, 150)
+        info.set_position(10, 50)
         info.set_anchor_point(0, 0)
         group.add_child(info)
 
-        info.set_markup('<markup><big><b>GPS Info:</b></big>\n<b>Latitude:</b> %s\n<b>Longitude:</b> %s</markup>' % (self.stop.latitude, self.stop.longitude))
+        info.set_markup('<markup><b>Latitude:</b> %s\n<b>Longitude:</b> %s</markup>' % (self.stop.latitude, self.stop.longitude))
 
         # see if we have a picture (or more)
         if len(self.stop.pictures) > 0:
@@ -199,11 +204,21 @@ class StopMarker(Champlain.CustomMarker):
                     picture_box.set_from_file(picture.thumbnail)
                 else:
                     picture_box.set_from_file(picture.image)
+
+                w, h = picture_box.get_base_size()
                 picture_box.set_keep_aspect_ratio(True)
-                picture_box.set_width(150)
-                picture_box.set_position(25, 60)
                 picture_box.set_anchor_point(0, 0)
-                picture_box.set_z_rotation_from_gravity(picture.orientation, Clutter.Gravity.CENTER)
+                if picture.orientation in (90, -90):
+                    #!mwd - I have no idea how the fuck clutter is rotation this
+                    #  It seems as though the bounding box doesn't change
+                    #  so I'm just making up some position numbers
+                    picture_box.set_width(100)
+                    picture_box.set_position(width - ((h/w) * 100) - (w/2) - 45, 60)
+                    picture_box.set_z_rotation_from_gravity(picture.orientation, Clutter.Gravity.CENTER)
+                else:
+                    picture_box.set_height(100)
+                    picture_box.set_position(width - ((w/h) * 100) - (w/2) - 25, 50)
+
                 picture_box.connect('button-release-event', self.on_expand_picture, picture)
                 picture_box.set_reactive(True)
                 group.add_child(picture_box)
