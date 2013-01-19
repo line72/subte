@@ -93,7 +93,7 @@ class Controller(object):
             self.gui.map_widget.show_stop(s)
 
             for handler in self._registered_events.get('on-stop-selected', []):
-                handler._fn(stop, *(handler._args))
+                handler._fn(s, *(handler._args))
 
         return True
 
