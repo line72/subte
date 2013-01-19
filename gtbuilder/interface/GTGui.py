@@ -120,7 +120,8 @@ class GTGui(Gtk.Window):
         remove_stop.connect('clicked', self.controller.on_remove_stop_clicked)
         toolbar.add(remove_stop)
 
-        merge_stop = Gtk.ToolButton.new_from_stock(Gtk.STOCK_EDIT)
+        merge_stop = Gtk.ToolButton()
+        merge_stop.set_icon_name('gtk-copy')
         merge_stop.set_tooltip_text('Merge two stops')
         merge_stop.connect('clicked', self.controller.on_merge_stops_clicked)
         toolbar.add(merge_stop)
@@ -161,6 +162,7 @@ class GTGui(Gtk.Window):
 
         ## EXPORT
         export = Gtk.ToolButton('Export')
+        export.set_icon_name('document-send')
         export.set_tooltip_text('Export to Google')
         export.connect('clicked', self.controller.on_export)
         toolbar.add(export)
