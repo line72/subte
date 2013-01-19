@@ -44,6 +44,17 @@ class Stop(BaseObject):
         # add us
         Stop.stops.append(self)
 
+    @property
+    def routes(self):
+        from Route import Route
+
+        r = []
+        for route in Route.routes:
+            if self in route.stops:
+                r.append(route)
+
+        return r
+
     def is_orphan(self):
         '''Nothing is using this stop'''
         from Route import Route

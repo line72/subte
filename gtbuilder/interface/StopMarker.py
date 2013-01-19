@@ -185,12 +185,23 @@ class StopMarker(Champlain.CustomMarker):
         info = Clutter.Text()
         info.set_use_markup(True)
         info.set_text('')
-        info.set_size(200, 150)
+        info.set_size(200, 75)
         info.set_position(10, 50)
         info.set_anchor_point(0, 0)
         group.add_child(info)
 
         info.set_markup('<markup><b>Latitude:</b> %s\n<b>Longitude:</b> %s</markup>' % (self.stop.latitude, self.stop.longitude))
+
+        routes = Clutter.Text()
+        if len(self.stop.routes) > 0:
+            route_names = ', '.join([x.short_name for x in self.stop.routes])
+        else:
+            route_names = 'None'
+        routes.set_markup('<markup><b>Routes:</b> %s</markup>' % route_names)
+        routes.set_size(200, 75)
+        routes.set_position(10, 100)
+        routes.set_anchor_point(0, 0)
+        group.add_child(routes)
 
         # see if we have a picture (or more)
         if len(self.stop.pictures) > 0:
