@@ -115,6 +115,11 @@ class GTGui(Gtk.Window):
         add_stop.connect('clicked', self.controller.on_add_stop_clicked)
         toolbar.add(add_stop)
 
+        edit_stop = Gtk.ToolButton.new_from_stock(Gtk.STOCK_EDIT)
+        edit_stop.set_tooltip_text('Edit a new stop')
+        edit_stop.connect('clicked', self.controller.on_edit_stop_clicked)
+        toolbar.add(edit_stop)
+
         remove_stop = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
         remove_stop.set_tooltip_text('Remove a stop')
         remove_stop.connect('clicked', self.controller.on_remove_stop_clicked)

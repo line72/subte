@@ -83,6 +83,25 @@ class StopListGui(object):
             print 'appending'
             self.model.append([s.stop_id, '(%s) %s' % (s.stop_id, name)])
 
+    def update_stop(self, s):
+        if s:
+            # search for this
+            it = self.model.get_iter_first()
+            while it:
+                stop_id = self.model.get_value(it, 0)
+
+                if s.stop_id == stop_id:
+                    name = s.name
+                    if name is None:
+                        name = s.stop_id
+
+                    self.model.set_value(it, 1, '(%s) %s' % (s.stop_id, name))
+                    return True
+
+                it = self.model.iter_next(it)
+
+        return False
+
     def remove_stop(self, s):
         if s:
             # search for this

@@ -28,9 +28,16 @@ class AddStopDialog(Gtk.Dialog):
                             ('Add', Gtk.ResponseType.ACCEPT,
                             'Cancel', Gtk.ResponseType.CANCEL))
 
+class EditStopDialog(Gtk.Dialog):
+    def __init__(self, parent):
+        Gtk.Dialog.__init__(self, 'Edit Stop', parent,
+                            Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                            ('Edit', Gtk.ResponseType.ACCEPT,
+                            'Cancel', Gtk.ResponseType.CANCEL))
+
 class AddStop(Gtk.VBox):
     '''A dialog that creates a new stop'''
-    def __init__(self, controller):
+    def __init__(self, controller, stop = None):
         Gtk.VBox.__init__(self, False)
         
         self._controller = weakref.ref(controller)
@@ -73,12 +80,19 @@ class AddStop(Gtk.VBox):
 
         self.pack_start(hbox, True, True, 5)
 
+        self._fill(stop)
+
     def get_name(self):
         return self.name_txt.get_text()
 
     def get_description(self):
         b = self.description_txt.get_buffer()
         return b.get_text(b.get_start_iter(), b.get_end_iter(), False)
+
+    def set_description(self, desc):
+        b = Gtk.TextBuffer()
+        b.set_text(desc)
+        self.description_txt.set_buffer(b)
 
     def get_latitude(self):
         return float(self.latitude_txt.get_text())
@@ -94,3 +108,12 @@ class AddStop(Gtk.VBox):
         print latitude, longitude
         self.latitude_txt.set_text(str(latitude))
         self.longitude_txt.set_text(str(longitude))
+        
+    def _fill(self, stop):
+        if stop is None:
+            return
+
+        self.name_txt.set_text(stop.name)
+        self.set_description(stop.description)
+        self.latitude_txt.set_text('%s' % stop.latitude)
+        self.longitude_txt.set_text('%s' % stop.longitude)

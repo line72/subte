@@ -25,7 +25,7 @@ from gi.repository import Gtk
 
 import gtbuilder
 
-from AddStop import AddStopDialog, AddStop
+from AddStop import AddStopDialog, EditStopDialog, AddStop
 from AddRoute import AddRouteDialog, EditRouteDialog, AddRoute
 from MergeStops import MergeStopsDialog, MergeStops
 from TripList import TripListDialog, TripList
@@ -128,6 +128,36 @@ class Controller(object):
 
         win.destroy()
 
+    def on_edit_stop_clicked(self, toolbutton, user_data = None):
+        print 'on edit stop'
+
+        stop = self.gui.stop_list_widget.get_selected()
+        if stop is None:
+            return True
+
+        stop_dialog = AddStop(self, stop)
+
+        win = EditStopDialog(self._gui())
+        win.get_content_area().pack_start(stop_dialog, True, True, 5)
+        win.show_all()
+
+        handler = self.connect('on-map-clicked', stop_dialog.on_map_clicked)
+
+        resp = win.run()
+        self.disconnect('on-map-clicked', handler)
+
+        if resp == Gtk.ResponseType.ACCEPT:
+            # update the stop
+            stop.name = stop_dialog.get_name()
+            stop.description = stop_dialog.get_description()
+            stop.latitude = stop_dialog.get_latitude()
+            stop.longitude = stop_dialog.get_longitude()
+
+            # update the stop
+            self.update_stop(stop)
+
+        win.destroy()
+
     def on_remove_stop_clicked(self, toolbutton, user_data = None):
         print 'removing stop'
         stop = self.gui.stop_list_widget.get_selected()
@@ -217,7 +247,7 @@ class Controller(object):
         route = self.gui.route_list_widget.get_selected()
         if route is None:
             print 'Nothing selected'
-            return
+            return True
 
         route_dialog = AddRoute(self, route)
 
@@ -329,6 +359,10 @@ class Controller(object):
         #m.connect('button-release-event', self.on_stop_marker_clicked, s)
         m.marker.connect('button-release-event', self.on_stop_marker_clicked, m, s)
         self.gui.stop_list_widget.add_stop(s)
+
+    def update_stop(self, s):
+        self.gui.map_widget.update_stop(s)
+        self.gui.stop_list_widget.update_stop(s)
 
     def add_route(self, r):
         print 'addroute', r
