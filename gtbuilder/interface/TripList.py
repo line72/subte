@@ -118,7 +118,8 @@ class TripList(Gtk.VBox):
         if self.get_calendar() is None:
             return
 
-        t = self._route.add_trip('trip0', self.get_calendar())
+        trip_name = '%s%d' % (self._route.short_name, len(self._route.trips))
+        t = self._route.add_trip(trip_name, self.get_calendar())
         self.add_trip(t)
 
         return True
