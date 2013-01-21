@@ -42,6 +42,8 @@ class Controller(object):
         self._gui = weakref.ref(gui)
         self._registered_events = {}
 
+        self._selected_stops = []
+
     def initialize(self):
         # fill in the initial data
         # stops first

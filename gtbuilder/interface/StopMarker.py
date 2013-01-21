@@ -36,12 +36,13 @@ class StopMarker(Champlain.CustomMarker):
 
         self.full_picture_box = None
 
+        self.unselected_color = Clutter.Color.new(0xf0, 0x02, 0xf0, 0xbb)
+        self.selected_color = Clutter.Color.new(0xfd, 0xfd, 0x02, 0xbb)
+        
+
         # draw our clickable marker
         self.marker = Clutter.Actor()
-        purple = Clutter.Color.new(0xf0, 0x02, 0xf0, 0xbb)
-        yellow = Clutter.Color.new(0xfd, 0xfd, 0x02, 0xbb)
-        self.marker.set_background_color(purple)
-        #self.marker.set_selection_color(yellow)
+        self.marker.set_background_color(self.unselected_color)
         self.marker.set_size(15, 15)
         self.marker.set_position(0, 0)
         self.marker.set_anchor_point(0, 0)
@@ -84,7 +85,10 @@ class StopMarker(Champlain.CustomMarker):
             self._stop = None
             
     def selected(self, status):
-        #self.marker.selected = status
+        if status:
+            self.marker.set_background_color(self.selected_color)
+        else:
+            self.marker.set_background_color(self.unselected_color)
         return True
 
     def clicked(self, status):
