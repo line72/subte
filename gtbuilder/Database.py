@@ -113,7 +113,11 @@ class Database(object):
                     if stop_id is None:
                         print >> sys.stderr, 'Invalid Route stop', stop_id
                     else:
-                        r.add_stop(Stop.get(int(stop_id)))
+                        s = Stop.get(int(stop_id))
+                        if s:
+                            r.add_stop(s)
+                        else:
+                            print >> sys.stderr, 'Invalid route stop', stop_id
 
             for trip_node in tree.getroot().findall('Trip'):
                 trip_id = trip_node.get('id', Trip.new_id())
