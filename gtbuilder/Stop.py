@@ -121,6 +121,9 @@ class Stop(BaseObject):
             pass
 
     def write(self, f):
+        if self.is_orphan(): # skip us
+            return
+
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
                     self.stop_id, self.code,
                     self.name, self.description,
