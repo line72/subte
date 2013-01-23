@@ -43,9 +43,9 @@ class StopMarker(Champlain.CustomMarker):
         # draw our clickable marker
         self.marker = Clutter.Actor()
         self.marker.set_background_color(self.unselected_color)
-        self.marker.set_size(15, 15)
+        self.marker.set_size(16, 16)
         self.marker.set_position(0, 0)
-        self.marker.set_anchor_point(0, 0)
+        self.marker.set_anchor_point(8, 8)
         self.marker.set_reactive(True)
         self.add_actor(self.marker)
         self.marker.show()
