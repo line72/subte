@@ -88,7 +88,7 @@ class GTMap(GtkChamplain.Embed):
         for i in self.stop_layer.get_markers():
             if i.stop == stop:
                 # zoom here
-                self.view.go_to(i.stop.latitude, i.stop.longitude)
+                #self.view.go_to(i.stop.latitude, i.stop.longitude)
                 i.clicked(True)
                 break
 

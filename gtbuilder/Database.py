@@ -142,6 +142,9 @@ class Database(object):
                     departure = trip_stop_node.findtext('departure')
 
                     stop = Stop.get(int(stop_id))
+                    if stop is None:
+                        print >> sys.stderr, 'Trip stop of an invalid stop', stop_id
+                        continue
                     ts = TripStop(stop = stop, arrival = arrival, departure = departure)
 
                     # add to our trip
