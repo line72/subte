@@ -275,14 +275,16 @@ class Database(object):
             e.text = '%s' % t.route.route_id
             # this trips stops
             stop_node = ElementTree.SubElement(node, 'TripStops')
-            for k, v in t.stops.iteritems():
-                n = ElementTree.SubElement(stop_node, 'TripStop')
-                e = ElementTree.SubElement(n, 'stop_id')
-                e.text = '%s' % v.stop.stop_id
-                e = ElementTree.SubElement(n, 'arrival')
-                e.text = '%s' % (v.arrival or '')
-                e = ElementTree.SubElement(n, 'departure')
-                e.text = '%s' % (v.departure or '')
+            for rs in t.route.stops:
+                if rs in t.stops:
+                    v = t.get_stop(rs)
+                    n = ElementTree.SubElement(stop_node, 'TripStop')
+                    e = ElementTree.SubElement(n, 'stop_id')
+                    e.text = '%s' % v.stop.stop_id
+                    e = ElementTree.SubElement(n, 'arrival')
+                    e.text = '%s' % (v.arrival or '')
+                    e = ElementTree.SubElement(n, 'departure')
+                    e.text = '%s' % (v.departure or '')
 
         # the pictures
         for p in Picture.pictures:
