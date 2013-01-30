@@ -20,6 +20,7 @@ import md5
 import os
 import sys
 import EXIF
+import Image
 
 class Picture(object):
     pictures = []
@@ -42,29 +43,34 @@ class Picture(object):
         try:
             f = open(img, 'rb')
             self.md5sum = md5.md5(f.read()).hexdigest()
+            f.seek(0)
 
-            # write out a thumbnail
+            # see if a thumbnail exists
             cache_dir = os.path.join(os.path.expanduser('~'), '.cache', 'gtbuilder')
             try: os.makedirs(cache_dir)
             except OSError: pass
 
-            f.seek(0) # reset f
-            tags = EXIF.process_file(f, details = False)
-            t = tags.get('JPEGThumbnail', None)
-            if t:
-                thumb_md5 = md5.md5(t).hexdigest()
+            self.thumbnail = os.path.join(cache_dir, self.md5sum)
+            try:
+                f2 = open(self.thumbnail, 'rb')
+                f2.close()
+            except IOError, e:
+                # no thumbnail cached, create one
 
-                self.thumbnail = os.path.join(cache_dir, thumb_md5)
-
-                # write this
-                try:
-                    os.stat(self.thumbnail)
-                except OSError, e: # doesn't exist, write it
+                # see if the picture includes one
+                f.seek(0) # reset f
+                tags = EXIF.process_file(f, details = False)
+                t = tags.get('JPEGThumbnail', None)
+                if t:
+                    # write this
                     f2 = open(self.thumbnail, 'wb')
                     f2.write(t)
                     f2.close()
-            else:
-                print >> sys.stderr, "Image %s has no thumbnail" % img
+                else:
+                    # no embeded thumbnail, generate one?
+                    im = Image.open(f)
+                    im.thumbnail((128, 128))
+                    im.save(self.thumbnail, 'JPEG')
         except IOError, e:
             pass
 
