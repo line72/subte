@@ -163,8 +163,8 @@ class Picture(object):
             else:
                 self.orientation = 0
 
-        except IOError, e:
-            print >> sys.stderr, 'Error loading gps coords:', e
+        except (IOError, AttributeError), e:
+            print >> sys.stderr, 'Error loading gps coords for %s:' % self._img, e
             self._latitude = 0
             self._longitude = 0
             self.orientation = 0

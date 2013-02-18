@@ -82,11 +82,14 @@ class Database(object):
                 try: location_type = int(location_type)
                 except: pass
 
-                s = Stop(code = code, name = name, description = description,
-                         latitude = float(latitude), longitude = float(longitude),
-                         zone_id = zone_id, url = url, location_type = location_type,
-                         parent_station = parent_station)
-                s.stop_id = int(stop_id)
+                try:
+                    s = Stop(code = code, name = name, description = description,
+                             latitude = float(latitude), longitude = float(longitude),
+                             zone_id = zone_id, url = url, location_type = location_type,
+                             parent_station = parent_station)
+                    s.stop_id = int(stop_id)
+                except Exception, e:
+                    print >> sys.stderr, 'Error loading stop', name, e
 
             for route_node in tree.getroot().findall('Route'):
                 route_id = route_node.get('id', Route.new_id())
