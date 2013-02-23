@@ -138,6 +138,7 @@ class TripList(Gtk.VBox):
             stop = self._route.stops[column-1]
             trip_stop = trip.get_stop(stop)
             trip_stop.arrival = text
+            trip_stop.departure = text
         except (AttributeError, IndexError), e:
             print 'Warning->', e
             return False
