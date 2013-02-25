@@ -379,7 +379,7 @@ class Controller(object):
         self.gui.path_list_widget.remove_path(path)
 
         # make sure no routes use this
-        for r in Route.routes:
+        for r in gtbuilder.Route.routes:
             if r.path == path:
                 r.path = None
 
