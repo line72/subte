@@ -46,6 +46,8 @@ class Route(BaseObject):
         self.stops = []
         self.trips = []
 
+        self.path = None
+
         # add us
         Route.routes.append(self)
 
