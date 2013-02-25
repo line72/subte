@@ -30,6 +30,8 @@ from AddRoute import AddRouteDialog, EditRouteDialog, AddRoute
 from MergeStops import MergeStopsDialog, MergeStops
 from TripList import TripListDialog, TripList
 
+from KMLParser import KMLParser
+
 class Controller(object):
     '''This is a controller class. It handles all the callbacks
     from the GUI'''
@@ -52,6 +54,9 @@ class Controller(object):
         # now routes
         for r in gtbuilder.Route.routes:
             self.add_route(r)
+        # and paths
+        for p in gtbuilder.Path.paths:
+            self.add_path(p)
 
     def connect(self, signal, fn, *args):
         if signal not in self._registered_events:
@@ -235,6 +240,9 @@ class Controller(object):
             r = gtbuilder.Route(agency = route_dialog.get_agency(), 
                                 short_name = route_dialog.get_name(),
                                 description = route_dialog.get_description())
+
+            r.path = route_dialog.get_path()
+
             for s in route_dialog.get_stops():
                 print 'calling r.addStop', s
                 r.add_stop(s)
@@ -267,6 +275,7 @@ class Controller(object):
             route.agency = route_dialog.get_agency()
             route.short_name = route_dialog.get_name()
             route.description = route_dialog.get_description()
+            route.path = route_dialog.get_path()
             route.stops = []
             for s in route_dialog.get_stops():
                 route.add_stop(s)
@@ -326,19 +335,57 @@ class Controller(object):
             
         dlg.destroy()
 
-    def on_remove_picture_clicked(self, toolbutton, user_data = None):
-        print 'on remove picture'
-        picture = self.gui.picture_list_widget.get_selected()
-        if picture is None:
-            print 'Nothing selected'
-            return
+    # def on_remove_picture_clicked(self, toolbutton, user_data = None):
+    #     print 'on remove picture'
+    #     picture = self.gui.picture_list_widget.get_selected()
+    #     if picture is None:
+    #         print 'Nothing selected'
+    #         return
 
-        # remove this from our widgets
-        self.gui.map_widget.remove_picture(picture)
-        self.gui.picture_list_widget.remove_picture(picture)
+    #     # remove this from our widgets
+    #     self.gui.map_widget.remove_picture(picture)
+    #     self.gui.picture_list_widget.remove_picture(picture)
 
-        # good-bye
-        picture.destroy()
+    #     # good-bye
+    #     picture.destroy()
+
+    def on_add_path_clicked(self, toolbutton, user_data = None):
+        dlg = Gtk.FileChooserDialog('Import from...', self._gui(),
+                                    Gtk.FileChooserAction.OPEN,
+                                    (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                     Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
+        resp = dlg.run()
+
+        if resp == Gtk.ResponseType.ACCEPT:
+            try:
+                kml_parser = KMLParser()
+                paths = kml_parser.parse(dlg.get_filename())
+
+                for p in paths:
+                    self.add_path(p)
+
+            except Exception, e:
+                print >> sys.stderr, 'Error parsing kml data', e
+
+        dlg.destroy()
+
+        return True
+
+    def on_remove_path_clicked(self, toolbuton, user_data = None):
+        path = self.gui.path_list_widget.get_selected()
+        if path is None:
+            return True
+
+        self.gui.path_list_widget.remove_path(path)
+
+        # make sure no routes use this
+        for r in Route.routes:
+            if r.path == path:
+                r.path = None
+
+        path.destroy()
+
+        return True
 
     def on_export(self, toolbutton, user_data = None):
         # pop up a save dialg
@@ -377,6 +424,9 @@ class Controller(object):
         path = self.gui.map_widget.draw_route(r)
 
         self.gui.route_list_widget.update_route(r)
+
+    def add_path(self, p):
+        self.gui.path_list_widget.add_path(p)
 
     def on_route_cell_pressed(self, widget, event):
         if event.button == 3:

@@ -95,9 +95,14 @@ class Trip(BaseObject):
                         trip_stop.stop.stop_id, i+1, '', 0, 0, '')
 
         if has_trips:
+            shape_id = ''
+            if self.route.path is not None:
+                shape_id = self.route.path.path_id
+
+
             self._write(trip_f, '%s,%s,%s,%s,%s,%s,%s\n',
                         self.route.route_id, self.calendar.calendar_id,
-                        self.trip_id, '', 0, '', '')
+                        self.trip_id, '', 0, '', shape_id)
 
 
 

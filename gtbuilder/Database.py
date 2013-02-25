@@ -96,7 +96,7 @@ class Database(object):
                 path_id = path_node.get('id', Path.new_id())
                 name = path_node.findtext('name')
 
-                coords_node = path_node.find('Coordinates')
+                coords_node = path_node.find('coordinates')
                 coords = []
                 for coord_node in coords_node.findall('Coordinate'):
                     try:
@@ -134,9 +134,9 @@ class Database(object):
 
                 try:
                     path = Path.get(int(path_id))
+                    r.set_path(path)
                 except Exception, e:
                     pass
-                r.set_path(path)
 
                 # stops
                 stops_node = route_node.find('Stops')
@@ -297,7 +297,7 @@ class Database(object):
             # this routes path
             e = ElementTree.SubElement(node, 'path_id')
             if r.path:
-                e.text = r.path.path_id
+                e.text = '%s' % r.path.path_id
             else:
                 e.text = ''
             
@@ -390,6 +390,7 @@ class Database(object):
         Stop.write_stops(directory)
         Route.write_routes(directory)
         Trip.write_trips(directory)
+        Path.write_paths(directory)
 
 """
 <?xml>

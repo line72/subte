@@ -48,11 +48,9 @@ class Path(BaseObject):
         if self.coords is None:
             return
 
-        shape_id = '%s_%s' % (self.name, self.path_id)
-       
         for i, coord in enumerate(self.coords):
             self._write(f, '%s,%s,%s,%s,%s\n',
-                        shape_id,
+                        self.path_id,
                         coord[0], coord[1],
                         (i+1), '')
 
