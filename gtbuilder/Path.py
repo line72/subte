@@ -30,7 +30,7 @@ class Path(BaseObject):
 
         self.path_id = Path.new_id()
         self.name = name
-        self.coord = coords
+        self.coords = coords
 
         # add us
         Path.paths.append(self)

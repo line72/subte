@@ -85,6 +85,9 @@ class Route(BaseObject):
 
         return trips
 
+    def set_path(self, p):
+        self.path = p
+
     def build_trips(self, csv, calendar, trip_name = None):
         '''build trips from a csv file.'''
         f = open(csv)
