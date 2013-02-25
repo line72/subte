@@ -44,6 +44,10 @@ class GTMap(GtkChamplain.Embed):
         # add a route layer
         self.route_layer = Champlain.PathLayer()
         self.view.add_layer(self.route_layer)
+        # add in a path layer
+        self.path_layer = Champlain.PathLayer()
+        self.path_layer.set_stroke_color(Clutter.Color.new(0x0d, 0xff, 0x0f, 0xbb))
+        self.view.add_layer(self.path_layer)
 
         # our popup layer
         self.popup_layer = Champlain.MarkerLayer()
@@ -107,11 +111,20 @@ class GTMap(GtkChamplain.Embed):
             self.route_layer.add_node(Champlain.Coordinate.new_full(stop.latitude, stop.longitude))
         self.route_layer.show()
         
+        # clear our path layer of any old stuff
+        self.path_layer.remove_all()
+        if r.path is not None and r.path.coords is not None:
+            for coord in r.path.coords:
+                self.path_layer.add_node(Champlain.Coordinate.new_full(coord[0], coord[1]))
+        self.path_layer.show()
+
         return self.route_layer
 
     def remove_route(self, route):
         self.route_layer.remove_all()
         self.route_layer.show()
+        self.path_layer.remove_all()
+        self.path_layer.show()
 
     def show_popup(self, stop_marker, group):
         if stop_marker is None or group is None:

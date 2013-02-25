@@ -31,6 +31,7 @@ from Stop import Stop
 from Trip import Trip, TripStop
 from Calendar import Calendar
 from Agency import Agency
+from Path import Path
 from Picture import Picture
 
 class Database(object):
@@ -91,6 +92,27 @@ class Database(object):
                 except Exception, e:
                     print >> sys.stderr, 'Error loading stop', name, e
 
+            for path_node in tree.getroot().findall('Path'):
+                path_id = path_node.get('id', Path.new_id())
+                name = path_node.findtext('name')
+
+                coords_node = path_node.find('coordinates')
+                coords = []
+                for coord_node in coords_node.findall('Coordinate'):
+                    try:
+                        sequence = int(coord_node.get('sequence', -1))
+                        lat = float(coord_node.get('lat', 0.0))
+                        lon = float(coord_node.get('lon', 0.0))
+                        coords.append((lat, lon))
+                    except Exception, e:
+                        print >> sys.stderr, 'Invalid coordinate path %s: %s' % (name, e)
+
+                try:
+                    p = Path(name = name, coords = coords)
+                    p.path_id = int(path_id)
+                except Exception, e:
+                    print >> sys.stderr, 'Error loading path', name, e
+
             for route_node in tree.getroot().findall('Route'):
                 route_id = route_node.get('id', Route.new_id())
                 agency_id = route_node.findtext('agency_id')
@@ -101,6 +123,7 @@ class Database(object):
                 url = route_node.findtext('url')
                 color = route_node.findtext('color')
                 text_color = route_node.findtext('text_color')
+                path_id = route_node.findtext('path_id')
 
                 agency_id = int(agency_id)
                 r = Route(agency = Agency.get(agency_id),
@@ -108,6 +131,12 @@ class Database(object):
                           description = description, route_type = route_type,
                           url = url, color = color, text_color = text_color)
                 r.route_id = int(route_id)
+
+                try:
+                    path = Path.get(int(path_id))
+                    r.set_path(path)
+                except Exception, e:
+                    pass
 
                 # stops
                 stops_node = route_node.find('Stops')
@@ -265,6 +294,12 @@ class Database(object):
             for s in r.stops:
                 n = ElementTree.SubElement(stop_node, 'Stop')
                 n.attrib['id'] = '%s' % s.stop_id
+            # this routes path
+            e = ElementTree.SubElement(node, 'path_id')
+            if r.path:
+                e.text = '%s' % r.path.path_id
+            else:
+                e.text = ''
             
         # the trips
         for t in Trip.trips:
@@ -288,6 +323,20 @@ class Database(object):
                     e.text = '%s' % (v.arrival or '')
                     e = ElementTree.SubElement(n, 'departure')
                     e.text = '%s' % (v.departure or '')
+
+        # the paths
+        for p in Path.paths:
+            node = ElementTree.SubElement(root, 'Path')
+            node.attrib['id'] = '%s' % p.path_id
+            e = ElementTree.SubElement(node, 'name')
+            e.text = '%s' % p.name
+            coord_node = ElementTree.SubElement(node, 'coordinates')
+            if p.coords:
+                for j, coord in enumerate(p.coords):
+                    n = ElementTree.SubElement(coord_node, 'Coordinate')
+                    n.attrib['lat'] = '%s' % coord[0]
+                    n.attrib['lon'] = '%s' % coord[1]
+                    n.attrib['sequence'] = '%s' % j
 
         # the pictures
         for p in Picture.pictures:
@@ -341,6 +390,7 @@ class Database(object):
         Stop.write_stops(directory)
         Route.write_routes(directory)
         Trip.write_trips(directory)
+        Path.write_paths(directory)
 
 """
 <?xml>

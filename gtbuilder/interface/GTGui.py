@@ -29,6 +29,7 @@ from GTMap import GTMap
 from Controller import Controller
 from StopListGui import StopListGui
 from RouteListGui import RouteListGui
+from PathListGui import PathListGui
 
 class GTGui(Gtk.Window):
     instance = None
@@ -71,6 +72,8 @@ class GTGui(Gtk.Window):
         notebook.append_page(self.stop_list_widget.get_widget(), Gtk.Label('Stops'))
         self.route_list_widget = RouteListGui()
         notebook.append_page(self.route_list_widget.get_widget(), Gtk.Label('Routes'))
+        self.path_list_widget = PathListGui()
+        notebook.append_page(self.path_list_widget.get_widget(), Gtk.Label('Paths'))
 
         self.info_frame.add(box)
 
@@ -157,13 +160,26 @@ class GTGui(Gtk.Window):
         add_picture.connect('clicked', self.controller.on_add_picture_clicked)
         toolbar.add(add_picture)
         
-        remove_picture = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
-        remove_picture.set_tooltip_text('Remove a picture')
-        remove_picture.connect('clicked', self.controller.on_remove_picture_clicked)
-        toolbar.add(remove_picture)
+        # remove_picture = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
+        # remove_picture.set_tooltip_text('Remove a picture')
+        # remove_picture.connect('clicked', self.controller.on_remove_picture_clicked)
+        # toolbar.add(remove_picture)
         
         toolbar.add(Gtk.SeparatorToolItem())
 
+
+        ## PATHS
+        add_path = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)
+        add_path.set_tooltip_text('Add a new path from a .kml file')
+        add_path.connect('clicked', self.controller.on_add_path_clicked)
+        toolbar.add(add_path)
+
+        remove_path = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
+        remove_path.set_tooltip_text('Remove a path')
+        remove_path.connect('clicked', self.controller.on_remove_path_clicked)
+        toolbar.add(remove_path)
+
+        toolbar.add(Gtk.SeparatorToolItem())
 
         ## EXPORT
         export = Gtk.ToolButton('Export')

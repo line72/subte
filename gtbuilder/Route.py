@@ -46,6 +46,8 @@ class Route(BaseObject):
         self.stops = []
         self.trips = []
 
+        self.path = None
+
         # add us
         Route.routes.append(self)
 
@@ -82,6 +84,9 @@ class Route(BaseObject):
                 trips.append(t)
 
         return trips
+
+    def set_path(self, p):
+        self.path = p
 
     def build_trips(self, csv, calendar, trip_name = None):
         '''build trips from a csv file.'''

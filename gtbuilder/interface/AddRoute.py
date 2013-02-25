@@ -24,6 +24,7 @@ import gtbuilder
 
 from StopListGui import StopListGui
 from AgencyDialog import AgencyChoice
+from PathDialog import PathChoice
 
 class AddRouteDialog(Gtk.Dialog):
     def __init__(self, parent):
@@ -55,7 +56,7 @@ class AddRoute(Gtk.VBox):
         self.name_txt = Gtk.Entry()
         hbox.pack_start(self.name_txt, True, True, 5)
 
-        self.pack_start(hbox, True, True, 5)
+        self.pack_start(hbox, True, False, 5)
 
         # description
         hbox = Gtk.HBox(False)
@@ -70,7 +71,12 @@ class AddRoute(Gtk.VBox):
         # agency
         self.agency_hbox = AgencyChoice()
         size_group.add_widget(self.agency_hbox.get_label())
-        self.pack_start(self.agency_hbox, True, True, 5)
+        self.pack_start(self.agency_hbox, True, False, 5)
+
+        # path
+        self.path_hbox = PathChoice()
+        size_group.add_widget(self.path_hbox.get_label())
+        self.pack_start(self.path_hbox, True, False, 5)
 
         # stop list
         hbox = Gtk.HBox(False)
@@ -115,6 +121,9 @@ class AddRoute(Gtk.VBox):
     def get_agency(self):
         return self.agency_hbox.get_selection()
 
+    def get_path(self):
+        return self.path_hbox.get_selection()
+
     def get_stops(self):
         return self.stop_list.get_stops()
 
@@ -153,7 +162,9 @@ class AddRoute(Gtk.VBox):
         self.name_txt.set_text(route.short_name)
         self.set_description(route.description)
         self.agency_hbox.set_selection(route.agency.name)
-        # fill the stops
+        if route.path:
+            self.path_hbox.set_selection(route.path.name)
 
+        # fill the stops
         for s in route.stops:
             self.stop_list.add_stop(s)
