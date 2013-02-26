@@ -48,6 +48,16 @@ class Path(BaseObject):
         if self.coords is None:
             return
 
+        from Route import Route
+        found = False
+        for r in Route.routes:
+            if r.path == self:
+                found = True
+                break
+
+        if not found: # don't write us out
+            return
+
         for i, coord in enumerate(self.coords):
             self._write(f, '%s,%s,%s,%s,%s\n',
                         self.path_id,
