@@ -34,7 +34,7 @@ from PathListGui import PathListGui
 class GTGui(Gtk.Window):
     instance = None
     def __init__(self):
-        Gtk.Window.__init__(self, title = 'Google Transit Builder')
+        Gtk.Window.__init__(self, title = 'Subte GTFS Builder')
 
         GTGui.instance = weakref.ref(self)
 
