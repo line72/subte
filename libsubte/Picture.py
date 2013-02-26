@@ -46,7 +46,7 @@ class Picture(object):
             f.seek(0)
 
             # see if a thumbnail exists
-            cache_dir = os.path.join(os.path.expanduser('~'), '.cache', 'gtbuilder')
+            cache_dir = os.path.join(os.path.expanduser('~'), '.cache', 'subte')
             try: os.makedirs(cache_dir)
             except OSError: pass
 

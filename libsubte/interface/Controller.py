@@ -23,7 +23,7 @@ import sys
 
 from gi.repository import Gtk
 
-import gtbuilder
+import libsubte
 
 from AddStop import AddStopDialog, EditStopDialog, AddStop
 from AddRoute import AddRouteDialog, EditRouteDialog, AddRoute
@@ -49,13 +49,13 @@ class Controller(object):
     def initialize(self):
         # fill in the initial data
         # stops first
-        for s in gtbuilder.Stop.stops:
+        for s in libsubte.Stop.stops:
             self.add_stop(s)
         # now routes
-        for r in gtbuilder.Route.routes:
+        for r in libsubte.Route.routes:
             self.add_route(r)
         # and paths
-        for p in gtbuilder.Path.paths:
+        for p in libsubte.Path.paths:
             self.add_path(p)
 
     def connect(self, signal, fn, *args):
@@ -126,7 +126,7 @@ class Controller(object):
 
         if resp == Gtk.ResponseType.ACCEPT:
             # create a new stop
-            s = gtbuilder.Stop(name = stop_dialog.get_name(),
+            s = libsubte.Stop(name = stop_dialog.get_name(),
                                description = stop_dialog.get_description(),
                                latitude = stop_dialog.get_latitude(),
                                longitude = stop_dialog.get_longitude())
@@ -237,7 +237,7 @@ class Controller(object):
 
         if resp == Gtk.ResponseType.ACCEPT:
             # create a new route
-            r = gtbuilder.Route(agency = route_dialog.get_agency(), 
+            r = libsubte.Route(agency = route_dialog.get_agency(), 
                                 short_name = route_dialog.get_name(),
                                 description = route_dialog.get_description())
 
@@ -321,13 +321,13 @@ class Controller(object):
                 # check for a duplicate
                 f = open(im, 'rb')
                 md5sum = md5.md5(f.read()).hexdigest()
-                if gtbuilder.Picture.is_duplicate(md5sum):
+                if libsubte.Picture.is_duplicate(md5sum):
                     continue
                 
                 # load it!
-                p = gtbuilder.Picture(im)
+                p = libsubte.Picture(im)
                 # now create a new stop associated with this picture
-                s = gtbuilder.Stop(latitude = p.latitude, longitude = p.longitude)
+                s = libsubte.Stop(latitude = p.latitude, longitude = p.longitude)
                 s.add_picture(p)
 
                 # add it
@@ -379,7 +379,7 @@ class Controller(object):
         self.gui.path_list_widget.remove_path(path)
 
         # make sure no routes use this
-        for r in gtbuilder.Route.routes:
+        for r in libsubte.Route.routes:
             if r.path == path:
                 r.path = None
 
@@ -396,7 +396,7 @@ class Controller(object):
         resp = dlg.run()
         if resp == Gtk.ResponseType.ACCEPT:
             directory = dlg.get_filename()
-            gtbuilder.Database.export(directory)
+            libsubte.Database.export(directory)
 
         dlg.destroy()
 

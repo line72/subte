@@ -17,7 +17,7 @@
 
 from gi.repository import Gtk
 
-import gtbuilder
+import libsubte
 
 class AddAgencyDialog(Gtk.Dialog):
     def __init__(self, parent):
@@ -75,7 +75,7 @@ class AgencyChoice(Gtk.HBox):
         self.pack_start(add_btn, False, False, 5)
 
         # add our agencies
-        for agency in gtbuilder.Agency.agencies:
+        for agency in libsubte.Agency.agencies:
             #!mwd - we shouldn't be referencing by name 
             #  but by id, just incase we have two with the 
             #  same name
@@ -87,7 +87,7 @@ class AgencyChoice(Gtk.HBox):
 
     def get_selection(self):
         selection = self.choice.get_active_text()
-        for agency in gtbuilder.Agency.agencies:
+        for agency in libsubte.Agency.agencies:
             if agency.name == selection:
                 return agency
         return None
@@ -109,7 +109,7 @@ class AgencyChoice(Gtk.HBox):
 
         if dlg.run() == Gtk.ResponseType.ACCEPT:
             # create a new agency
-            a = gtbuilder.Agency(name = dlg.content.name)
+            a = libsubte.Agency(name = dlg.content.name)
             # if ok, refresh the combo box
             self.choice.append_text(a.name)
 

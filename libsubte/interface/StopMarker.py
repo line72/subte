@@ -21,7 +21,7 @@ import weakref
 
 from gi.repository import Gtk, Champlain, Clutter, GLib
 
-import gtbuilder
+import libsubte
 import shapes
 
 class StopMarker(Champlain.CustomMarker):

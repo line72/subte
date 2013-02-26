@@ -17,7 +17,7 @@
 
 import xml.etree.ElementTree as ElementTree
 
-import gtbuilder
+import libsubte
 
 class KMLParser(object):
     def __init__(self):
@@ -47,7 +47,7 @@ class KMLParser(object):
                                 coords.append((float(x2[1]), float(x2[0])))
 
             if len(coords) > 0:
-                path = gtbuilder.Path(name, coords)
+                path = libsubte.Path(name, coords)
                 paths.append(path)
 
         return paths

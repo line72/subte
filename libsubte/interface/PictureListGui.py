@@ -17,9 +17,9 @@
 
 from gi.repository import Gtk, GObject
 
-import gtbuilder
+import libsubte
 
-class PathListGui(object):
+class PictureListGui(object):
     def __init__(self):
         self.scrolled_window = Gtk.ScrolledWindow(None, None)
 
@@ -32,7 +32,7 @@ class PathListGui(object):
  
         # add the columns to the tree
         renderer = Gtk.CellRendererText()
-        column = Gtk.TreeViewColumn('Path', renderer, text = 1)
+        column = Gtk.TreeViewColumn('Picture', renderer, text = 1)
         column.set_sort_column_id(0)
         self.treeview.append_column(column)
 
@@ -42,7 +42,7 @@ class PathListGui(object):
         return self.scrolled_window
 
     def get_selected(self):
-        '''Returns the selected Path'''
+        '''Returns the selected Picture'''
         selection = self.treeview.get_selection()
         if selection is None:
             return None
@@ -50,28 +50,31 @@ class PathListGui(object):
         if store is None or it is None:
             return None
 
-        path_id = store.get_value(it, 0)
-        path = gtbuilder.Path.get(path_id)
+        picture_id = store.get_value(it, 0)
+        picture = libsubte.Picture.get(picture_id)
 
-        return path
+        return picture
 
     def clear_model(self):
         # clear the old model
         self.model.clear()
 
-    def add_path(self, p):
-        print 'add_path', p
-        if p:
-            self.model.append([p.path_id, '%s' % (p.name)])
+    def add_picture(self, s):
+        print 'add_picture', s
+        if s:
+            if s.stop:
+                self.model.append([s.picture_id, '(%s) %s' % (s.picture_id, s.stop.name)])
+            else:
+                self.model.append([s.picture_id, '%s' % (s.picture_id)])
 
-    def remove_path(self, p):
-        if p:
+    def remove_picture(self, s):
+        if s:
             # search for this
             it = self.model.get_iter_first()
             while it:
-                path_id = self.model.get_value(it, 0)
+                picture_id = self.model.get_value(it, 0)
 
-                if p.path_id == path_id:
+                if s.picture_id == picture_id:
                     print 'match'
                     self.model.remove(it)
                     return True
@@ -121,15 +124,15 @@ class PathListGui(object):
             self.model.move_after(it, it2)
 
 
-    def get_paths(self):
-        paths = []
+    def get_pictures(self):
+        pictures = []
 
         it = self.model.get_iter_first()
         while it:
-            path_id = self.model.get_value(it, 0)
-            path = gtbuilder.Path.get(path_id)
-            paths.append(path)
+            picture_id = self.model.get_value(it, 0)
+            picture = libsubte.Picture.get(picture_id)
+            pictures.append(picture)
 
             it = self.model.iter_next(it)
 
-        return paths
+        return pictures

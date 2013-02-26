@@ -17,7 +17,7 @@
 
 from gi.repository import Gtk, GObject
 
-import gtbuilder
+import libsubte
 
 from CalendarDialog import CalendarChoice
 

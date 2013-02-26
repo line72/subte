@@ -17,7 +17,7 @@
 
 from gi.repository import Gtk
 
-import gtbuilder
+import libsubte
 
 class PathChoice(Gtk.HBox):
     def __init__(self):
@@ -32,7 +32,7 @@ class PathChoice(Gtk.HBox):
 
         # add our paths
         self.choice.append_text('') # blank for None
-        for path in gtbuilder.Path.paths:
+        for path in libsubte.Path.paths:
             #!mwd - we shouldn't be referencing by name 
             #  but by id, just incase we have two with the 
             #  same name
@@ -44,7 +44,7 @@ class PathChoice(Gtk.HBox):
 
     def get_selection(self):
         selection = self.choice.get_active_text()
-        for path in gtbuilder.Path.paths:
+        for path in libsubte.Path.paths:
             if path.name == selection:
                 return path
         return None
