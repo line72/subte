@@ -23,7 +23,7 @@ from gi.repository import Gtk, Champlain, Clutter, GLib
 
 import EXIF
 
-import gtbuilder
+import libsubte
 
 import GTGui
 from AddStop import AddStop, AddStopDialog
@@ -201,7 +201,7 @@ class PictureMarker(Champlain.CustomMarker):
             if resp == Gtk.ResponseType.ACCEPT:
                 print >> sys.stderr, 'resp is ACCEPT', resp
                 # create a new stop
-                s = gtbuilder.Stop(name = stop_dialog.get_name(),
+                s = libsubte.Stop(name = stop_dialog.get_name(),
                                    description = stop_dialog.get_description(),
                                    latitude = stop_dialog.get_latitude(),
                                    longitude = stop_dialog.get_longitude())

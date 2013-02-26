@@ -17,9 +17,9 @@
 
 from gi.repository import Gtk, GObject
 
-import gtbuilder
+import libsubte
 
-class RouteListGui(object):
+class PathListGui(object):
     def __init__(self):
         self.scrolled_window = Gtk.ScrolledWindow(None, None)
 
@@ -32,7 +32,7 @@ class RouteListGui(object):
  
         # add the columns to the tree
         renderer = Gtk.CellRendererText()
-        column = Gtk.TreeViewColumn('Route', renderer, text = 1)
+        column = Gtk.TreeViewColumn('Path', renderer, text = 1)
         column.set_sort_column_id(0)
         self.treeview.append_column(column)
 
@@ -42,7 +42,7 @@ class RouteListGui(object):
         return self.scrolled_window
 
     def get_selected(self):
-        '''Returns the selected Route'''
+        '''Returns the selected Path'''
         selection = self.treeview.get_selection()
         if selection is None:
             return None
@@ -50,30 +50,29 @@ class RouteListGui(object):
         if store is None or it is None:
             return None
 
-        route_id = store.get_value(it, 0)
-        route = gtbuilder.Route.get(route_id)
+        path_id = store.get_value(it, 0)
+        path = libsubte.Path.get(path_id)
 
-        return route
+        return path
 
     def clear_model(self):
         # clear the old model
         self.model.clear()
 
-    def add_route(self, s):
-        if s:
-            name = s.short_name
-            if name is None:
-                name = s.route_id
-            self.model.append([s.route_id, '(%s) %s' % (s.route_id, name)])
+    def add_path(self, p):
+        print 'add_path', p
+        if p:
+            self.model.append([p.path_id, '%s' % (p.name)])
 
-    def remove_route(self, route):
-        if route:
+    def remove_path(self, p):
+        if p:
             # search for this
             it = self.model.get_iter_first()
             while it:
-                route_id = self.model.get_value(it, 0)
+                path_id = self.model.get_value(it, 0)
 
-                if route.route_id == route_id:
+                if p.path_id == path_id:
+                    print 'match'
                     self.model.remove(it)
                     return True
 
@@ -81,36 +80,56 @@ class RouteListGui(object):
 
         return False
 
-    def update_route(self, route):
-        if route:
-            # search for this
-            it = self.model.get_iter_first()
-            while it:
-                route_id = self.model.get_value(it, 0)
+    def remove_selection(self):
+        selection = self.treeview.get_selection()
+        if selection is None:
+            return False
 
-                if route.route_id == route_id:
-                    name = route.short_name
-                    if name is None:
-                        name = route.route_id
+        store, it = selection.get_selected()
+        if store is None or it is None:
+            return False
 
-                    self.model.set_value(it, 1, '(%s) %s' % (route.route_id, name))
+        self.model.remove(it)
 
-                    return True
+    def raise_selection(self):
+        '''move the selected item up'''
+        selection = self.treeview.get_selection()
+        if selection is None:
+            return False
 
-                it = self.model.iter_next(it)
+        store, it = selection.get_selected()
+        if store is None or it is None:
+            return False
 
-        return False
+        it2 = self.model.iter_previous(it)
+        if it2 is not None:
+            self.model.move_before(it, it2)
 
 
-    def get_routes(self):
-        routes = []
+    def lower_selection(self):
+        '''move the selected item down'''
+        selection = self.treeview.get_selection()
+        if selection is None:
+            return False
+
+        store, it = selection.get_selected()
+        if store is None or it is None:
+            return False
+
+        it2 = self.model.iter_next(it)
+        if it2 is not None:
+            self.model.move_after(it, it2)
+
+
+    def get_paths(self):
+        paths = []
 
         it = self.model.get_iter_first()
         while it:
-            route_id = self.model.get_value(it, 0)
-            route = gtbuilder.Route.get(route_id)
-            routes.append(route)
+            path_id = self.model.get_value(it, 0)
+            path = libsubte.Path.get(path_id)
+            paths.append(path)
 
             it = self.model.iter_next(it)
 
-        return routes
+        return paths

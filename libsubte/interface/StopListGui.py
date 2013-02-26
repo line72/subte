@@ -17,9 +17,9 @@
 
 from gi.repository import Gtk, GObject
 
-import gtbuilder
+import libsubte
 
-class PictureListGui(object):
+class StopListGui(object):
     def __init__(self):
         self.scrolled_window = Gtk.ScrolledWindow(None, None)
 
@@ -32,7 +32,7 @@ class PictureListGui(object):
  
         # add the columns to the tree
         renderer = Gtk.CellRendererText()
-        column = Gtk.TreeViewColumn('Picture', renderer, text = 1)
+        column = Gtk.TreeViewColumn('Stop', renderer, text = 1)
         column.set_sort_column_id(0)
         self.treeview.append_column(column)
 
@@ -42,7 +42,7 @@ class PictureListGui(object):
         return self.scrolled_window
 
     def get_selected(self):
-        '''Returns the selected Picture'''
+        '''Returns the selected Stop'''
         selection = self.treeview.get_selection()
         if selection is None:
             return None
@@ -50,31 +50,66 @@ class PictureListGui(object):
         if store is None or it is None:
             return None
 
-        picture_id = store.get_value(it, 0)
-        picture = gtbuilder.Picture.get(picture_id)
+        stop_id = store.get_value(it, 0)
+        stop = libsubte.Stop.get(stop_id)
 
-        return picture
+        return stop
+
+    def set_selected(self, stop):
+        if not stop:
+            return
+
+        it = self.model.get_iter_first()
+        while it:
+            stop_id = self.model.get_value(it, 0)
+
+            if stop_id == stop.stop_id:
+                self.treeview.set_cursor(self.model.get_path(it))
+                return True
+
+            it = self.model.iter_next(it)
+        return False
 
     def clear_model(self):
         # clear the old model
         self.model.clear()
 
-    def add_picture(self, s):
-        print 'add_picture', s
+    def add_stop(self, s):
+        print 'add_stop', s
         if s:
-            if s.stop:
-                self.model.append([s.picture_id, '(%s) %s' % (s.picture_id, s.stop.name)])
-            else:
-                self.model.append([s.picture_id, '%s' % (s.picture_id)])
+            name = s.name
+            if name is None:
+                name = s.stop_id
+            print 'appending'
+            self.model.append([s.stop_id, '(%s) %s' % (s.stop_id, name)])
 
-    def remove_picture(self, s):
+    def update_stop(self, s):
         if s:
             # search for this
             it = self.model.get_iter_first()
             while it:
-                picture_id = self.model.get_value(it, 0)
+                stop_id = self.model.get_value(it, 0)
 
-                if s.picture_id == picture_id:
+                if s.stop_id == stop_id:
+                    name = s.name
+                    if name is None:
+                        name = s.stop_id
+
+                    self.model.set_value(it, 1, '(%s) %s' % (s.stop_id, name))
+                    return True
+
+                it = self.model.iter_next(it)
+
+        return False
+
+    def remove_stop(self, s):
+        if s:
+            # search for this
+            it = self.model.get_iter_first()
+            while it:
+                stop_id = self.model.get_value(it, 0)
+
+                if s.stop_id == stop_id:
                     print 'match'
                     self.model.remove(it)
                     return True
@@ -124,15 +159,15 @@ class PictureListGui(object):
             self.model.move_after(it, it2)
 
 
-    def get_pictures(self):
-        pictures = []
+    def get_stops(self):
+        stops = []
 
         it = self.model.get_iter_first()
         while it:
-            picture_id = self.model.get_value(it, 0)
-            picture = gtbuilder.Picture.get(picture_id)
-            pictures.append(picture)
+            stop_id = self.model.get_value(it, 0)
+            stop = libsubte.Stop.get(stop_id)
+            stops.append(stop)
 
             it = self.model.iter_next(it)
 
-        return pictures
+        return stops

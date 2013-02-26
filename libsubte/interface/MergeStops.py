@@ -19,7 +19,7 @@ import weakref
 
 from gi.repository import Gtk
 
-import gtbuilder
+import libsubte
 
 class MergeStopsDialog(Gtk.Dialog):
     def __init__(self, parent):

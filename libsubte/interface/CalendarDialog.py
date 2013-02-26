@@ -17,7 +17,7 @@
 
 from gi.repository import Gtk
 
-import gtbuilder
+import libsubte
 
 class AddCalendarDialog(Gtk.Dialog):
     def __init__(self, parent):
@@ -72,7 +72,7 @@ class CalendarChoice(Gtk.HBox):
         self.pack_start(add_btn, False, False, 5)
 
         # add our calendars
-        for calendar in gtbuilder.Calendar.calendars:
+        for calendar in libsubte.Calendar.calendars:
             #!mwd - we shouldn't be referencing by name 
             #  but by id, just incase we have two with the 
             #  same name
@@ -84,7 +84,7 @@ class CalendarChoice(Gtk.HBox):
 
     def get_selection(self):
         selection = self.choice.get_active_text()
-        for calendar in gtbuilder.Calendar.calendars:
+        for calendar in libsubte.Calendar.calendars:
             if calendar.name == selection:
                 return calendar
         return None
@@ -96,7 +96,7 @@ class CalendarChoice(Gtk.HBox):
 
         if dlg.run() == Gtk.ResponseType.ACCEPT:
             # create a new calendar
-            a = gtbuilder.Calendar(service_name = dlg.content.name)
+            a = libsubte.Calendar(service_name = dlg.content.name)
             # if ok, refresh the combo box
             self.choice.append_text(a.name)
 

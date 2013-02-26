@@ -20,7 +20,7 @@ import sys
 
 from gi.repository import Gtk
 
-import gtbuilder
+import libsubte
 
 from StopListGui import StopListGui
 from AgencyDialog import AgencyChoice

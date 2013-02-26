@@ -23,7 +23,7 @@ import weakref
 
 from gi.repository import Gtk
 
-import gtbuilder
+import libsubte
 
 from GTMap import GTMap
 from Controller import Controller
@@ -41,8 +41,8 @@ class GTGui(Gtk.Window):
         self.connect('delete-event', self.on_quit)
 
         # load up our database
-        self._db_file = os.path.join(os.path.expanduser('~'), '.gtbuilder.db')
-        self.db = gtbuilder.Database()
+        self._db_file = os.path.join(os.path.expanduser('~'), '.libsubte.db')
+        self.db = libsubte.Database()
         self.db.load(self._db_file)
 
         # setup a controller

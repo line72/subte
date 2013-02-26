@@ -38,7 +38,7 @@ class Database(object):
     def load(self, fname):
         try:
             d = os.path.dirname(fname)
-            tree = ElementTree.parse(os.path.join(d, '.gtbuilder.xml'))
+            tree = ElementTree.parse(os.path.join(d, '.subte.xml'))
 
             for agency_node in tree.getroot().findall('Agency'):
                 agency_id = agency_node.get('id', Agency.new_id())
@@ -216,7 +216,7 @@ class Database(object):
 
     def save(self, fname):
         # save the xml
-        root = ElementTree.Element('gtbuilder')
+        root = ElementTree.Element('subte')
 
         # the agencies
         for a in Agency.agencies:
@@ -363,10 +363,10 @@ class Database(object):
         # write out a temporary
         tree.write(os.path.join(d, tmpname), encoding = 'UTF-8')
         # make a backup
-        try: os.rename(os.path.join(d, '.gtbuilder.xml'), os.path.join(d, '.gtbuilder.xml-bk'))
+        try: os.rename(os.path.join(d, '.subte.xml'), os.path.join(d, '.subte.xml-bk'))
         except OSError, e: pass
         # move the temporary to the new
-        try: os.rename(os.path.join(d, tmpname), os.path.join(d, '.gtbuilder.xml'))
+        try: os.rename(os.path.join(d, tmpname), os.path.join(d, '.subte.xml'))
         except OSError, e: pass
 
     def __indent(self, elem, level = 0):
@@ -394,7 +394,7 @@ class Database(object):
 
 """
 <?xml>
-<gtbuilder version="1.0">
+<subte version="1.0">
   <stops>
     <stop>
       <id>0</id>
@@ -409,5 +409,5 @@ class Database(object):
       <parent_station>0</parent_station>
     </stop>
   </stops>
-</gtbuilder>
+</subte>
 """
