@@ -37,6 +37,8 @@ class StopMarker(Champlain.CustomMarker):
         self.full_picture_box = None
 
         self.unselected_color = Clutter.Color.new(0xf0, 0x02, 0xf0, 0xbb)
+        self.picture_color = Clutter.Color.new(0xef, 0xe4, 0x35, 0xbb)
+        self.route_color = Clutter.Color.new(0x0d, 0x9a, 0x27, 0xbb)
         self.selected_color = Clutter.Color.new(0xfd, 0xfd, 0x02, 0xbb)
         
 
@@ -248,3 +250,24 @@ class StopMarker(Champlain.CustomMarker):
         self.gtmap.unshow_popup(self)
             
         self._visible = False
+
+        self._update_color()
+
+    def update(self):
+        self._update_color()
+        if self._visible:
+            self.show()
+
+    def _update_color(self):
+        if self.stop:
+            if len(self.stop.routes) > 0:
+                # we have routes associated with us
+                self.marker.set_background_color(self.route_color)
+                return
+            elif len(self.stop.pictures) > 0:
+                # we have picture associated with us
+                self.marker.set_background_color(self.picture_color)
+                return
+
+        # default color
+        self.marker.set_background_color(self.unselected_color)

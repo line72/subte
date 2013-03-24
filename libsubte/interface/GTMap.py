@@ -72,12 +72,16 @@ class GTMap(GtkChamplain.Embed):
         return m
 
     def update_stop(self, stop):
-        m = None
         for i in self.stop_layer.get_markers():
             if i.stop == stop:
                 i.set_location(stop.latitude, stop.longitude)
+                i.update()
                 return True
         return False
+
+    def update_stops(self):
+        for i in self.stop_layer.get_markers():
+            i.update()
 
     def remove_stop(self, stop):
         m = None

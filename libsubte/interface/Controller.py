@@ -58,6 +58,9 @@ class Controller(object):
         for p in libsubte.Path.paths:
             self.add_path(p)
 
+        # update all the stops
+        self.gui.map_widget.update_stops()
+
     def connect(self, signal, fn, *args):
         if signal not in self._registered_events:
             self._registered_events[signal] = []
