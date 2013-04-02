@@ -38,6 +38,7 @@ class StopMarker(Champlain.CustomMarker):
 
         self.unselected_color = Clutter.Color.new(0xf0, 0x02, 0xf0, 0xbb)
         self.picture_color = Clutter.Color.new(0xef, 0xe4, 0x35, 0xbb)
+        self.modified_color = Clutter.Color.new(0xff, 0x10, 0x28, 0xbb)
         self.route_color = Clutter.Color.new(0x0d, 0x9a, 0x27, 0xbb)
         self.selected_color = Clutter.Color.new(0xfd, 0xfd, 0x02, 0xbb)
         
@@ -265,8 +266,12 @@ class StopMarker(Champlain.CustomMarker):
                 self.marker.set_background_color(self.route_color)
                 return
             elif len(self.stop.pictures) > 0:
-                # we have picture associated with us
-                self.marker.set_background_color(self.picture_color)
+                if self.stop.name != None and len(self.stop.name) > 0:
+                    # picture and we have a name
+                    self.marker.set_background_color(self.modified_color)
+                else:
+                    # we have picture associated with us, but no name
+                    self.marker.set_background_color(self.picture_color)
                 return
 
         # default color
