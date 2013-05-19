@@ -241,8 +241,9 @@ class Controller(object):
         if resp == Gtk.ResponseType.ACCEPT:
             # create a new route
             r = libsubte.Route(agency = route_dialog.get_agency(), 
-                                short_name = route_dialog.get_name(),
-                                description = route_dialog.get_description())
+                               short_name = route_dialog.get_name(),
+                               long_name = route_dialog.get_long_name(),
+                               description = route_dialog.get_description())
 
             r.path = route_dialog.get_path()
 
@@ -277,6 +278,7 @@ class Controller(object):
             # update the route
             route.agency = route_dialog.get_agency()
             route.short_name = route_dialog.get_name()
+            route.long_name = route_dialog.get_long_name()
             route.description = route_dialog.get_description()
             route.path = route_dialog.get_path()
             route.stops = []

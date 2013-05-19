@@ -50,13 +50,24 @@ class AddRoute(Gtk.VBox):
 
         # name
         hbox = Gtk.HBox(False)
-        name_lbl = Gtk.Label('Name: ')
+        name_lbl = Gtk.Label('Short Name: ')
         size_group.add_widget(name_lbl)       
         hbox.pack_start(name_lbl, False, False, 0)
         self.name_txt = Gtk.Entry()
         hbox.pack_start(self.name_txt, True, True, 5)
 
         self.pack_start(hbox, True, False, 5)
+
+        # name
+        hbox = Gtk.HBox(False)
+        name_lbl = Gtk.Label('Long Name: ')
+        size_group.add_widget(name_lbl)       
+        hbox.pack_start(name_lbl, False, False, 0)
+        self.long_name_txt = Gtk.Entry()
+        hbox.pack_start(self.long_name_txt, True, True, 5)
+
+        self.pack_start(hbox, True, False, 5)
+
 
         # description
         hbox = Gtk.HBox(False)
@@ -109,6 +120,9 @@ class AddRoute(Gtk.VBox):
     def get_name(self):
         return self.name_txt.get_text()
 
+    def get_long_name(self):
+        return self.long_name_txt.get_text()
+
     def get_description(self):
         b = self.description_txt.get_buffer()
         return b.get_text(b.get_start_iter(), b.get_end_iter(), False)
@@ -160,6 +174,7 @@ class AddRoute(Gtk.VBox):
             return
 
         self.name_txt.set_text(route.short_name)
+        self.long_name_txt.set_text(route.long_name)
         self.set_description(route.description)
         self.agency_hbox.set_selection(route.agency.name)
         if route.path:
