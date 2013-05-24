@@ -341,7 +341,7 @@ class Database(object):
             e = ElementTree.SubElement(node, 'calendar_id')
             e.text = '%s' % t.calendar.calendar_id
             e = ElementTree.SubElement(node, 'route_id')
-            e.text = '%s' % t.route.route_id
+            e.text = '%s' % t.trip_route.route.route_id
             # this trips stops
             stop_node = ElementTree.SubElement(node, 'TripStops')
             for rs in t.stops:

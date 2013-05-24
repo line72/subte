@@ -25,6 +25,7 @@ import libsubte
 from StopListGui import StopListGui
 from TripRouteListGui import TripRouteListGui
 from TripRouteDialog import AddTripRouteDialog
+from TripList import TripListDialog
 from AgencyDialog import AgencyChoice
 from PathDialog import PathChoice
 
@@ -134,14 +135,17 @@ class AddRoute(Gtk.VBox):
         add_btn = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
         rm_btn = Gtk.Button.new_from_stock(Gtk.STOCK_REMOVE)
         edit_btn = Gtk.Button.new_from_stock(Gtk.STOCK_EDIT)
+        modify_btn = Gtk.Button('Modify Trips')
 
         add_btn.connect('clicked', self.on_add_trip)
         rm_btn.connect('clicked', self.on_remove_trip)
         edit_btn.connect('clicked', self.on_edit_trip)
+        modify_btn.connect('clicked', self.on_modify_trips)
 
         vbox.pack_start(add_btn, False, False, 5)
         vbox.pack_start(rm_btn, False, False, 5)
         vbox.pack_start(edit_btn, False, False, 5)
+        vbox.pack_start(modify_btn, False, False, 5)
         hbox.pack_start(vbox, False, False, 0)
 
         self.pack_start(hbox, True, True, 5)
@@ -263,7 +267,20 @@ class AddRoute(Gtk.VBox):
         self.trip_list.remove_selection()
 
         # die baby, die
-        tr.destroy()
+        if tr:
+            tr.destroy()
+
+        return True
+
+    def on_modify_trips(self, btn):
+        trip_route = self.trip_list.get_selected()
+        if trip_route:
+            dlg = TripListDialog(None, trip_route)
+            dlg.show_all()
+
+            dlg.run()
+
+            dlg.destroy()
 
         return True
 
