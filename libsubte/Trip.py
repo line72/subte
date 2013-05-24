@@ -27,12 +27,12 @@ class Trip(BaseObject):
     trips = []
     trip_id = 0
 
-    def __init__(self, name, route, calendar):
+    def __init__(self, name, trip_route, calendar):
         BaseObject.__init__(self)
 
         self.trip_id = Trip.new_id()
         self.name = name
-        self._route = weakref.ref(route)
+        self._trip_route = weakref.ref(trip_route)
         self._calendar = weakref.ref(calendar)
 
         self.stops = []
@@ -40,7 +40,7 @@ class Trip(BaseObject):
         # add us
         Trip.trips.append(self)
 
-    route = property(lambda x: x._route(), None)
+    trip_route = property(lambda x: x._trip_route(), None)
     calendar = property(lambda x: x._calendar(), None)
 
     def destroy(self):
@@ -112,8 +112,8 @@ class Trip(BaseObject):
 
     def write(self, trip_f, stop_times_f):
         has_trips = False
-        for i, s in enumerate(self.route.stops):
-            trip_stop = self.get_stop(s)
+        for i, s in enumerate(self.stops):
+            trip_stop = s
 
 
             #!mwd - This isn't correct
@@ -146,13 +146,13 @@ class Trip(BaseObject):
 
         if has_trips:
             shape_id = ''
-            if self.route.path is not None:
-                shape_id = self.route.path.path_id
+            if self.trip_route.path is not None:
+                shape_id = self.trip_route.path.path_id
 
 
             self._write(trip_f, '%s,%s,%s,%s,%s,%s,%s\n',
-                        self.route.route_id, self.calendar.calendar_id,
-                        self.trip_id, '', 0, '', shape_id)
+                        self.trip_route.route.route_id, self.calendar.calendar_id,
+                        self.trip_id, self.trip_route.headsign, self.trip_route.direction, '', shape_id)
 
 
     @classmethod

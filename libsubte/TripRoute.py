@@ -63,7 +63,7 @@ class TripRoute(BaseObject):
             pass
 
     def add_trip(self):
-        trip = Trip('', self.route, self.calendar)
+        trip = Trip('', self, self.calendar)
 
         # add the stops
         for stop in self._stops:
