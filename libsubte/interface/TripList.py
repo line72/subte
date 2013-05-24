@@ -22,23 +22,23 @@ import libsubte
 from CalendarDialog import CalendarChoice
 
 class TripListDialog(Gtk.Dialog):
-    def __init__(self, parent, route):
+    def __init__(self, parent, trip_route):
         Gtk.Dialog.__init__(self, 'Edit Trips', parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
                             ('Close', Gtk.ResponseType.CLOSE,))
 
-        self.get_content_area().pack_start(TripList(route), True, True, 5)
+        self.get_content_area().pack_start(TripList(trip_route), True, True, 5)
 
 class TripList(Gtk.VBox):
-    def __init__(self, route):
+    def __init__(self, trip_route):
         Gtk.VBox.__init__(self, False)
 
-        self._route = route
+        self._trip_route = trip_route
 
         # calendar editor
-        self.calendar_hbox = CalendarChoice()
-        self.calendar_hbox.choice.connect('changed', self.on_calendar_changed)
-        self.pack_start(self.calendar_hbox, False, False, 5)
+        #self.calendar_hbox = CalendarChoice()
+        #self.calendar_hbox.choice.connect('changed', self.on_calendar_changed)
+        #self.pack_start(self.calendar_hbox, False, False, 5)
 
         # trip editor
         trip_hbox = Gtk.HBox(False)
@@ -47,7 +47,7 @@ class TripList(Gtk.VBox):
         self.scrolled_window = Gtk.ScrolledWindow(None, None)
 
         cols = [GObject.TYPE_INT]
-        for i in route.stops:
+        for i in trip_route.stops:
             cols.append(str)
 
         self.model = Gtk.ListStore(*cols)
@@ -58,7 +58,7 @@ class TripList(Gtk.VBox):
         self.clear_model()
 
         # add the columns
-        for c, i in enumerate(route.stops):
+        for c, i in enumerate(trip_route.stops):
             renderer = Gtk.CellRendererText()
             renderer.props.editable = True
             renderer.connect('edited', self.on_cell_edited, c+1)
@@ -87,21 +87,16 @@ class TripList(Gtk.VBox):
         #  current calendar
         self.clear_model()
 
-        calendar = self.get_calendar()
-
         # add the trips that use this calendar
-        for i, t in enumerate(self._route.get_trips_with_calendar(calendar)):
+        for i, t in enumerate(self._trip_route.trips):
             trip = [i]
-            for s in self._route.stops:
+            for s in self._trip_route.stops:
                 ts = t.get_stop(s)
                 trip.append(ts.arrival)
             self.model.append(trip)
 
     def clear_model(self):
         self.model.clear()
-
-    def get_calendar(self):
-        return self.calendar_hbox.get_selection()
 
     def add_trip(self, t):
         trip = [len(self._route.trips)]
@@ -111,15 +106,9 @@ class TripList(Gtk.VBox):
 
         self.model.append(trip)
 
-    def on_calendar_changed(self, widget, user_data = None):
-        self.update_model()
-
     def on_add_trip(self, btn, user_data = None):
-        if self.get_calendar() is None:
-            return
-
-        trip_name = '%s%d' % (self._route.short_name, len(self._route.trips))
-        t = self._route.add_trip(trip_name, self.get_calendar())
+        #trip_name = '%s%d' % (self._trip_route.route.short_name, len(self._trip_route.trips))
+        t = self._trip_route.add_trip()
         self.add_trip(t)
 
         return True
@@ -132,10 +121,10 @@ class TripList(Gtk.VBox):
         self.model.set_value(it, column, text)
 
         # update our model
-        trips = self._route.get_trips_with_calendar(self.get_calendar())
+        trips = self._trip_route.trips
         try:
             trip = trips[int(path)]
-            stop = self._route.stops[column-1]
+            stop = self._trip_route.stops[column-1]
             trip_stop = trip.get_stop(stop)
             trip_stop.arrival = text
             trip_stop.departure = text

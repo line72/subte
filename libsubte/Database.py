@@ -180,7 +180,7 @@ class Database(object):
                     ts = TripStop(stop = stop, arrival = arrival, departure = departure)
 
                     # add to our trip
-                    t.stops[stop] = ts
+                    t.add_trip_stop(ts)
 
             for picture_node in tree.getroot().findall('Picture'):
                 picture_id = picture_node.get('id', Picture.new_id())
@@ -313,16 +313,15 @@ class Database(object):
             e.text = '%s' % t.route.route_id
             # this trips stops
             stop_node = ElementTree.SubElement(node, 'TripStops')
-            for rs in t.route.stops:
-                if rs in t.stops:
-                    v = t.get_stop(rs)
-                    n = ElementTree.SubElement(stop_node, 'TripStop')
-                    e = ElementTree.SubElement(n, 'stop_id')
-                    e.text = '%s' % v.stop.stop_id
-                    e = ElementTree.SubElement(n, 'arrival')
-                    e.text = '%s' % (v.arrival or '')
-                    e = ElementTree.SubElement(n, 'departure')
-                    e.text = '%s' % (v.departure or '')
+            for rs in t.stops:
+                v = rs
+                n = ElementTree.SubElement(stop_node, 'TripStop')
+                e = ElementTree.SubElement(n, 'stop_id')
+                e.text = '%s' % v.stop.stop_id
+                e = ElementTree.SubElement(n, 'arrival')
+                e.text = '%s' % (v.arrival or '')
+                e = ElementTree.SubElement(n, 'departure')
+                e.text = '%s' % (v.departure or '')
 
         # the paths
         for p in Path.paths:

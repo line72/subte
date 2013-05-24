@@ -35,7 +35,7 @@ class Trip(BaseObject):
         self._route = weakref.ref(route)
         self._calendar = weakref.ref(calendar)
 
-        self.stops = {}
+        self.stops = []
 
         # add us
         Trip.trips.append(self)
@@ -43,11 +43,53 @@ class Trip(BaseObject):
     route = property(lambda x: x._route(), None)
     calendar = property(lambda x: x._calendar(), None)
 
-    def get_stop(self, stop):
-        if stop not in self.stops:
-            self.stops[stop] = TripStop(stop)
+    def add_trip_stop(self, tripstop):
+        self.stops.append(tripstop)
 
-        return self.stops[stop]
+    def remove_trip_stop(self, tripstop):
+        try: self.stops.remove(tripstop)
+        except ValueError, e: pass
+
+    def remove_trip_stop_at(self, index):
+        try: self.stops.pop(index)
+        except ValueError, e: pass
+
+    def increment_trip_stop_at(self, index):
+        if index == 0:
+            return False
+
+        try:
+            tripstop = self.stops.pops(index)
+            self.stops.insert(index-1, tripstop)
+        except ValueError, e: 
+            return False
+
+        return True
+
+    def decrement_trip_stop_at(self, index):
+        if index == len(tripstops) - 1:
+            return False
+
+        try:
+            tripstop = self.stops.pop(index)
+            self.stops.insert(index+1, tripstop)
+        except ValueError, e: 
+            return False
+
+        return True
+
+    def get_stop(self, stop):
+        ts = None
+        for tripstop in self.stops:
+            if tripstop.stop == stop:
+                ts = tripstop
+                break
+
+        if ts is None:
+            ts = TripStop(stop)
+            self.stops.append(ts)
+
+        return ts
 
     def update_stop(self, stop, arrival = None, departure = None):
         if stop is None:
