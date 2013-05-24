@@ -99,8 +99,8 @@ class TripList(Gtk.VBox):
         self.model.clear()
 
     def add_trip(self, t):
-        trip = [len(self._route.trips)]
-        for s in self._route.stops:
+        trip = [len(self._trip_route.trips)]
+        for s in self._trip_route.stops:
             ts = t.get_stop(s)
             trip.append(ts.arrival)
 

@@ -251,6 +251,8 @@ class Controller(object):
                 print 'calling r.addStop', s
                 r.add_stop(s)
 
+            # !mwd - update the trip routes
+
             self.add_route(r)
             
         win.destroy()
@@ -284,6 +286,9 @@ class Controller(object):
             route.stops = []
             for s in route_dialog.get_stops():
                 route.add_stop(s)
+
+            # !mwd - update the trip routes
+
 
             self.update_route(route)
 

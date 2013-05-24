@@ -19,16 +19,24 @@ import os
 import weakref
 
 from BaseObject import BaseObject
+from Trip import Trip, TripStop
 
 class TripRoute(BaseObject):
     '''This is a group of trips that
     all share the same stops along a route'''
-    def __init__(self, route, calendar, headsign, direction, path = None):
+
+    trip_routes = []
+    trip_route_id = 0
+
+    def __init__(self, name, route, calendar, headsign, direction, path = None):
         BaseObject.__init__(self)
 
+        self.trip_route_id = TripRoute.new_id()
+        self.name = name
         self._route = weakref.ref(route)
         self._calendar = weakref.ref(calendar)
 
+        self.headsign = headsign
         self.direction = direction
         self.path = path
 
@@ -38,18 +46,30 @@ class TripRoute(BaseObject):
 
         self._stops = []
 
+        # add us
+        TripRoute.trip_routes.append(self)
+
     route = property(lambda x: x._route(), None)
-    calendar = property(lambda x: x._calendar(), None)
+    calendar = property(lambda x: x._calendar(), set_calendar)
     stops = property(lambda x: x._stops[:], None)
+
+    def destroy(self):
+        self.trips = []
+        self._stops = []
+
+        try:
+            TripRoute.trip_routes.remove(self)
+        except ValueError, e:
+            pass
 
     def add_trip(self):
         trip = Trip('', self.route, self.calendar)
 
         # add the stops
         for stop in self._stops:
-            trip.add_stop(TripStop(stop))
+            trip.add_trip_stop(TripStop(stop))
 
-        self._trips.append(trip)
+        self.trips.append(trip)
 
         return trip
 
@@ -59,7 +79,7 @@ class TripRoute(BaseObject):
         # for all our trips
         for trip in self.trips:
             t = TripStop(stop)
-            trip.add_stop(t)
+            trip.add_trip_stop(t)
 
     def remove_stop_at(self, index):
         try: self._stops.pop(index)
@@ -94,3 +114,24 @@ class TripRoute(BaseObject):
 
         for trip in self.trips:
             trip.decrement_trip_stop_at(index)
+
+    def set_calendar(self, calendar):
+        if calendar == None:
+            self._calendar = None
+        else:
+            self._calendar = weakref.ref(calendar)
+
+    @classmethod
+    def get(cls, trip_route_id):
+        for trip_route in cls.trip_routes:
+            if trip_route.trip_route_id == trip_route_id:
+                return trip_route
+        return None
+
+    @classmethod
+    def new_id(cls):
+        while True:
+            cls.trip_route_id += 1
+            if cls.trip_route_id not in [x.trip_route_id for x in TripRoute.trip_routes]:
+                return cls.trip_route_id
+

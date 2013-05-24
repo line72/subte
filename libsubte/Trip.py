@@ -59,7 +59,7 @@ class Trip(BaseObject):
             return False
 
         try:
-            tripstop = self.stops.pops(index)
+            tripstop = self.stops.pop(index)
             self.stops.insert(index-1, tripstop)
         except ValueError, e: 
             return False
@@ -67,7 +67,7 @@ class Trip(BaseObject):
         return True
 
     def decrement_trip_stop_at(self, index):
-        if index == len(tripstops) - 1:
+        if index == len(self.stops) - 1:
             return False
 
         try:
