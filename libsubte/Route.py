@@ -44,7 +44,7 @@ class Route(BaseObject):
         self.text_color = text_color
 
         self.stops = []
-        self.trip_routess = []
+        self.trip_routes = []
 
         self.path = None
 
@@ -67,6 +67,10 @@ class Route(BaseObject):
     def remove_stop(self, stop):
         try:
             self.stops.remove(stop)
+
+            for trip_route in self.trip_routes:
+                trip_route.remove_stop(stop)
+
         except ValueError, e:
             pass
 

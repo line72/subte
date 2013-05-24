@@ -93,15 +93,13 @@ class CalendarChoice(Gtk.HBox):
         if not calendar:
             return False
 
-        it = self.model.get_iter_first()
+        model = self.choice.get_model()
+        it = model.get_iter_first()
         while it:
-            calendar_id = self.model.get_value(it, 0)
-
-            if calendar_id == calendar.calendar_id:
-                self.treeview.set_cursor(self.model.get_path(it))
+            if model.get_value(it, 0) == calendar.name:
+                self.choice.set_active_iter(it)
                 return True
-
-            it = self.model.iter_next(it)
+            it = model.iter_next(it)
         return False
 
     def on_add_calendar(self, btn, user_data = None):

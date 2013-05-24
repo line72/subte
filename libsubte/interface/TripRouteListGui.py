@@ -24,7 +24,7 @@ class TripRouteListGui(object):
         self.scrolled_window = Gtk.ScrolledWindow(None, None)
 
         self.model = Gtk.ListStore(GObject.TYPE_INT, str)
-        self.treeview = Gtk.Treeview(model = self.model)
+        self.treeview = Gtk.TreeView(model = self.model)
         self.treeview.set_rules_hint(True)
         self.treeview.set_headers_visible(False)
 
@@ -33,7 +33,7 @@ class TripRouteListGui(object):
         # add the columns to the tree
         renderer = Gtk.CellRendererText()
         column = Gtk.TreeViewColumn('Trip Route', renderer, text = 1)
-        columns.set_sort_column_id(0)
+        column.set_sort_column_id(0)
         self.treeview.append_column(column)
 
         self.scrolled_window.add(self.treeview)
@@ -119,3 +119,16 @@ class TripRouteListGui(object):
             return False
 
         self.model.remove(it)
+
+    def get_trip_routes(self):
+        trip_routes = []
+
+        it = self.model.get_iter_first()
+        while it:
+            trip_route_id = self.model.get_value(it, 0)
+            trip_route = libsubte.TripRoute.get(trip_route_id)
+            trip_routes.append(trip_route)
+
+            it = self.model.iter_next(it)
+
+        return trip_routes

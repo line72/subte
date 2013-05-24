@@ -43,6 +43,14 @@ class Trip(BaseObject):
     route = property(lambda x: x._route(), None)
     calendar = property(lambda x: x._calendar(), None)
 
+    def destroy(self):
+        self.stops = []
+
+        try:
+            Trip.trips.remove(self)
+        except ValueError, e:
+            pass
+
     def add_trip_stop(self, tripstop):
         self.stops.append(tripstop)
 
@@ -147,6 +155,12 @@ class Trip(BaseObject):
                         self.trip_id, '', 0, '', shape_id)
 
 
+    @classmethod
+    def get(cls, trip_id):
+        for trip in cls.trips:
+            if trip.trip_id == trip_id:
+                return trip
+        return None
 
     @classmethod
     def new_id(cls):

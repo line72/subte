@@ -149,10 +149,27 @@ class AddTripRoute(Gtk.VBox):
     def get_path(self):
         return self.path_hbox.get_selection()
 
+    def get_stops(self):
+        return self.stops.get_stops()
+
     def on_move_stop_left(self, btn):
+        selection = self.available_stops.get_selected()
+        if selection is None:
+            return True
+
+        self.available_stops.remove_selection()
+        self.stops.add_stop(selection)
+
         return True
 
     def on_move_stop_right(self, btn):
+        selection = self.stops.get_selected()
+        if selection is None:
+            return True
+
+        self.stops.remove_selection()
+        self.available_stops.add_stop(selection)
+
         return True
 
     def on_raise_stop(self, btn):

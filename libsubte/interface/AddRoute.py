@@ -46,7 +46,11 @@ class AddRoute(Gtk.VBox):
     def __init__(self, controller, route = None):
         Gtk.VBox.__init__(self, False)
 
-        self._route = weakref.ref(route)
+        if route:
+            self._route = weakref.ref(route)
+        else:
+            self._route = None
+
         self._controller = weakref.ref(controller)
 
         size_group = Gtk.SizeGroup(mode = Gtk.SizeGroupMode.HORIZONTAL)
@@ -169,6 +173,9 @@ class AddRoute(Gtk.VBox):
     def get_stops(self):
         return self.stop_list.get_stops()
 
+    def get_trip_routes(self):
+        return self.trip_list.get_trip_routes()
+
     def on_stop_selected(self, stop):
         print 'on_stop_selected', stop
         # !mwd - are duplicate stops ok?
@@ -198,40 +205,57 @@ class AddRoute(Gtk.VBox):
         return True
 
     def on_add_trip(self, btn):
-        dlg = AddTripRouteDialog()
-        dlg.set_route(self._route())
+        dlg = AddTripRouteDialog(None)
+        dlg.content.set_route(self._route())
+        dlg.show_all()
 
         resp = dlg.run()
         if resp == Gtk.ResponseType.ACCEPT:
             # create a new trip route
-            tr = libsubte.TripRoute(dlg.get_name(),
-                                    self._route,
-                                    dlg.get_calendar(),
-                                    dlg.get_headsign(),
-                                    dlg.get_direction(),
-                                    dlg.get_path())
+            tr = libsubte.TripRoute(dlg.content.get_name(),
+                                    self._route(),
+                                    dlg.content.get_calendar(),
+                                    dlg.content.get_headsign(),
+                                    dlg.content.get_direction(),
+                                    dlg.content.get_path())
+            for s in dlg.content.get_stops():
+                tr.add_stop(s)
+            
             self.trip_list.add_trip_route(tr)
+            
 
         dlg.destroy()
 
+        return True
+
     def on_edit_trip(self, btn):
         tr = self.trip_list.get_selected()
+        if tr is None:
+            return True
 
-        dlg = AddTripRouteDialog()
-        dlg.set_route(self._route())
-        dlg.fill(tr)
+        dlg = AddTripRouteDialog(None)
+        dlg.content.set_route(self._route())
+        dlg.content.fill(tr)
+        dlg.show_all()
 
         resp = dlg.run()
         if resp == Gtk.ResponseType.ACCEPT:
             # edit a trip route
-            tr.name = dlg.get_name()
-            tr.calendar = dlg.get_calendar()
-            tr.headsign = dlg.get_headsign()
-            tr.direction = dlg.get_direction()
-            tr.path = dlg.get_path()
+            tr.name = dlg.content.get_name()
+            tr.calendar = dlg.content.get_calendar()
+            tr.headsign = dlg.content.get_headsign()
+            tr.direction = dlg.content.get_direction()
+            tr.path = dlg.content.get_path()
+
+            tr._stops = []
+            for s in dlg.content.get_stops():
+                tr.add_stop(s)
+
             self.trip_list.update_trip_route(tr)
 
         dlg.destroy()
+
+        return True
 
     def on_remove_trip(self, btn):
         tr = self.trip_list.get_selected()
@@ -241,6 +265,8 @@ class AddRoute(Gtk.VBox):
         # die baby, die
         tr.destroy()
 
+        return True
+
     def _fill(self, route):
         if route is None:
             return
@@ -248,7 +274,8 @@ class AddRoute(Gtk.VBox):
         self.name_txt.set_text(route.short_name)
         self.long_name_txt.set_text(route.long_name)
         self.set_description(route.description)
-        self.agency_hbox.set_selection(route.agency.name)
+        if route.agency:
+            self.agency_hbox.set_selection(route.agency.name)
         if route.path:
             self.path_hbox.set_selection(route.path.name)
 

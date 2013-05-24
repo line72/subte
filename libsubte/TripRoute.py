@@ -50,7 +50,7 @@ class TripRoute(BaseObject):
         TripRoute.trip_routes.append(self)
 
     route = property(lambda x: x._route(), None)
-    calendar = property(lambda x: x._calendar(), set_calendar)
+    calendar = property(lambda x: x._calendar(), lambda x, c: x.set_calendar(c))
     stops = property(lambda x: x._stops[:], None)
 
     def destroy(self):
@@ -80,6 +80,16 @@ class TripRoute(BaseObject):
         for trip in self.trips:
             t = TripStop(stop)
             trip.add_trip_stop(t)
+
+    def remove_stop(self, stop):
+        '''Remove any references to a stop 
+        since it isn't part of the route anymore.'''
+        try:
+            while True:
+                index = self._stops.index(stop)
+                self.remove_stop_at(index)
+        except ValueError, e:
+            return True
 
     def remove_stop_at(self, index):
         try: self._stops.pop(index)

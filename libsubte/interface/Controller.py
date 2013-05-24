@@ -227,7 +227,8 @@ class Controller(object):
 
     def on_add_route_clicked(self, toolbutton, user_data = None):
         print 'on add route'
-        route_dialog = AddRoute(self)
+        route = libsubte.Route()
+        route_dialog = AddRoute(self, route)
 
         win = AddRouteDialog(self._gui())
         win.get_content_area().pack_start(route_dialog, True, True, 5)
@@ -239,21 +240,25 @@ class Controller(object):
         self.disconnect('on-stop-selected', handler)
 
         if resp == Gtk.ResponseType.ACCEPT:
-            # create a new route
-            r = libsubte.Route(agency = route_dialog.get_agency(), 
-                               short_name = route_dialog.get_name(),
-                               long_name = route_dialog.get_long_name(),
-                               description = route_dialog.get_description())
-
-            r.path = route_dialog.get_path()
-
+            # update the route
+            route.agency = route_dialog.get_agency()
+            route.short_name = route_dialog.get_name()
+            route.long_name = route_dialog.get_long_name()
+            route.description = route_dialog.get_description()
+            route.path = route_dialog.get_path()
+            route.stops = []
             for s in route_dialog.get_stops():
-                print 'calling r.addStop', s
-                r.add_stop(s)
+                route.add_stop(s)
 
-            # !mwd - update the trip routes
+            # update the trip routes
+            route.trip_routes = []
+            for tr in route_dialog.get_trip_routes():
+                print 'adding trip route', tr
+                route.add_trip_route(tr)
 
-            self.add_route(r)
+            self.add_route(route)
+        else:
+            route.destroy()
             
         win.destroy()
 
@@ -287,8 +292,11 @@ class Controller(object):
             for s in route_dialog.get_stops():
                 route.add_stop(s)
 
-            # !mwd - update the trip routes
-
+            # update the trip routes
+            route.trip_routes = []
+            for tr in route_dialog.get_trip_routes():
+                print 'adding trip route', tr
+                route.add_trip_route(tr)
 
             self.update_route(route)
 
