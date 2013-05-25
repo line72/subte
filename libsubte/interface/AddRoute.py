@@ -294,7 +294,7 @@ class AddRoute(Gtk.VBox):
         if route.agency:
             self.agency_hbox.set_selection(route.agency.name)
         if route.path:
-            self.path_hbox.set_selection(route.path.name)
+            self.path_hbox.set_selection(route.path)
 
         # fill the stops
         for s in route.stops:

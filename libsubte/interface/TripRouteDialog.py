@@ -31,7 +31,7 @@ class AddTripRouteDialog(Gtk.Dialog):
                             ('Add', Gtk.ResponseType.ACCEPT,
                              'Cancel', Gtk.ResponseType.CANCEL))
 
-        self.content = AddTripRoute(trip_route)
+        self.content = AddTripRoute()
         self.get_content_area().add(self.content)
 
 class AddTripRoute(Gtk.VBox):
@@ -81,16 +81,6 @@ class AddTripRoute(Gtk.VBox):
         self.direction.append_text('Outbound')
         self.direction.append_text('Inbound')
         self.direction.set_active(0)
-
-        # edit trips
-        hbox = Gtk.HBox(False)
-        lbl = Gtk.Label('')
-        size_group.add_widget(lbl)
-        hbox.pack_start(lbl, False, False, 0)
-        trips_btn = gtk.Button('Modify Trips')
-        trips_btn.connect('clicked', self.on_modify_trips)
-        hbox.pack_start(trips_btn, False, False, 5)
-        self.pack_start(hbox, True, True, 5)
 
         # and all our stops
         hbox = Gtk.HBox(False)
