@@ -33,8 +33,11 @@ class TripRoute(BaseObject):
 
         self.trip_route_id = TripRoute.new_id()
         self.name = name
-        self._route = weakref.ref(route)
-        self._calendar = weakref.ref(calendar)
+        self._route = None
+        self._calendar = None
+
+        self.set_route(route)
+        self.set_calendar(calendar)
 
         self.headsign = headsign
         self.direction = direction
@@ -49,8 +52,8 @@ class TripRoute(BaseObject):
         # add us
         TripRoute.trip_routes.append(self)
 
-    route = property(lambda x: x._route(), lambda x, r: x.set_route(r))
-    calendar = property(lambda x: x._calendar(), lambda x, c: x.set_calendar(c))
+    route = property(lambda x: x.get_route(), lambda x, r: x.set_route(r))
+    calendar = property(lambda x: x.get_calendar(), lambda x, c: x.set_calendar(c))
     stops = property(lambda x: x._stops[:], None)
 
     def destroy(self):
@@ -148,11 +151,19 @@ class TripRoute(BaseObject):
         else:
             self._calendar = weakref.ref(calendar)
 
+    def get_calendar(self):
+        try: return self._calendar()
+        except Exception, e: return None
+
     def set_route(self, route):
         if route == None:
             self._route = None
         else:
             self._route = weakref.ref(route)
+
+    def get_route(self):
+        try: return self._route()
+        except Exception, e: return None
 
     @classmethod
     def get(cls, trip_route_id):
