@@ -45,28 +45,28 @@ class Stop(BaseObject):
         Stop.stops.append(self)
 
     @property
-    def routes(self):
-        from Route import Route
+    def trip_routes(self):
+        from TripRoute import TripRoute
 
         r = []
-        for route in Route.routes:
-            if self in route.stops:
-                r.append(route)
+        for tr in TripRoute.trip_routes:
+            if self in tr.stops:
+                r.append(tr)
 
         return r
 
     def is_orphan(self):
         '''Nothing is using this stop'''
-        from Route import Route
-        for route in Route.routes:
-            if self in route.stops:
+        from TripRoute import TripRoute
+        for tr in TripRoute.trip_routes:
+            if self in tr.stops:
                 return False
 
         return True
 
     def merge_with(self, stop):
         '''Merge stop into us'''
-        from Route import Route
+        from TripRoute import TripRoute
         from Trip import Trip, TripStop
 
         # collect their pictures
@@ -75,17 +75,17 @@ class Stop(BaseObject):
 
         # any routes that have them as a stop
         #  need to be changed to us
-        for route in Route.routes:
-            if stop in route.stops:
-                i = route.stops.index(stop)
+        for tr in TripRoute.trip_routes:
+            if stop in tr.stops:
+                i = tr._stops.index(stop)
                 # insert us
-                route.stops.insert(i, self)
+                tr._stops.insert(i, self)
                 # remove the original
-                route.stops.remove(stop)
+                tr._stops.remove(stop)
 
                 # any trips that have them as a stop
                 #  need to be changed to us
-                for trip in route.trips:
+                for trip in tr.trips:
                     if stop in trip.stops:
                         trip.stops[self] = trip.stops[stop]
                         trip.stops.pop(stop)

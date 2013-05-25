@@ -34,6 +34,17 @@ class AddTripRouteDialog(Gtk.Dialog):
         self.content = AddTripRoute()
         self.get_content_area().add(self.content)
 
+class EditTripRouteDialog(Gtk.Dialog):
+    def __init__(self, parent):
+        Gtk.Dialog.__init__(self, 'Edit Trip', parent,
+                            Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                            ('Edit', Gtk.ResponseType.ACCEPT,
+                             'Cancel', Gtk.ResponseType.CANCEL))
+
+        self.content = AddTripRoute()
+        self.get_content_area().add(self.content)
+
+
 class AddTripRoute(Gtk.VBox):
     '''A vbox for adding a single trip along a route'''
     def __init__(self):
@@ -49,6 +60,8 @@ class AddTripRoute(Gtk.VBox):
         self.name_txt = Gtk.Entry()
         hbox.pack_start(self.name_txt, True, True, 5)
         self.pack_start(hbox, True, True, 5)
+
+        # route
 
         # calendar
         self.calendar_hbox = CalendarChoice()
@@ -89,34 +102,26 @@ class AddTripRoute(Gtk.VBox):
         hbox.pack_start(stops_lbl, False, False, 0)
         self.stops = StopListGui()
         hbox.pack_start(self.stops.get_widget(), True, True, 5)
+        # actions
         vbox = Gtk.VBox(True)
-        left_btn = Gtk.Button.new_from_stock(Gtk.STOCK_GO_BACK)
-        right_btn = Gtk.Button.new_from_stock(Gtk.STOCK_GO_FORWARD)
+        #add_btn = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
+        rm_btn = Gtk.Button.new_from_stock(Gtk.STOCK_REMOVE)
         up_btn = Gtk.Button.new_from_stock(Gtk.STOCK_GO_UP)
         down_btn = Gtk.Button.new_from_stock(Gtk.STOCK_GO_DOWN)
 
-        left_btn.connect('clicked', self.on_move_stop_left)
-        right_btn.connect('clicked', self.on_move_stop_right)
+        #add_btn.connect('clicked', self.on_move_stop_left)
+        rm_btn.connect('clicked', self.on_remove_stop)
         up_btn.connect('clicked', self.on_raise_stop)
         down_btn.connect('clicked', self.on_lower_stop)
 
-        vbox.pack_start(left_btn, False, False, 5)
-        vbox.pack_start(right_btn, False, False, 5)
+        #vbox.pack_start(add_btn, False, False, 5)
+        vbox.pack_start(rm_btn, False, False, 5)
         vbox.pack_start(up_btn, False, False, 5)
         vbox.pack_start(down_btn, False, False, 5)
         hbox.pack_start(vbox, False, False, 0)
 
-        self.available_stops = StopListGui()
-        hbox.pack_start(self.available_stops.get_widget(), True, True, 5)
-
         self.pack_start(hbox, True, True, 5)
         
-    def set_route(self, route):
-        # fill in the stops
-        self.stops.clear_model()
-        for stop in route.stops:
-            self.available_stops.add_stop(stop)
-
     def fill(self, trip_route):
         if trip_route is None:
             return
@@ -130,10 +135,13 @@ class AddTripRoute(Gtk.VBox):
         # stops
         for stop in trip_route.stops:
             self.stops.add_stop(stop)
-            self.available_stops.remove_stop(stop)
 
     def get_name(self):
         return self.name_txt.get_text()
+
+    def get_route(self):
+        #!mwd - fix me
+        return None
 
     def get_calendar(self):
         return self.calendar_hbox.get_selection()
@@ -153,29 +161,23 @@ class AddTripRoute(Gtk.VBox):
     def get_stops(self):
         return self.stops.get_stops()
 
-    def on_move_stop_left(self, btn):
-        selection = self.available_stops.get_selected()
-        if selection is None:
-            return True
-
-        self.available_stops.remove_selection()
-        self.stops.add_stop(selection)
+    def on_stop_selected(self, stop):
+        self.stops.add_stop(stop)
 
         return True
 
-    def on_move_stop_right(self, btn):
-        selection = self.stops.get_selected()
-        if selection is None:
-            return True
-
+    def on_remove_stop(self, btn):
         self.stops.remove_selection()
-        self.available_stops.add_stop(selection)
 
         return True
 
     def on_raise_stop(self, btn):
+        self.stops.raise_selection()
+
         return True
 
     def on_lower_stop(self, btn):
+        self.stops.lower_selection()
+
         return True
 

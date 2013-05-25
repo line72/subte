@@ -43,16 +43,16 @@ class Route(BaseObject):
         self.color = color
         self.text_color = text_color
 
-        self.stops = []
+        #self.stops = []
         self.trip_routes = []
 
-        self.path = None
+        #self.path = None
 
         # add us
         Route.routes.append(self)
 
     def destroy(self):
-        self.stops = []
+        #self.stops = []
         self.trip_routes = []
         self.agency = None
 
@@ -61,24 +61,29 @@ class Route(BaseObject):
         except ValueError:
             pass
 
-    def add_stop(self, stop):
-        self.stops.append(stop)
+    #def add_stop(self, stop):
+    #    self.stops.append(stop)
 
-    def remove_stop(self, stop):
-        try:
-            self.stops.remove(stop)
+    # def remove_stop(self, stop):
+    #     try:
+    #         self.stops.remove(stop)
 
-            for trip_route in self.trip_routes:
-                trip_route.remove_stop(stop)
+    #         for trip_route in self.trip_routes:
+    #             trip_route.remove_stop(stop)
 
-        except ValueError, e:
-            pass
+    #     except ValueError, e:
+    #         pass
 
     def add_trip_route(self, trip_route):
         self.trip_routes.append(trip_route)
 
-    def set_path(self, p):
-        self.path = p
+    def remove_trip_route(self, trip_route):
+        try: self.trip_routes.remove(trip_route)
+        except ValuError, e:
+            pass
+
+    # def set_path(self, p):
+    #     self.path = p
 
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',

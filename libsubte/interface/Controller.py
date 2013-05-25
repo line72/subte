@@ -29,6 +29,7 @@ from AddStop import AddStopDialog, EditStopDialog, AddStop
 from AddRoute import AddRouteDialog, EditRouteDialog, AddRoute
 from MergeStops import MergeStopsDialog, MergeStops
 from TripList import TripListDialog, TripList
+from TripRouteDialog import AddTripRouteDialog, EditTripRouteDialog
 
 from KMLParser import KMLParser
 
@@ -51,9 +52,12 @@ class Controller(object):
         # stops first
         for s in libsubte.Stop.stops:
             self.add_stop(s)
-        # now routes
-        for r in libsubte.Route.routes:
-            self.add_route(r)
+        # # now routes
+        # for r in libsubte.Route.routes:
+        #     self.add_route(r)
+        # trips
+        for t in libsubte.TripRoute.trip_routes:
+            self.add_trip(t)
         # and paths
         for p in libsubte.Path.paths:
             self.add_path(p)
@@ -107,12 +111,15 @@ class Controller(object):
 
         return True
 
-    def on_route_list_selected(self, treeview, user_data = None):
-        r = self.gui.route_list_widget.get_selected()
+    def on_route_trip_list_selected(self, treeview, user_data = None):
+        r = self.gui.trip_list_widget.get_selected()
 
-        self.gui.map_widget.draw_route(r)
+        self.gui.map_widget.draw_trip(r)
 
         return True
+
+    # def on_route_list_selected(self, treeview, user_data = None):
+    #     return True
 
     def on_add_stop_clicked(self, toolbutton, user_data = None):
         print 'adding a stop'
@@ -225,97 +232,178 @@ class Controller(object):
         win.show_all()
 
 
-    def on_add_route_clicked(self, toolbutton, user_data = None):
-        print 'on add route'
-        route = libsubte.Route()
-        route_dialog = AddRoute(self, route)
+    # def on_add_route_clicked(self, toolbutton, user_data = None):
+    #     print 'on add route'
+    #     route = libsubte.Route()
+    #     route_dialog = AddRoute(self, route)
 
-        win = AddRouteDialog(self._gui())
-        win.get_content_area().pack_start(route_dialog, True, True, 5)
+    #     win = AddRouteDialog(self._gui())
+    #     win.get_content_area().pack_start(route_dialog, True, True, 5)
+    #     win.show_all()
+
+    #     handler = self.connect('on-stop-selected', route_dialog.on_stop_selected)
+
+    #     resp = win.run()
+    #     self.disconnect('on-stop-selected', handler)
+
+    #     if resp == Gtk.ResponseType.ACCEPT:
+    #         # update the route
+    #         route.agency = route_dialog.get_agency()
+    #         route.short_name = route_dialog.get_name()
+    #         route.long_name = route_dialog.get_long_name()
+    #         route.description = route_dialog.get_description()
+    #         route.path = route_dialog.get_path()
+    #         route.stops = []
+    #         for s in route_dialog.get_stops():
+    #             route.add_stop(s)
+
+    #         # update the trip routes
+    #         route.trip_routes = []
+    #         for tr in route_dialog.get_trip_routes():
+    #             print 'adding trip route', tr
+    #             route.add_trip_route(tr)
+
+    #         self.add_route(route)
+    #     else:
+    #         route.destroy()
+            
+    #     win.destroy()
+
+    # def on_edit_route_clicked(self, toolbutton, user_data = None):
+    #     print 'on edit route'
+
+    #     route = self.gui.route_list_widget.get_selected()
+    #     if route is None:
+    #         print 'Nothing selected'
+    #         return True
+
+    #     route_dialog = AddRoute(self, route)
+
+    #     win = EditRouteDialog(self._gui())
+    #     win.get_content_area().pack_start(route_dialog, True, True, 5)
+    #     win.show_all()
+
+    #     handler = self.connect('on-stop-selected', route_dialog.on_stop_selected)
+
+    #     resp = win.run()
+    #     self.disconnect('on-stop-selected', handler)
+
+    #     if resp == Gtk.ResponseType.ACCEPT:
+    #         # update the route
+    #         route.agency = route_dialog.get_agency()
+    #         route.short_name = route_dialog.get_name()
+    #         route.long_name = route_dialog.get_long_name()
+    #         route.description = route_dialog.get_description()
+    #         route.path = route_dialog.get_path()
+    #         route.stops = []
+    #         for s in route_dialog.get_stops():
+    #             route.add_stop(s)
+
+    #         # update the trip routes
+    #         route.trip_routes = []
+    #         for tr in route_dialog.get_trip_routes():
+    #             print 'adding trip route', tr
+    #             route.add_trip_route(tr)
+
+    #         self.update_route(route)
+
+    #     win.destroy()
+
+
+    # def on_remove_route_clicked(self, toolbutton, user_data = None):
+    #     print 'on remove route'
+    #     route = self.gui.route_list_widget.get_selected()
+    #     if route is None:
+    #         print 'Nothing selected'
+    #         return
+
+    #     # remove this from our widgets
+    #     #self.gui.map_widget.remove_route(route)
+    #     self.gui.route_list_widget.remove_route(route)
+
+    #     # good-bye
+    #     route.destroy()
+
+    def on_add_trip_clicked(self, toolbutton, user_data = None):
+        win = AddTripRouteDialog(self._gui())
         win.show_all()
 
-        handler = self.connect('on-stop-selected', route_dialog.on_stop_selected)
+        dlg = win.content
+
+        handler = self.connect('on-stop-selected', dlg.on_stop_selected)
 
         resp = win.run()
         self.disconnect('on-stop-selected', handler)
 
         if resp == Gtk.ResponseType.ACCEPT:
-            # update the route
-            route.agency = route_dialog.get_agency()
-            route.short_name = route_dialog.get_name()
-            route.long_name = route_dialog.get_long_name()
-            route.description = route_dialog.get_description()
-            route.path = route_dialog.get_path()
-            route.stops = []
-            for s in route_dialog.get_stops():
-                route.add_stop(s)
+            name = dlg.get_name()
+            #route = dlg.get_route()
+            calendar = dlg.get_calendar()
+            headsign = dlg.get_headsign()
+            direction = dlg.get_direction()
+            path = dlg.get_path()
 
-            # update the trip routes
-            route.trip_routes = []
-            for tr in route_dialog.get_trip_routes():
-                print 'adding trip route', tr
-                route.add_trip_route(tr)
-
-            self.add_route(route)
-        else:
-            route.destroy()
+            # create the trip
+            trip = libsubte.TripRoute(name, route, calendar, headsign, direction, path)
             
+            route.add_trip_route(trip)
+
+            for s in dlg.get_stops():
+                trip.add_trip_stop(s)
+
+            self.add_trip(trip)
+
         win.destroy()
 
-    def on_edit_route_clicked(self, toolbutton, user_data = None):
-        print 'on edit route'
+        return True
 
-        route = self.gui.route_list_widget.get_selected()
-        if route is None:
-            print 'Nothing selected'
+    def on_edit_trip_clicked(self, toolbutton, user_data = None):
+        trip = self.gui.trip_list_widget.get_selected()
+        if trip is None:
             return True
 
-        route_dialog = AddRoute(self, route)
-
-        win = EditRouteDialog(self._gui())
-        win.get_content_area().pack_start(route_dialog, True, True, 5)
+        win = EditTripRouteDialog(self._gui())
         win.show_all()
 
-        handler = self.connect('on-stop-selected', route_dialog.on_stop_selected)
+        dlg = win.content
+        dlg.fill(trip)
+
+        handler = self.connect('on-stop-selected', dlg.on_stop_selected)
 
         resp = win.run()
         self.disconnect('on-stop-selected', handler)
 
         if resp == Gtk.ResponseType.ACCEPT:
-            # update the route
-            route.agency = route_dialog.get_agency()
-            route.short_name = route_dialog.get_name()
-            route.long_name = route_dialog.get_long_name()
-            route.description = route_dialog.get_description()
-            route.path = route_dialog.get_path()
-            route.stops = []
-            for s in route_dialog.get_stops():
-                route.add_stop(s)
+            name = dlg.get_name()
+            route = dlg.get_route()
+            calendar = dlg.get_calendar()
+            headsign = dlg.get_headsign()
+            direction = dlg.get_direction()
+            path = dlg.get_path()
 
-            # update the trip routes
-            route.trip_routes = []
-            for tr in route_dialog.get_trip_routes():
-                print 'adding trip route', tr
-                route.add_trip_route(tr)
+            if route != trip.route:
+                trip.route.remove_trip_route(trip)
+                route.add_trip_route(trip)
 
-            self.update_route(route)
+            trip.name = name
+            trip.route = route
+            trip.calendar = calendar
+            trip.headsign = headsign
+            trip.direction = direction
+            trip.path = path
+
+            trip._stops = []
+            for s in dlg.get_stops():
+                trip.add_stop(s)
+
+            self.update_trip(trip)
 
         win.destroy()
 
+        return True
 
-    def on_remove_route_clicked(self, toolbutton, user_data = None):
-        print 'on remove route'
-        route = self.gui.route_list_widget.get_selected()
-        if route is None:
-            print 'Nothing selected'
-            return
-
-        # remove this from our widgets
-        self.gui.map_widget.remove_route(route)
-        self.gui.route_list_widget.remove_route(route)
-
-        # good-bye
-        route.destroy()
+    def on_remove_trip_clicked(self, toolbutton, user_data = None):
+        return True
 
     def on_add_picture_clicked(self, toolbutton, user_data = None):
         print 'on add picture'
@@ -431,31 +519,36 @@ class Controller(object):
         self.gui.map_widget.update_stop(s)
         self.gui.stop_list_widget.update_stop(s)
 
-    def add_route(self, r):
-        print 'addroute', r
-        path = self.gui.map_widget.draw_route(r)
-        # connect a signal
+    def add_trip(self, t):
+        path = self.gui.map_widget.draw_trip(t)
+        self.gui.trip_list_widget.add_trip_route(t)
+
+    def update_trip(self, t):
+        path = self.gui.map_widget.draw_trip(t)
+        self.gui.trip_list_widget.update_trip_route(t)
+
+    def remove_trip(self, t):
+        self.gui.map_widget.remove_trip(t)
+        self.gui.trip_list_widget.remove_trip_route(t)
+
+        t.destroy()
+
+    # def add_route(self, r):
+    #     print 'addroute', r
+    #     #path = self.gui.map_widget.draw_route(r)
+    #     # connect a signal
         
-        self.gui.route_list_widget.add_route(r)
+    #     self.gui.route_list_widget.add_route(r)
 
-    def update_route(self, r):
-        path = self.gui.map_widget.draw_route(r)
+    # def update_route(self, r):
+    #     #path = self.gui.map_widget.draw_route(r)
 
-        self.gui.route_list_widget.update_route(r)
+    #     self.gui.route_list_widget.update_route(r)
 
     def add_path(self, p):
         self.gui.path_list_widget.add_path(p)
 
-    def on_route_cell_pressed(self, widget, event):
-        if event.button == 3:
-            sel = self.gui.route_list_widget.get_selected()
-
-            if sel:
-                trip_dialog = TripListDialog(self.gui, sel)
-                trip_dialog.show_all()
-
-                resp = trip_dialog.run()
-
-                trip_dialog.destroy()
+    # def on_route_cell_pressed(self, widget, event):
+    #     return False
 
     gui = property(lambda x: x._gui(), None)
