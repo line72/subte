@@ -77,18 +77,12 @@ class Stop(BaseObject):
         #  need to be changed to us
         for tr in TripRoute.trip_routes:
             if stop in tr.stops:
-                i = tr._stops.index(stop)
+                i = tr.stops.index(stop)
                 # insert us
-                tr._stops.insert(i, self)
+                tr.insert_stop_at(i, self)
                 # remove the original
-                tr._stops.remove(stop)
-
-                # any trips that have them as a stop
-                #  need to be changed to us
-                for trip in tr.trips:
-                    if stop in trip.stops:
-                        trip.stops[self] = trip.stops[stop]
-                        trip.stops.pop(stop)
+                i = tr.stops.index(stop)
+                tr.remove_stop_at(i)
 
     def add_picture(self, p):
         if p in self.pictures:

@@ -54,6 +54,9 @@ class Trip(BaseObject):
     def add_trip_stop(self, tripstop):
         self.stops.append(tripstop)
 
+    def insert_stop_at(self, index, stop):
+        self.stops.insert(index, stop)
+
     def remove_trip_stop(self, tripstop):
         try: self.stops.remove(tripstop)
         except ValueError, e: pass

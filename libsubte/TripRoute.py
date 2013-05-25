@@ -73,6 +73,11 @@ class TripRoute(BaseObject):
 
         return trip
 
+    def clear_stops(self):
+        self._stops = []
+        for trip in self.trips:
+            trip.stops = []
+
     def add_stop(self, stop):
         self._stops.append(stop)
 
@@ -80,6 +85,12 @@ class TripRoute(BaseObject):
         for trip in self.trips:
             t = TripStop(stop)
             trip.add_trip_stop(t)
+
+    def insert_stop_at(self, index, stop):
+        self._stops.insert(index, stop)
+
+        for trip in self.trips:
+            trip.insert_top_at(index, stop)
 
     def remove_stop(self, stop):
         '''Remove any references to a stop 
