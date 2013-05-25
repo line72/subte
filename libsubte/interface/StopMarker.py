@@ -201,7 +201,7 @@ class StopMarker(Champlain.CustomMarker):
 
         routes = Clutter.Text()
         if len(self.stop.trip_routes) > 0:
-            route_names = ', '.join([x.short_name for x in self.stop.trip_routes])
+            route_names = ', '.join([x.route.short_name for x in self.stop.trip_routes])
         else:
             route_names = 'None'
         routes.set_markup('<markup><b>Routes:</b> %s</markup>' % route_names)

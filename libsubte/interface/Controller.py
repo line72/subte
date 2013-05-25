@@ -325,7 +325,10 @@ class Controller(object):
     #     route.destroy()
 
     def on_add_trip_clicked(self, toolbutton, user_data = None):
-        win = AddTripRouteDialog(self._gui())
+        # create the trip (temporarily)
+        trip = libsubte.TripRoute('', None, None, '', 0, None)
+
+        win = AddTripRouteDialog(self._gui(), trip)
         win.show_all()
 
         dlg = win.content
@@ -336,15 +339,12 @@ class Controller(object):
         self.disconnect('on-stop-selected', handler)
 
         if resp == Gtk.ResponseType.ACCEPT:
-            name = dlg.get_name()
-            #route = dlg.get_route()
-            calendar = dlg.get_calendar()
-            headsign = dlg.get_headsign()
-            direction = dlg.get_direction()
-            path = dlg.get_path()
-
-            # create the trip
-            trip = libsubte.TripRoute(name, route, calendar, headsign, direction, path)
+            trip.name = dlg.get_name()
+            trip.route = dlg.get_route()
+            trip.calendar = dlg.get_calendar()
+            trip.headsign = dlg.get_headsign()
+            trip.direction = dlg.get_direction()
+            trip.path = dlg.get_path()
             
             route.add_trip_route(trip)
 
@@ -352,6 +352,8 @@ class Controller(object):
                 trip.add_trip_stop(s)
 
             self.add_trip(trip)
+        else:
+            trip.destroy()
 
         win.destroy()
 
@@ -362,11 +364,10 @@ class Controller(object):
         if trip is None:
             return True
 
-        win = EditTripRouteDialog(self._gui())
+        win = EditTripRouteDialog(self._gui(), trip)
         win.show_all()
 
         dlg = win.content
-        dlg.fill(trip)
 
         handler = self.connect('on-stop-selected', dlg.on_stop_selected)
 

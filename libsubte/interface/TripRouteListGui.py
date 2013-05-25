@@ -76,6 +76,8 @@ class TripRouteListGui(object):
     def add_trip_route(self, tr):
         if tr:
             name = tr.name
+            if tr.route:
+                name = '%s - %s' % (tr.route.short_name, tr.name)
             self.model.append([tr.trip_route_id, name])
 
     def update_trip_route(self, tr):
@@ -87,6 +89,8 @@ class TripRouteListGui(object):
 
                 if tr.trip_route_id == trip_route_id:
                     name = tr.name
+                    if tr.route:
+                        name = '%s - %s' % (tr.route.short_name, tr.name)
 
                     self.model.set_value(it, 1, name)
                     return True

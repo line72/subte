@@ -49,7 +49,7 @@ class TripRoute(BaseObject):
         # add us
         TripRoute.trip_routes.append(self)
 
-    route = property(lambda x: x._route(), None)
+    route = property(lambda x: x._route(), lambda x, r: x.set_route(r))
     calendar = property(lambda x: x._calendar(), lambda x, c: x.set_calendar(c))
     stops = property(lambda x: x._stops[:], None)
 
@@ -130,6 +130,12 @@ class TripRoute(BaseObject):
             self._calendar = None
         else:
             self._calendar = weakref.ref(calendar)
+
+    def set_route(self, route):
+        if route == None:
+            self._route = None
+        else:
+            self._route = weakref.ref(route)
 
     @classmethod
     def get(cls, trip_route_id):
