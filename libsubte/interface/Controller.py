@@ -411,6 +411,15 @@ class Controller(object):
         return True
 
     def on_remove_trip_clicked(self, toolbutton, user_data = None):
+        trip_route = self.gui.trip_list_widget.get_selected()
+        if trip_route is None:
+            return True
+
+        if trip_route.route:
+            trip_route.route.remove_trip_route(trip_route)
+
+        self.remove_trip(trip_route)
+
         return True
 
     def on_add_picture_clicked(self, toolbutton, user_data = None):

@@ -54,6 +54,8 @@ class TripRoute(BaseObject):
     stops = property(lambda x: x._stops[:], None)
 
     def destroy(self):
+        for trip in self.trips:
+            trip.destroy()
         self.trips = []
         self._stops = []
 
