@@ -48,9 +48,9 @@ class Path(BaseObject):
         if self.coords is None:
             return
 
-        from Route import Route
+        from TripRoute import TripRoute
         found = False
-        for r in Route.routes:
+        for r in TripRoute.trip_routes:
             if r.path == self:
                 found = True
                 break
