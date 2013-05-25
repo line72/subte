@@ -80,6 +80,9 @@ class TripList(Gtk.VBox):
         add_button = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
         add_button.connect('clicked', self.on_add_trip)
         vbox.pack_start(add_button, False, False, 0)
+        rm_button = Gtk.Button.new_from_stock(Gtk.STOCK_REMOVE)
+        rm_button.connect('clicked', self.on_rm_trip)
+        vbox.pack_start(rm_button, False, False, 0)
         trip_hbox.pack_start(vbox, False, False, 5)
 
     def update_model(self):
@@ -89,7 +92,7 @@ class TripList(Gtk.VBox):
 
         # add the trips that use this calendar
         for i, t in enumerate(self._trip_route.trips):
-            trip = [i]
+            trip = [t.trip_id]
             for s in self._trip_route.stops:
                 ts = t.get_stop(s)
                 trip.append(ts.arrival)
@@ -99,7 +102,7 @@ class TripList(Gtk.VBox):
         self.model.clear()
 
     def add_trip(self, t):
-        trip = [len(self._trip_route.trips)]
+        trip = [t.trip_id]
         for s in self._trip_route.stops:
             ts = t.get_stop(s)
             trip.append(ts.arrival)
@@ -112,6 +115,24 @@ class TripList(Gtk.VBox):
         self.add_trip(t)
 
         return True
+
+    def on_rm_trip(self, btn, user_data = None):
+        selection = self.treeview.get_selection()
+        if selection is None:
+            return True
+
+        store, it = selection.get_selected()
+        if store is None or it is None:
+            return True
+        
+        trip_id = self.model.get(it, 0)[0]
+
+        trip = libsubte.Trip.get(trip_id)
+        if trip:
+            self._trip_route.remove_trip(trip)
+            trip.destroy()
+
+        self.model.remove(it)
 
     def on_cell_edited(self, renderer, path, text, column):
         # !mwd - validate

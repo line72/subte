@@ -75,6 +75,10 @@ class TripRoute(BaseObject):
 
         return trip
 
+    def remove_trip(self, trip):
+        try: self.trips.remove(trip)
+        except ValueError, e: pass
+
     def clear_stops(self):
         self._stops = []
         for trip in self.trips:
