@@ -40,8 +40,7 @@ class EditTripRouteDialog(Gtk.Dialog):
     def __init__(self, parent, trip_route):
         Gtk.Dialog.__init__(self, 'Edit Trip', parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Edit', Gtk.ResponseType.ACCEPT,
-                             'Cancel', Gtk.ResponseType.CANCEL))
+                            ('Edit', Gtk.ResponseType.ACCEPT,))
 
         self.content = AddTripRoute(trip_route)
         self.get_content_area().add(self.content)
@@ -182,21 +181,28 @@ class AddTripRoute(Gtk.VBox):
 
     def on_stop_selected(self, stop):
         self.stops.add_stop(stop)
+        self._trip_route.add_stop(stop)
 
         return True
 
     def on_remove_stop(self, btn):
+        index = self.stops.get_selected_index()
         self.stops.remove_selection()
+        self._trip_route.remove_stop_at(index)
 
         return True
 
     def on_raise_stop(self, btn):
+        index = self.stops.get_selected_index()
         self.stops.raise_selection()
+        self._trip_route.increment_stop_at(index)
 
         return True
 
     def on_lower_stop(self, btn):
+        index = self.stops.get_selected_index()
         self.stops.lower_selection()
+        self._trip_route.decrement_stop_at(index)
 
         return True
     

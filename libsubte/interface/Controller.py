@@ -364,8 +364,8 @@ class Controller(object):
             trip.direction = direction
             trip.path = path
 
-            for s in dlg.get_stops():
-                trip.add_trip_stop(s)
+            #for s in dlg.get_stops():
+            #    trip.add_trip_stop(s)
 
             self.add_trip(trip)
         else:
@@ -409,16 +409,16 @@ class Controller(object):
             trip.direction = direction
             trip.path = path
 
-            #! mwd - This is really bad
-            #   we should be smart about the changes
-            #  this deletes all our times too for every
-            #  trip!!!
-            if trip._stops != dlg.get_stops():
-                print 'Clearing stops!!'
-                trip.clear_stops()
+            # #! mwd - This is really bad
+            # #   we should be smart about the changes
+            # #  this deletes all our times too for every
+            # #  trip!!!
+            # if trip._stops != dlg.get_stops():
+            #     print 'Clearing stops!!'
+            #     trip.clear_stops()
 
-                for s in dlg.get_stops():
-                    trip.add_stop(s)
+            #     for s in dlg.get_stops():
+            #         trip.add_stop(s)
 
             self.update_trip(trip)
 
