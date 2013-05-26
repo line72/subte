@@ -26,14 +26,14 @@ class TripRouteListGui(object):
         self.model = Gtk.ListStore(GObject.TYPE_INT, str)
         self.treeview = Gtk.TreeView(model = self.model)
         self.treeview.set_rules_hint(True)
-        self.treeview.set_headers_visible(False)
+        self.treeview.set_headers_visible(True)
 
         self.clear_model()
 
         # add the columns to the tree
         renderer = Gtk.CellRendererText()
         column = Gtk.TreeViewColumn('Trip Route', renderer, text = 1)
-        column.set_sort_column_id(0)
+        column.set_sort_column_id(1)
         self.treeview.append_column(column)
 
         self.scrolled_window.add(self.treeview)
