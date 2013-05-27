@@ -133,6 +133,7 @@ def main():
                 pass
 
             # stops
+            stops = []
             stops_node = route_node.find('Stops')
             for stop_node in stops_node.findall('Stop'):
                 stop_id = stop_node.get('id', None)
@@ -141,14 +142,14 @@ def main():
                 else:
                     s = libsubte.Stop.get(int(stop_id))
                     if s:
-                        r.add_stop(s)
+                        stops.append(s)
                     else:
                         print >> sys.stderr, 'Invalid route stop', stop_id
-
+  
             for calendar in libsubte.Calendar.calendars:
                 tr = libsubte.TripRoute('', r, calendar, '', 0, path)
                 r.add_trip_route(tr)
-                for stop in r.stops:
+                for stop in stops:
                     tr.add_stop(stop)
 
 

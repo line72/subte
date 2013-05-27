@@ -200,8 +200,8 @@ class StopMarker(Champlain.CustomMarker):
         info.set_markup('<markup><b>Latitude:</b> %s\n<b>Longitude:</b> %s</markup>' % (self.stop.latitude, self.stop.longitude))
 
         routes = Clutter.Text()
-        if len(self.stop.routes) > 0:
-            route_names = ', '.join([x.short_name for x in self.stop.routes])
+        if len(self.stop.trip_routes) > 0:
+            route_names = ', '.join([x.route.short_name for x in self.stop.trip_routes])
         else:
             route_names = 'None'
         routes.set_markup('<markup><b>Routes:</b> %s</markup>' % route_names)
@@ -261,7 +261,7 @@ class StopMarker(Champlain.CustomMarker):
 
     def _update_color(self):
         if self.stop:
-            if len(self.stop.routes) > 0:
+            if len(self.stop.trip_routes) > 0:
                 # we have routes associated with us
                 self.marker.set_background_color(self.route_color)
                 return

@@ -124,7 +124,6 @@ class Database(object):
                 url = route_node.findtext('url')
                 color = route_node.findtext('color')
                 text_color = route_node.findtext('text_color')
-                path_id = route_node.findtext('path_id')
 
                 agency_id = int(agency_id)
                 r = Route(agency = Agency.get(agency_id),
@@ -132,25 +131,6 @@ class Database(object):
                           description = description, route_type = route_type,
                           url = url, color = color, text_color = text_color)
                 r.route_id = int(route_id)
-
-                try:
-                    path = Path.get(int(path_id))
-                    r.set_path(path)
-                except Exception, e:
-                    pass
-
-                # stops
-                stops_node = route_node.find('Stops')
-                for stop_node in stops_node.findall('Stop'):
-                    stop_id = stop_node.get('id', None)
-                    if stop_id is None:
-                        print >> sys.stderr, 'Invalid Route stop', stop_id
-                    else:
-                        s = Stop.get(int(stop_id))
-                        if s:
-                            r.add_stop(s)
-                        else:
-                            print >> sys.stderr, 'Invalid route stop', stop_id
 
             for trip_route_node in tree.getroot().findall('TripRoute'):
                 trip_route_id = trip_route_node.get('id', TripRoute.new_id())
@@ -319,18 +299,6 @@ class Database(object):
             e.text = '%s' % (r.color or '')
             e = ElementTree.SubElement(node, 'text_color')
             e.text = '%s' % (r.text_color or '')
-            # this routes stops
-            stop_node = ElementTree.SubElement(node, 'Stops')
-            for s in r.stops:
-                n = ElementTree.SubElement(stop_node, 'Stop')
-                n.attrib['id'] = '%s' % s.stop_id
-            # this routes path
-            e = ElementTree.SubElement(node, 'path_id')
-            if r.path:
-                e.text = '%s' % r.path.path_id
-            else:
-                e.text = ''
-           
 
         # the trips
         for t in Trip.trips:

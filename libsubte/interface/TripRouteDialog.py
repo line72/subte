@@ -22,22 +22,36 @@ import libsubte
 
 from CalendarDialog import CalendarChoice
 from PathDialog import PathChoice
+from RouteDialog import RouteChoice
 from StopListGui import StopListGui
+from TripList import TripListDialog
 
 class AddTripRouteDialog(Gtk.Dialog):
-    def __init__(self, parent):
+    def __init__(self, parent, trip_route):
         Gtk.Dialog.__init__(self, 'Add Trip', parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
                             ('Add', Gtk.ResponseType.ACCEPT,
                              'Cancel', Gtk.ResponseType.CANCEL))
 
-        self.content = AddTripRoute()
+        self.content = AddTripRoute(trip_route)
         self.get_content_area().add(self.content)
+
+class EditTripRouteDialog(Gtk.Dialog):
+    def __init__(self, parent, trip_route):
+        Gtk.Dialog.__init__(self, 'Edit Trip', parent,
+                            Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                            ('Edit', Gtk.ResponseType.ACCEPT,))
+
+        self.content = AddTripRoute(trip_route)
+        self.get_content_area().add(self.content)
+
 
 class AddTripRoute(Gtk.VBox):
     '''A vbox for adding a single trip along a route'''
-    def __init__(self):
+    def __init__(self, trip_route):
         Gtk.VBox.__init__(self, False)
+
+        self._trip_route = trip_route
 
         size_group = Gtk.SizeGroup(mode = Gtk.SizeGroupMode.HORIZONTAL)
 
@@ -49,6 +63,11 @@ class AddTripRoute(Gtk.VBox):
         self.name_txt = Gtk.Entry()
         hbox.pack_start(self.name_txt, True, True, 5)
         self.pack_start(hbox, True, True, 5)
+
+        # route
+        self.route_hbox = RouteChoice()
+        size_group.add_widget(self.route_hbox.get_label())
+        self.pack_start(self.route_hbox, True, False, 5)
 
         # calendar
         self.calendar_hbox = CalendarChoice()
@@ -82,6 +101,16 @@ class AddTripRoute(Gtk.VBox):
         self.direction.append_text('Inbound')
         self.direction.set_active(0)
 
+        # edit trips
+        hbox = Gtk.HBox(False)
+        edit_trips_lbl = Gtk.Label('Edit Trips: ')
+        size_group.add_widget(edit_trips_lbl)
+        hbox.pack_start(edit_trips_lbl, False, False, 0)
+        edit_trip_btn = Gtk.Button.new_from_stock(Gtk.STOCK_INFO)
+        edit_trip_btn.connect('clicked', self.on_modify_trips)
+        hbox.pack_start(edit_trip_btn, True, True, 5)
+        self.pack_start(hbox, True, True, 5)
+
         # and all our stops
         hbox = Gtk.HBox(False)
         stops_lbl = Gtk.Label('Stops: ')
@@ -89,51 +118,48 @@ class AddTripRoute(Gtk.VBox):
         hbox.pack_start(stops_lbl, False, False, 0)
         self.stops = StopListGui()
         hbox.pack_start(self.stops.get_widget(), True, True, 5)
+        # actions
         vbox = Gtk.VBox(True)
-        left_btn = Gtk.Button.new_from_stock(Gtk.STOCK_GO_BACK)
-        right_btn = Gtk.Button.new_from_stock(Gtk.STOCK_GO_FORWARD)
+        #add_btn = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
+        rm_btn = Gtk.Button.new_from_stock(Gtk.STOCK_REMOVE)
         up_btn = Gtk.Button.new_from_stock(Gtk.STOCK_GO_UP)
         down_btn = Gtk.Button.new_from_stock(Gtk.STOCK_GO_DOWN)
 
-        left_btn.connect('clicked', self.on_move_stop_left)
-        right_btn.connect('clicked', self.on_move_stop_right)
+        #add_btn.connect('clicked', self.on_move_stop_left)
+        rm_btn.connect('clicked', self.on_remove_stop)
         up_btn.connect('clicked', self.on_raise_stop)
         down_btn.connect('clicked', self.on_lower_stop)
 
-        vbox.pack_start(left_btn, False, False, 5)
-        vbox.pack_start(right_btn, False, False, 5)
+        #vbox.pack_start(add_btn, False, False, 5)
+        vbox.pack_start(rm_btn, False, False, 5)
         vbox.pack_start(up_btn, False, False, 5)
         vbox.pack_start(down_btn, False, False, 5)
-        hbox.pack_start(vbox, False, False, 0)
-
-        self.available_stops = StopListGui()
-        hbox.pack_start(self.available_stops.get_widget(), True, True, 5)
+        hbox.pack_start(vbox, False, True, 0)
 
         self.pack_start(hbox, True, True, 5)
         
-    def set_route(self, route):
-        # fill in the stops
-        self.stops.clear_model()
-        for stop in route.stops:
-            self.available_stops.add_stop(stop)
+        self.fill()
 
-    def fill(self, trip_route):
-        if trip_route is None:
+    def fill(self):
+        if self._trip_route is None:
             return
 
-        self.name_txt.set_text(trip_route.name)
-        self.calendar_hbox.set_selection(trip_route.calendar)
-        self.path_hbox.set_selection(trip_route.path)
-        self.headsign_txt.set_text(trip_route.headsign)
-        self.direction.set_active(trip_route.direction)
+        self.name_txt.set_text(self._trip_route.name)
+        self.route_hbox.set_selection(self._trip_route.route)
+        self.calendar_hbox.set_selection(self._trip_route.calendar)
+        self.path_hbox.set_selection(self._trip_route.path)
+        self.headsign_txt.set_text(self._trip_route.headsign)
+        self.direction.set_active(self._trip_route.direction)
 
         # stops
-        for stop in trip_route.stops:
+        for stop in self._trip_route.stops:
             self.stops.add_stop(stop)
-            self.available_stops.remove_stop(stop)
 
     def get_name(self):
         return self.name_txt.get_text()
+
+    def get_route(self):
+        return self.route_hbox.get_selection()
 
     def get_calendar(self):
         return self.calendar_hbox.get_selection()
@@ -153,29 +179,41 @@ class AddTripRoute(Gtk.VBox):
     def get_stops(self):
         return self.stops.get_stops()
 
-    def on_move_stop_left(self, btn):
-        selection = self.available_stops.get_selected()
-        if selection is None:
-            return True
-
-        self.available_stops.remove_selection()
-        self.stops.add_stop(selection)
+    def on_stop_selected(self, stop):
+        self.stops.add_stop(stop)
+        self._trip_route.add_stop(stop)
 
         return True
 
-    def on_move_stop_right(self, btn):
-        selection = self.stops.get_selected()
-        if selection is None:
-            return True
-
+    def on_remove_stop(self, btn):
+        index = self.stops.get_selected_index()
         self.stops.remove_selection()
-        self.available_stops.add_stop(selection)
+        self._trip_route.remove_stop_at(index)
 
         return True
 
     def on_raise_stop(self, btn):
+        index = self.stops.get_selected_index()
+        self.stops.raise_selection()
+        self._trip_route.increment_stop_at(index)
+
         return True
 
     def on_lower_stop(self, btn):
-        return True
+        index = self.stops.get_selected_index()
+        self.stops.lower_selection()
+        self._trip_route.decrement_stop_at(index)
 
+        return True
+    
+    def on_modify_trips(self, btn):
+        print 'on-modify-trips'
+        if self._trip_route:
+            dlg = TripListDialog(None, self._trip_route)
+            dlg.show_all()
+
+            dlg.run()
+
+            dlg.destroy()
+
+        return True

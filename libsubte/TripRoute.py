@@ -33,8 +33,11 @@ class TripRoute(BaseObject):
 
         self.trip_route_id = TripRoute.new_id()
         self.name = name
-        self._route = weakref.ref(route)
-        self._calendar = weakref.ref(calendar)
+        self._route = None
+        self._calendar = None
+
+        self.set_route(route)
+        self.set_calendar(calendar)
 
         self.headsign = headsign
         self.direction = direction
@@ -49,11 +52,13 @@ class TripRoute(BaseObject):
         # add us
         TripRoute.trip_routes.append(self)
 
-    route = property(lambda x: x._route(), None)
-    calendar = property(lambda x: x._calendar(), lambda x, c: x.set_calendar(c))
+    route = property(lambda x: x.get_route(), lambda x, r: x.set_route(r))
+    calendar = property(lambda x: x.get_calendar(), lambda x, c: x.set_calendar(c))
     stops = property(lambda x: x._stops[:], None)
 
     def destroy(self):
+        for trip in self.trips:
+            trip.destroy()
         self.trips = []
         self._stops = []
 
@@ -73,6 +78,15 @@ class TripRoute(BaseObject):
 
         return trip
 
+    def remove_trip(self, trip):
+        try: self.trips.remove(trip)
+        except ValueError, e: pass
+
+    def clear_stops(self):
+        self._stops = []
+        for trip in self.trips:
+            trip.stops = []
+
     def add_stop(self, stop):
         self._stops.append(stop)
 
@@ -80,6 +94,12 @@ class TripRoute(BaseObject):
         for trip in self.trips:
             t = TripStop(stop)
             trip.add_trip_stop(t)
+
+    def insert_stop_at(self, index, stop):
+        self._stops.insert(index, stop)
+
+        for trip in self.trips:
+            trip.insert_top_at(index, stop)
 
     def remove_stop(self, stop):
         '''Remove any references to a stop 
@@ -130,6 +150,20 @@ class TripRoute(BaseObject):
             self._calendar = None
         else:
             self._calendar = weakref.ref(calendar)
+
+    def get_calendar(self):
+        try: return self._calendar()
+        except Exception, e: return None
+
+    def set_route(self, route):
+        if route == None:
+            self._route = None
+        else:
+            self._route = weakref.ref(route)
+
+    def get_route(self):
+        try: return self._route()
+        except Exception, e: return None
 
     @classmethod
     def get(cls, trip_route_id):

@@ -55,6 +55,20 @@ class StopListGui(object):
 
         return stop
 
+    def get_selected_index(self):
+        selection = self.treeview.get_selection()
+        if selection is None:
+            return None
+
+        store, it = selection.get_selected()
+        if store is None or it is None:
+            return None
+
+        path = store.get_path(it)
+        index = path.get_indices()[0]
+
+        return index
+
     def set_selected(self, stop):
         if not stop:
             return
