@@ -73,8 +73,6 @@ class GTGui(Gtk.Window):
         notebook.append_page(self.stop_list_widget.get_widget(), Gtk.Label('Stops'))
         self.trip_list_widget = TripRouteListGui()
         notebook.append_page(self.trip_list_widget.get_widget(), Gtk.Label('Trips'))
-        # self.route_list_widget = RouteListGui()
-        # notebook.append_page(self.route_list_widget.get_widget(), Gtk.Label('Routes'))
         self.path_list_widget = PathListGui()
         notebook.append_page(self.path_list_widget.get_widget(), Gtk.Label('Paths'))
 
@@ -97,8 +95,6 @@ class GTGui(Gtk.Window):
         self.map_widget.view.connect('button-release-event', self.controller.on_map_click, self.map_widget)
         self.stop_list_widget.treeview.connect('cursor-changed', self.controller.on_stop_list_selected)
         self.trip_list_widget.treeview.connect('cursor-changed', self.controller.on_route_trip_list_selected)
-        # self.route_list_widget.treeview.connect('cursor-changed', self.controller.on_route_list_selected)
-        # self.route_list_widget.treeview.connect('button-press-event', self.controller.on_route_cell_pressed)
 
     def on_quit(self, widget, evt, data = None):
         self.db.save(self._db_file)
@@ -139,24 +135,6 @@ class GTGui(Gtk.Window):
         toolbar.add(merge_stop)
 
         toolbar.add(Gtk.SeparatorToolItem())
-
-        # ## ROUTES
-        # add_route = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)
-        # add_route.set_tooltip_text('Add a new route')
-        # add_route.connect('clicked', self.controller.on_add_route_clicked)
-        # toolbar.add(add_route)
-
-        # edit_route = Gtk.ToolButton.new_from_stock(Gtk.STOCK_EDIT)
-        # edit_route.set_tooltip_text('Edit a route')
-        # edit_route.connect('clicked', self.controller.on_edit_route_clicked)
-        # toolbar.add(edit_route)
-
-        # remove_route = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
-        # remove_route.set_tooltip_text('Remove a route')
-        # remove_route.connect('clicked', self.controller.on_remove_route_clicked)
-        # toolbar.add(remove_route)
-
-        # toolbar.add(Gtk.SeparatorToolItem())
 
         ## TRIPS
         add_trip = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)

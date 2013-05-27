@@ -35,11 +35,6 @@ class TripList(Gtk.VBox):
 
         self._trip_route = trip_route
 
-        # calendar editor
-        #self.calendar_hbox = CalendarChoice()
-        #self.calendar_hbox.choice.connect('changed', self.on_calendar_changed)
-        #self.pack_start(self.calendar_hbox, False, False, 5)
-
         # trip editor
         trip_hbox = Gtk.HBox(False)
         self.pack_start(trip_hbox, True, True, 5)
