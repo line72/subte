@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Subte
+GenericName=GTFS Builder
+Comment=Interface for managing public transit data
+Exec=subte
+Terminal=false
+Type=Application
+Icon=subte.svg
+Categories=Gtk;Transit;Utility;
+StartupNotify=true

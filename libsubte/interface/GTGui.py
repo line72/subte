@@ -21,7 +21,7 @@ import os
 import sys
 import weakref
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Gio
 
 import libsubte
 
@@ -35,7 +35,8 @@ from PathListGui import PathListGui
 class GTGui(Gtk.Window):
     instance = None
     def __init__(self):
-        Gtk.Window.__init__(self, title = 'Subte GTFS Builder')
+        Gtk.Window.__init__(self, title = 'Subte GTFS Builder', type = Gtk.WindowType.TOPLEVEL)
+        self.set_icon_name('subte')
 
         GTGui.instance = weakref.ref(self)
 
@@ -100,7 +101,7 @@ class GTGui(Gtk.Window):
         self.db.save(self._db_file)
         GTGui.instance = None
         Gtk.main_quit()
-
+        
     def _build_tool_bar(self):
         toolbar = Gtk.Toolbar()
         toolbar.set_icon_size(Gtk.IconSize.LARGE_TOOLBAR)

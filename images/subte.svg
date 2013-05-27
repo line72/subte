@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg9326"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="New document 2">
+  <defs
+     id="defs9328">
+    <linearGradient
+       id="linearGradient11546">
+      <stop
+         style="stop-color:#00681d;stop-opacity:1;"
+         offset="0"
+         id="stop11548" />
+      <stop
+         id="stop11556"
+         offset="0.67391306"
+         style="stop-color:#58ee44;stop-opacity:1;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="1"
+         id="stop11550" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient10104"
+       osb:paint="gradient">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop10106" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop10108" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11546"
+       id="linearGradient11554"
+       x1="19.492676"
+       y1="446.64789"
+       x2="629.07874"
+       y2="446.64789"
+       gradientUnits="userSpaceOnUse"
+       spreadMethod="pad" />
+    <mask
+       maskUnits="userSpaceOnUse"
+       x="0"
+       y="0"
+       width="1"
+       height="1"
+       id="mask3740">
+      <g
+         id="g3742">
+        <g
+           clip-path="url(#clipPath3722)"
+           id="g3744">
+          <g
+             transform="matrix(1,0,0,-1,-7959,8391)"
+             id="g3746">
+            <path
+               inkscape:connector-curvature="0"
+               d="m 8031,8158 23,0 0,16 -23,0 0,-16 z"
+               style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+               id="path3748" />
+            <g
+               transform="matrix(1,0,0,-1,7959,8391)"
+               id="g3750">
+              <g
+                 id="g3752" />
+              <g
+                 id="g3754">
+                <g
+                   clip-path="url(#clipPath3726)"
+                   id="g3756">
+                  <g
+                     transform="matrix(1,0,0,-1,-7959,8391)"
+                     id="g3758">
+                    <g
+                       id="g3760">
+                      <g
+                         id="g3762">
+                        <g
+                           id="g3764">
+                          <path
+                             inkscape:connector-curvature="0"
+                             d="m 8074.4834,8177.1689 c 0,0 -62.4639,0 -62.4639,0 0,0 0,-22.3379 0,-22.3379 0,0 62.4639,0 62.4639,0 0,0 0,22.3379 0,22.3379 z"
+                             style="fill:url(#linearGradient3734);stroke:none"
+                             id="path3766" />
+                        </g>
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </mask>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3722">
+      <path
+         inkscape:connector-curvature="0"
+         d="m 72,233 23,0 0,-16 -23,0 0,16 z"
+         id="path3724" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3726">
+      <path
+         inkscape:connector-curvature="0"
+         d="m 72,233 23,0 0,-16 -23,0 0,16 z"
+         id="path3728" />
+    </clipPath>
+    <linearGradient
+       x1="0"
+       y1="0"
+       x2="1"
+       y2="0"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0,22.33789,-22.33789,0,8043.2519,8154.831)"
+       spreadMethod="pad"
+       id="linearGradient3734">
+      <stop
+         style="stop-opacity:1;stop-color:#dcdcdc"
+         offset="0"
+         id="stop3736" />
+      <stop
+         style="stop-opacity:1;stop-color:#0a0a0a"
+         offset="1"
+         id="stop3738" />
+    </linearGradient>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3772">
+      <path
+         inkscape:connector-curvature="0"
+         d="m 72,233 23,0 0,-16 -23,0 0,16 z"
+         id="path3774" />
+    </clipPath>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient11546"
+       id="linearGradient11681"
+       gradientUnits="userSpaceOnUse"
+       spreadMethod="pad"
+       x1="19.492676"
+       y1="446.64789"
+       x2="629.07874"
+       y2="446.64789" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="349.72141"
+     inkscape:cy="520"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1366"
+     inkscape:window-height="709"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata9331">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g11703">
+      <g
+         id="g11692">
+        <path
+           sodipodi:type="arc"
+           style="fill:url(#linearGradient11681);fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:4.76100016;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           id="path9334"
+           sodipodi:cx="324.28571"
+           sodipodi:cy="446.64789"
+           sodipodi:rx="304.31253"
+           sodipodi:ry="304.31253"
+           d="m 628.59824,446.64789 a 304.31253,304.31253 0 1 1 -608.625065,0 304.31253,304.31253 0 1 1 608.625065,0 z"
+           transform="matrix(0,1,-1,0,828.07645,142.36218)" />
+        <g
+           id="g3718"
+           transform="matrix(21.428571,0,0,-21.428571,-1405.8036,5169.5051)">
+          <g
+             id="g3720" />
+          <g
+             mask="url(#mask3740)"
+             id="g3768">
+            <g
+               id="g3770" />
+            <g
+               id="g3776">
+              <g
+                 id="g3778"
+                 clip-path="url(#clipPath3772)">
+                <g
+                   id="g3780"
+                   transform="scale(1,-1)">
+                  <path
+                     inkscape:connector-curvature="0"
+                     id="path3782"
+                     style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+                     d="m 95,-225 c 0,4.41846 -5.14844,8 -11.5,8 -6.35156,0 -11.5,-3.58154 -11.5,-8 0,-4.41846 5.14844,-8 11.5,-8 6.35156,0 11.5,3.58154 11.5,8 z" />
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <text
+         sodipodi:linespacing="125%"
+         id="text11666"
+         y="523.146"
+         x="129.0556"
+         style="font-size:60.6198349px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-size:151.54957581px;font-weight:bold;fill:#ffffff;fill-opacity:1;-inkscape-font-specification:Sans Bold"
+           y="523.146"
+           x="129.0556"
+           id="tspan11668"
+           sodipodi:role="line">Subte</tspan></text>
+    </g>
+  </g>
+</svg>
