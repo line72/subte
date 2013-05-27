@@ -89,6 +89,19 @@ class CalendarChoice(Gtk.HBox):
                 return calendar
         return None
 
+    def set_selection(self, calendar):
+        if not calendar:
+            return False
+
+        model = self.choice.get_model()
+        it = model.get_iter_first()
+        while it:
+            if model.get_value(it, 0) == calendar.name:
+                self.choice.set_active_iter(it)
+                return True
+            it = model.iter_next(it)
+        return False
+
     def on_add_calendar(self, btn, user_data = None):
         # !mwd - we need a parent window
         dlg = AddCalendarDialog(None)

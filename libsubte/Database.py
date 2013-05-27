@@ -29,6 +29,7 @@ import xml.parsers.expat
 from Route import Route
 from Stop import Stop
 from Trip import Trip, TripStop
+from TripRoute import TripRoute
 from Calendar import Calendar
 from Agency import Agency
 from Path import Path
@@ -123,7 +124,6 @@ class Database(object):
                 url = route_node.findtext('url')
                 color = route_node.findtext('color')
                 text_color = route_node.findtext('text_color')
-                path_id = route_node.findtext('path_id')
 
                 agency_id = int(agency_id)
                 r = Route(agency = Agency.get(agency_id),
@@ -132,24 +132,41 @@ class Database(object):
                           url = url, color = color, text_color = text_color)
                 r.route_id = int(route_id)
 
-                try:
+            for trip_route_node in tree.getroot().findall('TripRoute'):
+                trip_route_id = trip_route_node.get('id', TripRoute.new_id())
+                name = trip_route_node.findtext('name')
+                route_id = trip_route_node.findtext('route_id')
+                calendar_id = trip_route_node.findtext('calendar_id')
+                headsign = trip_route_node.findtext('headsign')
+                direction = trip_route_node.findtext('direction')
+                path_id = trip_route_node.findtext('path_id')
+
+                route = Route.get(int(route_id))
+                calendar = Calendar.get(int(calendar_id))
+                path = None
+                if path_id != '':
                     path = Path.get(int(path_id))
-                    r.set_path(path)
-                except Exception, e:
-                    pass
+
+                tr = TripRoute(name, route, calendar, headsign, int(direction), path)
+                tr.trip_route_id = int(trip_route_id)
+                route.add_trip_route(tr)
 
                 # stops
-                stops_node = route_node.find('Stops')
+                stops_node = trip_route_node.find('Stops')
                 for stop_node in stops_node.findall('Stop'):
-                    stop_id = stop_node.get('id', None)
-                    if stop_id is None:
-                        print >> sys.stderr, 'Invalid Route stop', stop_id
-                    else:
-                        s = Stop.get(int(stop_id))
-                        if s:
-                            r.add_stop(s)
-                        else:
-                            print >> sys.stderr, 'Invalid route stop', stop_id
+                    stop_id = stop_node.get('id')
+
+                    stop = Stop.get(int(stop_id))
+                    tr.add_stop(stop)
+
+                # trips
+                trips_node = trip_route_node.find('Trips')
+                for trip_node in trips_node.findall('Trip'):
+                    trip_id = trip_node.get('id')
+
+                    trip = tr.add_trip()
+                    trip.trip_id = int(trip_id)
+
 
             for trip_node in tree.getroot().findall('Trip'):
                 trip_id = trip_node.get('id', Trip.new_id())
@@ -159,12 +176,8 @@ class Database(object):
 
                 route = Route.get(int(route_id))
 
-                t = Trip(name = name, route = route,
-                         calendar = Calendar.get(int(calendar_id)))
-                t.trip_id = int(trip_id)
-
-                # add to our route
-                route.trips.append(t)
+                trip = Trip.get(int(trip_id))
+                trip.name = name
 
                 # trip stops
                 trip_stops_node = trip_node.find('TripStops')
@@ -174,13 +187,10 @@ class Database(object):
                     departure = trip_stop_node.findtext('departure')
 
                     stop = Stop.get(int(stop_id))
-                    if stop is None:
-                        print >> sys.stderr, 'Trip stop of an invalid stop', stop_id
-                        continue
-                    ts = TripStop(stop = stop, arrival = arrival, departure = departure)
+                    trip_stop = trip.get_stop(stop)
 
-                    # add to our trip
-                    t.stops[stop] = ts
+                    trip_stop.arrival = arrival
+                    trip_stop.departure = departure
 
             for picture_node in tree.getroot().findall('Picture'):
                 picture_id = picture_node.get('id', Picture.new_id())
@@ -289,18 +299,7 @@ class Database(object):
             e.text = '%s' % (r.color or '')
             e = ElementTree.SubElement(node, 'text_color')
             e.text = '%s' % (r.text_color or '')
-            # this routes stops
-            stop_node = ElementTree.SubElement(node, 'Stops')
-            for s in r.stops:
-                n = ElementTree.SubElement(stop_node, 'Stop')
-                n.attrib['id'] = '%s' % s.stop_id
-            # this routes path
-            e = ElementTree.SubElement(node, 'path_id')
-            if r.path:
-                e.text = '%s' % r.path.path_id
-            else:
-                e.text = ''
-            
+
         # the trips
         for t in Trip.trips:
             node = ElementTree.SubElement(root, 'Trip')
@@ -310,19 +309,48 @@ class Database(object):
             e = ElementTree.SubElement(node, 'calendar_id')
             e.text = '%s' % t.calendar.calendar_id
             e = ElementTree.SubElement(node, 'route_id')
-            e.text = '%s' % t.route.route_id
+            e.text = '%s' % t.trip_route.route.route_id
             # this trips stops
             stop_node = ElementTree.SubElement(node, 'TripStops')
-            for rs in t.route.stops:
-                if rs in t.stops:
-                    v = t.get_stop(rs)
-                    n = ElementTree.SubElement(stop_node, 'TripStop')
-                    e = ElementTree.SubElement(n, 'stop_id')
-                    e.text = '%s' % v.stop.stop_id
-                    e = ElementTree.SubElement(n, 'arrival')
-                    e.text = '%s' % (v.arrival or '')
-                    e = ElementTree.SubElement(n, 'departure')
-                    e.text = '%s' % (v.departure or '')
+            for rs in t.stops:
+                v = rs
+                n = ElementTree.SubElement(stop_node, 'TripStop')
+                e = ElementTree.SubElement(n, 'stop_id')
+                e.text = '%s' % v.stop.stop_id
+                e = ElementTree.SubElement(n, 'arrival')
+                e.text = '%s' % (v.arrival or '')
+                e = ElementTree.SubElement(n, 'departure')
+                e.text = '%s' % (v.departure or '')
+
+        # the trip routes           
+        for tr in TripRoute.trip_routes:
+            node = ElementTree.SubElement(root, 'TripRoute')
+            node.attrib['id'] = '%s' % tr.trip_route_id
+            e = ElementTree.SubElement(node, 'name')
+            e.text = '%s' % tr.name
+            e = ElementTree.SubElement(node, 'route_id')
+            e.text = '%s' % tr.route.route_id
+            e = ElementTree.SubElement(node, 'calendar_id')
+            e.text = '%s' % tr.calendar.calendar_id
+            e = ElementTree.SubElement(node, 'headsign')
+            e.text = '%s' % tr.headsign
+            e = ElementTree.SubElement(node, 'direction')
+            e.text = '%s' % tr.direction
+            e = ElementTree.SubElement(node, 'path_id')
+            if tr.path:
+                e.text = '%s' % tr.path.path_id
+            else:
+                e.text = ''
+            # stops
+            stop_node = ElementTree.SubElement(node, 'Stops')
+            for s in tr.stops:
+                n = ElementTree.SubElement(stop_node, 'Stop')
+                n.attrib['id'] = '%s' % s.stop_id
+            # trips
+            trip_node = ElementTree.SubElement(node, 'Trips')
+            for t in tr.trips:
+                n = ElementTree.SubElement(trip_node, 'Trip')
+                n.attrib['id'] = '%s' % t.trip_id               
 
         # the paths
         for p in Path.paths:

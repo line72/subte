@@ -43,17 +43,14 @@ class Route(BaseObject):
         self.color = color
         self.text_color = text_color
 
-        self.stops = []
-        self.trips = []
-
-        self.path = None
+        self.trip_routes = []
 
         # add us
         Route.routes.append(self)
 
     def destroy(self):
-        self.stops = []
-        self.trips = []
+        #self.stops = []
+        self.trip_routes = []
         self.agency = None
 
         try:
@@ -61,60 +58,13 @@ class Route(BaseObject):
         except ValueError:
             pass
 
-    def add_stop(self, stop):
-        self.stops.append(stop)
+    def add_trip_route(self, trip_route):
+        self.trip_routes.append(trip_route)
 
-    def remove_stop(self, stop):
-        try:
-            self.stops.remove(stop)
-        except ValueError, e:
+    def remove_trip_route(self, trip_route):
+        try: self.trip_routes.remove(trip_route)
+        except ValuError, e:
             pass
-
-    def add_trip(self, name, calendar):
-        trip = Trip(name, self, calendar)
-        self.trips.append(trip)
-    
-        return trip
-
-    def get_trips_with_calendar(self, calendar):
-        trips = []
-
-        for t in self.trips:
-            if t.calendar == calendar:
-                trips.append(t)
-
-        return trips
-
-    def set_path(self, p):
-        self.path = p
-
-    def build_trips(self, csv, calendar, trip_name = None):
-        '''build trips from a csv file.'''
-        f = open(csv)
-        stops = f.readline().strip().split(',')
-
-        if trip_name is None:
-            trip_name = csv[:-4] # remove the .csv
-
-        for i, l in enumerate(f.readlines()):
-            trip = self.add_trip('%s%d' % (trip_name, i), calendar)
-            
-            times = l.strip().split(',')
-
-            previous_stop = ''
-            for s, t in zip(stops, times):
-                if t == '--': # skip
-                    continue
-                if s == previous_stop:
-                    # set the departure time
-                    trip.stops[-1].departure = t
-                else:
-                    # a blank time is ok, it just means
-                    #  google will interpolate it
-                    trip.add_stop(Stop.get_stop(s), t)
-                
-                previous_stop = s
-
 
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',

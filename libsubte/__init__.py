@@ -20,6 +20,7 @@ from Route import Route
 from Stop import Stop
 from Calendar import Calendar
 from Trip import Trip
+from TripRoute import TripRoute
 from Path import Path
 from Database import Database
 

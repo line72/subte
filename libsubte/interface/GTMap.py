@@ -104,7 +104,7 @@ class GTMap(GtkChamplain.Embed):
         for m in self.stop_layer.get_markers():
             m.hide()
 
-    def draw_route(self, r):
+    def draw_trip(self, r):
         if r is None:
             return
 
@@ -124,7 +124,7 @@ class GTMap(GtkChamplain.Embed):
 
         return self.route_layer
 
-    def remove_route(self, route):
+    def remove_trip(self, route):
         self.route_layer.remove_all()
         self.route_layer.show()
         self.path_layer.remove_all()

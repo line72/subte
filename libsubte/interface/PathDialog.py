@@ -50,10 +50,13 @@ class PathChoice(Gtk.HBox):
         return None
 
     def set_selection(self, v):
+        if v is None:
+            return False
+
         model = self.choice.get_model()
         it = model.get_iter_first()
         while it:
-            if model.get_value(it, 0) == v:
+            if model.get_value(it, 0) == v.name:
                 self.choice.set_active_iter(it)
                 return True
             it = model.iter_next(it)

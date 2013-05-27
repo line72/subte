@@ -27,27 +27,80 @@ class Trip(BaseObject):
     trips = []
     trip_id = 0
 
-    def __init__(self, name, route, calendar):
+    def __init__(self, name, trip_route, calendar):
         BaseObject.__init__(self)
 
         self.trip_id = Trip.new_id()
         self.name = name
-        self._route = weakref.ref(route)
+        self._trip_route = weakref.ref(trip_route)
         self._calendar = weakref.ref(calendar)
 
-        self.stops = {}
+        self.stops = []
 
         # add us
         Trip.trips.append(self)
 
-    route = property(lambda x: x._route(), None)
+    trip_route = property(lambda x: x._trip_route(), None)
     calendar = property(lambda x: x._calendar(), None)
 
-    def get_stop(self, stop):
-        if stop not in self.stops:
-            self.stops[stop] = TripStop(stop)
+    def destroy(self):
+        self.stops = []
 
-        return self.stops[stop]
+        try:
+            Trip.trips.remove(self)
+        except ValueError, e:
+            pass
+
+    def add_trip_stop(self, tripstop):
+        self.stops.append(tripstop)
+
+    def insert_stop_at(self, index, stop):
+        self.stops.insert(index, stop)
+
+    def remove_trip_stop(self, tripstop):
+        try: self.stops.remove(tripstop)
+        except ValueError, e: pass
+
+    def remove_trip_stop_at(self, index):
+        try: self.stops.pop(index)
+        except ValueError, e: pass
+
+    def increment_trip_stop_at(self, index):
+        if index == 0:
+            return False
+
+        try:
+            tripstop = self.stops.pop(index)
+            self.stops.insert(index-1, tripstop)
+        except ValueError, e: 
+            return False
+
+        return True
+
+    def decrement_trip_stop_at(self, index):
+        if index == len(self.stops) - 1:
+            return False
+
+        try:
+            tripstop = self.stops.pop(index)
+            self.stops.insert(index+1, tripstop)
+        except ValueError, e: 
+            return False
+
+        return True
+
+    def get_stop(self, stop):
+        ts = None
+        for tripstop in self.stops:
+            if tripstop.stop == stop:
+                ts = tripstop
+                break
+
+        if ts is None:
+            ts = TripStop(stop)
+            self.stops.append(ts)
+
+        return ts
 
     def update_stop(self, stop, arrival = None, departure = None):
         if stop is None:
@@ -62,8 +115,8 @@ class Trip(BaseObject):
 
     def write(self, trip_f, stop_times_f):
         has_trips = False
-        for i, s in enumerate(self.route.stops):
-            trip_stop = self.get_stop(s)
+        for i, s in enumerate(self.stops):
+            trip_stop = s
 
 
             #!mwd - This isn't correct
@@ -96,15 +149,21 @@ class Trip(BaseObject):
 
         if has_trips:
             shape_id = ''
-            if self.route.path is not None:
-                shape_id = self.route.path.path_id
+            if self.trip_route.path is not None:
+                shape_id = self.trip_route.path.path_id
 
 
             self._write(trip_f, '%s,%s,%s,%s,%s,%s,%s\n',
-                        self.route.route_id, self.calendar.calendar_id,
-                        self.trip_id, '', 0, '', shape_id)
+                        self.trip_route.route.route_id, self.calendar.calendar_id,
+                        self.trip_id, self.trip_route.headsign, self.trip_route.direction, '', shape_id)
 
 
+    @classmethod
+    def get(cls, trip_id):
+        for trip in cls.trips:
+            if trip.trip_id == trip_id:
+                return trip
+        return None
 
     @classmethod
     def new_id(cls):

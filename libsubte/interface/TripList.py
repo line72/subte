@@ -22,23 +22,18 @@ import libsubte
 from CalendarDialog import CalendarChoice
 
 class TripListDialog(Gtk.Dialog):
-    def __init__(self, parent, route):
+    def __init__(self, parent, trip_route):
         Gtk.Dialog.__init__(self, 'Edit Trips', parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
                             ('Close', Gtk.ResponseType.CLOSE,))
 
-        self.get_content_area().pack_start(TripList(route), True, True, 5)
+        self.get_content_area().pack_start(TripList(trip_route), True, True, 5)
 
 class TripList(Gtk.VBox):
-    def __init__(self, route):
+    def __init__(self, trip_route):
         Gtk.VBox.__init__(self, False)
 
-        self._route = route
-
-        # calendar editor
-        self.calendar_hbox = CalendarChoice()
-        self.calendar_hbox.choice.connect('changed', self.on_calendar_changed)
-        self.pack_start(self.calendar_hbox, False, False, 5)
+        self._trip_route = trip_route
 
         # trip editor
         trip_hbox = Gtk.HBox(False)
@@ -47,7 +42,7 @@ class TripList(Gtk.VBox):
         self.scrolled_window = Gtk.ScrolledWindow(None, None)
 
         cols = [GObject.TYPE_INT]
-        for i in route.stops:
+        for i in trip_route.stops:
             cols.append(str)
 
         self.model = Gtk.ListStore(*cols)
@@ -58,7 +53,7 @@ class TripList(Gtk.VBox):
         self.clear_model()
 
         # add the columns
-        for c, i in enumerate(route.stops):
+        for c, i in enumerate(trip_route.stops):
             renderer = Gtk.CellRendererText()
             renderer.props.editable = True
             renderer.connect('edited', self.on_cell_edited, c+1)
@@ -80,6 +75,9 @@ class TripList(Gtk.VBox):
         add_button = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
         add_button.connect('clicked', self.on_add_trip)
         vbox.pack_start(add_button, False, False, 0)
+        rm_button = Gtk.Button.new_from_stock(Gtk.STOCK_REMOVE)
+        rm_button.connect('clicked', self.on_rm_trip)
+        vbox.pack_start(rm_button, False, False, 0)
         trip_hbox.pack_start(vbox, False, False, 5)
 
     def update_model(self):
@@ -87,12 +85,10 @@ class TripList(Gtk.VBox):
         #  current calendar
         self.clear_model()
 
-        calendar = self.get_calendar()
-
         # add the trips that use this calendar
-        for i, t in enumerate(self._route.get_trips_with_calendar(calendar)):
-            trip = [i]
-            for s in self._route.stops:
+        for i, t in enumerate(self._trip_route.trips):
+            trip = [t.trip_id]
+            for s in self._trip_route.stops:
                 ts = t.get_stop(s)
                 trip.append(ts.arrival)
             self.model.append(trip)
@@ -100,29 +96,38 @@ class TripList(Gtk.VBox):
     def clear_model(self):
         self.model.clear()
 
-    def get_calendar(self):
-        return self.calendar_hbox.get_selection()
-
     def add_trip(self, t):
-        trip = [len(self._route.trips)]
-        for s in self._route.stops:
+        trip = [t.trip_id]
+        for s in self._trip_route.stops:
             ts = t.get_stop(s)
             trip.append(ts.arrival)
 
         self.model.append(trip)
 
-    def on_calendar_changed(self, widget, user_data = None):
-        self.update_model()
-
     def on_add_trip(self, btn, user_data = None):
-        if self.get_calendar() is None:
-            return
-
-        trip_name = '%s%d' % (self._route.short_name, len(self._route.trips))
-        t = self._route.add_trip(trip_name, self.get_calendar())
+        #trip_name = '%s%d' % (self._trip_route.route.short_name, len(self._trip_route.trips))
+        t = self._trip_route.add_trip()
         self.add_trip(t)
 
         return True
+
+    def on_rm_trip(self, btn, user_data = None):
+        selection = self.treeview.get_selection()
+        if selection is None:
+            return True
+
+        store, it = selection.get_selected()
+        if store is None or it is None:
+            return True
+        
+        trip_id = self.model.get(it, 0)[0]
+
+        trip = libsubte.Trip.get(trip_id)
+        if trip:
+            self._trip_route.remove_trip(trip)
+            trip.destroy()
+
+        self.model.remove(it)
 
     def on_cell_edited(self, renderer, path, text, column):
         # !mwd - validate
@@ -132,10 +137,10 @@ class TripList(Gtk.VBox):
         self.model.set_value(it, column, text)
 
         # update our model
-        trips = self._route.get_trips_with_calendar(self.get_calendar())
+        trips = self._trip_route.trips
         try:
             trip = trips[int(path)]
-            stop = self._route.stops[column-1]
+            stop = self._trip_route.stops[column-1]
             trip_stop = trip.get_stop(stop)
             trip_stop.arrival = text
             trip_stop.departure = text
