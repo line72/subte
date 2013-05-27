@@ -5,6 +5,6 @@ Comment=Interface for managing public transit data
 Exec=subte
 Terminal=false
 Type=Application
-Icon=subte.svg
+Icon=subte
 Categories=Gtk;Transit;Utility;
 StartupNotify=true
