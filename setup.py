@@ -16,7 +16,7 @@ setup(name = 'subte',
       scripts = ['subte'],
       data_files = [('share/subte', ['AUTHORS', 'ChangeLog', 'COPYING', 'README']),
                     ('share/applications', ['subte.desktop']),
-                    ('share/icons', ['images/subte.svg']),
+                    ('share/icons', ['images/subte.png']),
                     ],
 
       )
