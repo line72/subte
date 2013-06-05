@@ -31,6 +31,17 @@ class AddRouteDialog(Gtk.Dialog):
         self.content = AddRoute()
         self.get_content_area().add(self.content)
 
+class EditRouteDialog(Gtk.Dialog):
+    def __init__(self, parent):
+        Gtk.Dialog.__init__(self, 'Edit Route', parent,
+                            Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                            ('Edit', Gtk.ResponseType.ACCEPT,
+                             'Cancel', Gtk.ResponseType.CANCEL))
+
+        self.content = AddRoute()
+        self.get_content_area().add(self.content)
+
+
 class AddRoute(Gtk.VBox):
     '''A vbox for adding an route'''
     def __init__(self):
@@ -120,6 +131,16 @@ class RouteChoice(Gtk.HBox):
         add_btn.connect('clicked', self.on_add_route)
         self.pack_start(add_btn, False, False, 5)
 
+        # a modify button
+        edit_btn = Gtk.Button.new_from_stock(Gtk.STOCK_EDIT)
+        edit_btn.connect('clicked', self.on_edit_route)
+        self.pack_start(edit_btn, False, False, 5)
+
+        # a remove button
+        rm_btn = Gtk.Button.new_from_stock(Gtk.STOCK_REMOVE)
+        rm_btn.connect('clicked', self.on_rm_route)
+        self.pack_start(rm_btn, False, False, 5)
+
         # add our agencies
         for route in libsubte.Route.routes:
             #!mwd - we shouldn't be referencing by name 
@@ -130,6 +151,9 @@ class RouteChoice(Gtk.HBox):
 
     def get_label(self):
         return self.lbl
+
+    def get_selection_index(self):
+        return self.choice.get_active()
 
     def get_selection(self):
         selection = self.choice.get_active_text()
@@ -174,3 +198,51 @@ class RouteChoice(Gtk.HBox):
 
         dlg.destroy()
 
+        return True
+
+    def on_edit_route(self, btn, user_data = None):
+        route = self.get_selection()
+        if route is None:
+            return True
+
+        # !mwd - we need a parent window
+        dlg = EditRouteDialog(None)
+        dlg.content._fill(route)
+        dlg.show_all()
+
+        if dlg.run() == Gtk.ResponseType.ACCEPT:
+            # create a new route
+            route.short_name = dlg.content.get_name()
+            route.long_name = dlg.content.get_long_name()
+            route.description = dlg.content.get_description()
+            route.agency = dlg.content.get_agency()
+
+        dlg.destroy()
+
+        return True
+
+    def on_rm_route(self, btn, user_data = None):
+        route = self.get_selection()
+        if route is None:
+            return True
+
+        dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL,
+                                Gtk.MessageType.WARNING,
+                                Gtk.ButtonsType.OK_CANCEL,
+                                "Delete this route?")
+        resp = dlg.run()
+        if resp == Gtk.ResponseType.OK:
+            print 'deleting route', route
+            index = self.get_selection_index()
+            self.choice.remove(index)
+
+            index = index - 1
+            if index < 0: 
+                index = 0
+            self.choice.set_active(index)
+            
+            route.destroy()
+
+        dlg.destroy()
+
+        return True
