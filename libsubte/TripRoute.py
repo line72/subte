@@ -46,6 +46,7 @@ class TripRoute(BaseObject):
         self.wheelchair_accessible = 0
 
         self.trips = []
+        self.requencies = []
 
         self._stops = []
 
