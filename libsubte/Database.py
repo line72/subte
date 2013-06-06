@@ -181,13 +181,16 @@ class Database(object):
 
                 # trip stops
                 trip_stops_node = trip_node.find('TripStops')
-                for trip_stop_node in trip_stops_node.findall('TripStop'):
+                for i, trip_stop_node in enumerate(trip_stops_node.findall('TripStop')):
                     stop_id = trip_stop_node.findtext('stop_id')
                     arrival = trip_stop_node.findtext('arrival')
                     departure = trip_stop_node.findtext('departure')
 
                     stop = Stop.get(int(stop_id))
-                    trip_stop = trip.get_stop(stop)
+                    #trip_stop = trip.get_stop(stop)
+                    trip_stop = trip.stops[i]
+                    if trip_stop.stop != stop:
+                        raise Exception("TripStop doesn't match stop")
 
                     trip_stop.arrival = arrival
                     trip_stop.departure = departure
