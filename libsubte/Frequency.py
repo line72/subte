@@ -49,7 +49,9 @@ class Frequency(BaseObject):
             pass
 
     def write(self, f):
-        pass
+        self._write(f, '%s,%s,%s,%s,%s\n',
+                    self.trip_route.trip.trip_id, 
+                    self.start, self.end, self.headway, 0)
 
     @classmethod
     def get(cls, frequency_id):
