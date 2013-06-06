@@ -88,8 +88,8 @@ class TripList(Gtk.VBox):
         # add the trips that use this calendar
         for i, t in enumerate(self._trip_route.trips):
             trip = [t.trip_id]
-            for s in self._trip_route.stops:
-                ts = t.get_stop(s)
+            for j, s in enumerate(self._trip_route.stops):
+                ts = t.stops[j]
                 trip.append(ts.arrival)
             self.model.append(trip)
 
@@ -98,8 +98,9 @@ class TripList(Gtk.VBox):
 
     def add_trip(self, t):
         trip = [t.trip_id]
-        for s in self._trip_route.stops:
-            ts = t.get_stop(s)
+        for i, s in enumerate(self._trip_route.stops):
+            ts = t.stops[i]
+            #ts = t.get_stop(s)
             trip.append(ts.arrival)
 
         self.model.append(trip)
@@ -143,7 +144,8 @@ class TripList(Gtk.VBox):
         try:
             trip = trips[int(path)]
             stop = self._trip_route.stops[column-1]
-            trip_stop = trip.get_stop(stop)
+            #trip_stop = trip.get_stop(stop)
+            trip_stop = trip.stops[column-1]
             trip_stop.arrival = text
             trip_stop.departure = text
         except (AttributeError, IndexError), e:
