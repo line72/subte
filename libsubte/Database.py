@@ -34,7 +34,7 @@ from Calendar import Calendar
 from Agency import Agency
 from Path import Path
 from Picture import Picture
-from Frequencye import Frequency
+from Frequency import Frequency
 
 class Database(object):
     def load(self, fname):
