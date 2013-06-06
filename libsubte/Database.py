@@ -444,6 +444,7 @@ class Database(object):
         Stop.write_stops(directory)
         Route.write_routes(directory)
         Trip.write_trips(directory)
+        Frequency.write_frequencies(directory)
         Path.write_paths(directory)
 
 """
