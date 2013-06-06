@@ -34,6 +34,7 @@ from Calendar import Calendar
 from Agency import Agency
 from Path import Path
 from Picture import Picture
+from Frequencye import Frequency
 
 class Database(object):
     def load(self, fname):
@@ -191,6 +192,18 @@ class Database(object):
 
                     trip_stop.arrival = arrival
                     trip_stop.departure = departure
+
+            for frequency_node in tree.getroot().findall('Frequency'):
+                frequency_id = frequency_node.get('id', Frequency.new_id())
+                trip_route_id = frequency_node.findtext('trip_route_id')
+                start = frequency_node.findtext('start')
+                end = frequency_node.findtext('end')
+                headway = frequency_node.findtext('headway')
+
+                trip_route = TripRoute.get(int(trip_route_id))
+
+                frequency = trip_route.add_frequency(start, end, headway)
+                frequency.frequency_id = int(frequency_id)
 
             for picture_node in tree.getroot().findall('Picture'):
                 picture_id = picture_node.get('id', Picture.new_id())
@@ -351,6 +364,19 @@ class Database(object):
             for t in tr.trips:
                 n = ElementTree.SubElement(trip_node, 'Trip')
                 n.attrib['id'] = '%s' % t.trip_id               
+
+        # the frequencies
+        for f in Frequency.frequencies:
+            node = ElementTree.SubElement(root, 'Frequency')
+            node.attrib['id'] = '%s' % f.frequency_id
+            e = ElementTree.SubElement(node, 'trip_route_id')
+            e.text = '%s' % f.trip_route.trip_route_id
+            e = ElementTree.SubElement(node, 'start')
+            e.text = '%s' % f.start
+            e = ElementTree.SubElement(node, 'end')
+            e.text = '%s' % f.end
+            e = ElementTree.SubElement(node, 'headway')
+            e.text = '%s' % f.headway
 
         # the paths
         for p in Path.paths:
