@@ -50,7 +50,7 @@ class Frequency(BaseObject):
 
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s\n',
-                    self.trip_route.trip.trip_id, 
+                    self.trip_route.trips[0].trip_id,
                     self.start, self.end, self.headway, 0)
 
     @classmethod
