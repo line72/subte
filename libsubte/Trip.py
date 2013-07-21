@@ -37,11 +37,15 @@ class Trip(BaseObject):
 
         self.stops = []
 
+        self.next_block = None
+        self.previous_block = None
+
         # add us
         Trip.trips.append(self)
 
     trip_route = property(lambda x: x._trip_route(), None)
     calendar = property(lambda x: x._calendar(), None)
+    first_block = property(lambda x: x.get_first_block(), None)
 
     def destroy(self):
         self.stops = []
@@ -113,6 +117,41 @@ class Trip(BaseObject):
         if departure:
             trip_stop.departure = departure
 
+    def has_blocks(self):
+        '''Check to see if we are linked to 
+        any other trips through blocks'''
+        return (self.previous_block != None or self.next_block != None)
+
+    def get_first_block(self):
+        '''Return the first block (which may be us)
+        Return None if we are not linked to any other
+        trips through blocks'''
+        if not self.has_blocks():
+            return None
+
+        t = self.previous_block
+        prev = t
+
+        while t != None:
+            prev = t
+            t = t.previous_block
+
+        if prev is None:
+            return self
+
+        return prev
+
+    def get_block_id(self):
+        '''Return the block id(str) or None if
+        we aren't linked to any other trips
+        through blocks'''
+
+        if not self.has_blocks():
+            return None
+
+        return 'B_%s' % (self.get_first_block().trip_id)
+
+
     def write(self, trip_f, stop_times_f):
         has_trips = False
         for i, s in enumerate(self.stops):
@@ -152,10 +191,11 @@ class Trip(BaseObject):
             if self.trip_route.path is not None:
                 shape_id = self.trip_route.path.path_id
 
+            block_id = self.get_block_id()
 
             self._write(trip_f, '%s,%s,%s,%s,%s,%s,%s\n',
                         self.trip_route.route.route_id, self.calendar.calendar_id,
-                        self.trip_id, self.trip_route.headsign, self.trip_route.direction, '', shape_id)
+                        self.trip_id, self.trip_route.headsign, self.trip_route.direction, block_id, shape_id)
 
 
     @classmethod

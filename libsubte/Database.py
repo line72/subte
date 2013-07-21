@@ -195,6 +195,20 @@ class Database(object):
                     trip_stop.arrival = arrival
                     trip_stop.departure = departure
 
+                # blocks
+                previous_trip = trip_node.findtext('previous_block')
+                next_trip = trip_node.findtext('next_block')
+
+                try:
+                    previous_block = Trip.get(int(previous_trip))
+                    trip.previous_block = previous_block
+                except Exception, e: pass
+
+                try:
+                    next_block = Trip.get(int(next_trip))
+                    trip.next_block = next_block
+                except Exception, e: pass
+
             for picture_node in tree.getroot().findall('Picture'):
                 picture_id = picture_node.get('id', Picture.new_id())
                 image = picture_node.findtext('image')
@@ -324,6 +338,18 @@ class Database(object):
                 e.text = '%s' % (v.arrival or '')
                 e = ElementTree.SubElement(n, 'departure')
                 e.text = '%s' % (v.departure or '')
+            # blocks
+            e = ElementTree.SubElement('previous_block')
+            if t.previous_block:
+                e.text = t.previous_block.trip_id
+            else:
+                e.text = ''
+
+            e = ElementTree.SubElement('next_block')
+            if t.next_block:
+                e.text = t.next_block.trip_id
+            else:
+                e.text = ''            
 
         # the trip routes           
         for tr in TripRoute.trip_routes:
