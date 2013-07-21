@@ -339,13 +339,13 @@ class Database(object):
                 e = ElementTree.SubElement(n, 'departure')
                 e.text = '%s' % (v.departure or '')
             # blocks
-            e = ElementTree.SubElement('previous_block')
+            e = ElementTree.SubElement(node, 'previous_block')
             if t.previous_block:
                 e.text = t.previous_block.trip_id
             else:
                 e.text = ''
 
-            e = ElementTree.SubElement('next_block')
+            e = ElementTree.SubElement(node, 'next_block')
             if t.next_block:
                 e.text = t.next_block.trip_id
             else:
