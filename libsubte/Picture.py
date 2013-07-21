@@ -20,7 +20,10 @@ import md5
 import os
 import sys
 import EXIF
-import Image
+try:
+    import Image
+except ImportError, e: # try Pillow support
+    from PIL import Image
 
 class Picture(object):
     pictures = []
