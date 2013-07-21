@@ -20,6 +20,7 @@ import weakref
 
 from BaseObject import BaseObject
 from Trip import Trip, TripStop
+from Frequency import Frequency
 
 class TripRoute(BaseObject):
     '''This is a group of trips that
@@ -46,6 +47,7 @@ class TripRoute(BaseObject):
         self.wheelchair_accessible = 0
 
         self.trips = []
+        self.frequencies = []
 
         self._stops = []
 
@@ -80,6 +82,17 @@ class TripRoute(BaseObject):
 
     def remove_trip(self, trip):
         try: self.trips.remove(trip)
+        except ValueError, e: pass
+
+    def add_frequency(self, start, end, headway):
+        frequency = Frequency(self, start, end, headway)
+
+        self.frequencies.append(frequency)
+
+        return frequency
+
+    def remove_frequency(self, frequency):
+        try: self.frequencies.remove(frequency)
         except ValueError, e: pass
 
     def clear_stops(self):

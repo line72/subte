@@ -19,31 +19,27 @@ from gi.repository import Gtk, GObject
 
 import libsubte
 
-from CalendarDialog import CalendarChoice
-
-class TripListDialog(Gtk.Dialog):
+class FrequencyListDialog(Gtk.Dialog):
     def __init__(self, parent, trip_route):
-        Gtk.Dialog.__init__(self, 'Edit Trips', parent,
-                            Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Close', Gtk.ResponseType.CLOSE,))
+        Gtk.Dialog.__init__(self, 'Edit Frequencies', parent,
+                           Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                           ('Close', Gtk.ResponseType.CLOSE,))
 
-        self.get_content_area().pack_start(TripList(trip_route), True, True, 5)
+        self.content = FrequencyList(trip_route)
+        self.get_content_area().pack_start(self.content, True, True, 5)
 
-class TripList(Gtk.VBox):
+class FrequencyList(Gtk.VBox):
     def __init__(self, trip_route):
         Gtk.VBox.__init__(self, False)
 
         self._trip_route = trip_route
-
-        # trip editor
-        trip_hbox = Gtk.HBox(False)
-        self.pack_start(trip_hbox, True, True, 5)
+        
+        frequency_hbox = Gtk.HBox(False)
+        self.pack_start(frequency_hbox, True, True, 5)
 
         self.scrolled_window = Gtk.ScrolledWindow(None, None)
 
-        cols = [GObject.TYPE_INT]
-        for i in trip_route.stops:
-            cols.append(str)
+        cols = [GObject.TYPE_INT, str, str, str]
 
         self.model = Gtk.ListStore(*cols)
         self.treeview = Gtk.TreeView(model = self.model)
@@ -53,66 +49,53 @@ class TripList(Gtk.VBox):
         self.clear_model()
 
         # add the columns
-        for c, i in enumerate(trip_route.stops):
+        for c, i in enumerate(('Start Time', 'End Time', 'Headway')):
             renderer = Gtk.CellRendererText()
             renderer.props.editable = True
             renderer.connect('edited', self.on_cell_edited, c+1)
             #!mwd - text is the column in the list store where
             #  we get our text from. Since our first column (id)
             #  is hidden, it is c+1
-            column = Gtk.TreeViewColumn(i.name, renderer, text = c+1)
+            column = Gtk.TreeViewColumn(i, renderer, text = c+1)
             self.treeview.append_column(column)
 
-        # add the trips
+        # add the frequencies
         self.update_model()
 
         self.scrolled_window.add(self.treeview)
 
-        trip_hbox.pack_start(self.scrolled_window, True, True, 5)
+        frequency_hbox.pack_start(self.scrolled_window, True, True, 5)
 
         # create an add button
         vbox = Gtk.VBox(False)
         add_button = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
-        add_button.connect('clicked', self.on_add_trip)
+        add_button.connect('clicked', self.on_add_frequency)
         vbox.pack_start(add_button, False, False, 0)
         rm_button = Gtk.Button.new_from_stock(Gtk.STOCK_REMOVE)
-        rm_button.connect('clicked', self.on_rm_trip)
+        rm_button.connect('clicked', self.on_rm_frequency)
         vbox.pack_start(rm_button, False, False, 0)
-        trip_hbox.pack_start(vbox, False, False, 5)
+        frequency_hbox.pack_start(vbox, False, False, 5)
 
     def update_model(self):
-        # update the model to show the trips based on the 
-        #  current calendar
         self.clear_model()
 
-        # add the trips that use this calendar
-        for i, t in enumerate(self._trip_route.trips):
-            trip = [t.trip_id]
-            for j, s in enumerate(self._trip_route.stops):
-                ts = t.stops[j]
-                trip.append(ts.arrival)
-            self.model.append(trip)
+        # add the frequencies that use this calendar
+        for i, t in enumerate(self._trip_route.frequencies):
+            self.model.append((t.frequency_id, t.start, t.end, t.headway))
 
     def clear_model(self):
         self.model.clear()
 
-    def add_trip(self, t):
-        trip = [t.trip_id]
-        for i, s in enumerate(self._trip_route.stops):
-            ts = t.stops[i]
-            #ts = t.get_stop(s)
-            trip.append(ts.arrival)
+    def add_frequency(self, frequency):
+        self.model.append((frequency.frequency_id, frequency.start, frequency.end, frequency.headway))
 
-        self.model.append(trip)
-
-    def on_add_trip(self, btn, user_data = None):
-        #trip_name = '%s%d' % (self._trip_route.route.short_name, len(self._trip_route.trips))
-        t = self._trip_route.add_trip()
-        self.add_trip(t)
+    def on_add_frequency(self, btn, user_data = None):
+        frequency = self._trip_route.add_frequency('', '', '')
+        self.add_frequency(frequency)
 
         return True
 
-    def on_rm_trip(self, btn, user_data = None):
+    def on_rm_frequency(self, btn, user_data = None):
         selection = self.treeview.get_selection()
         if selection is None:
             return True
@@ -121,16 +104,17 @@ class TripList(Gtk.VBox):
         if store is None or it is None:
             return True
         
-        trip_id = self.model.get(it, 0)[0]
+        frequency_id = self.model.get(it, 0)[0]
 
-        trip = libsubte.Trip.get(trip_id)
-        if trip:
-            self._trip_route.remove_trip(trip)
-            trip.destroy()
+        frequency = libsubte.Frequency.get(frequency_id)
+        if frequency:
+            self._trip_route.remove_frequency(frequency)
+            frequency.destroy()
 
         self.model.remove(it)
 
         return True
+
 
     def on_cell_edited(self, renderer, path, text, column):
         # !mwd - validate
@@ -139,17 +123,15 @@ class TripList(Gtk.VBox):
         it = self.model.get_iter_from_string(path)
         self.model.set_value(it, column, text)
 
-        # update our model
-        trips = self._trip_route.trips
-        try:
-            trip = trips[int(path)]
-            stop = self._trip_route.stops[column-1]
-            #trip_stop = trip.get_stop(stop)
-            trip_stop = trip.stops[column-1]
-            trip_stop.arrival = text
-            trip_stop.departure = text
-        except (AttributeError, IndexError), e:
-            print 'Warning->', e
-            return False
+        frequency_id = self.model.get(it, 0)[0]
+
+        frequency = libsubte.Frequency.get(frequency_id)
+        if frequency:
+            if column == 1: # start
+                frequency.start = text
+            elif column == 2: # end 
+                frequency.end = text
+            elif column == 3: # headway
+                frequency.headway = text
 
         return True
