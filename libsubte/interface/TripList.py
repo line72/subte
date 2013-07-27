@@ -45,6 +45,8 @@ class TripList(Gtk.VBox):
         for i in trip_route.stops:
             cols.append(str)
 
+        # add a final column for the next trip
+
         self.model = Gtk.ListStore(*cols)
         self.treeview = Gtk.TreeView(model = self.model)
         self.treeview.set_rules_hint(True)

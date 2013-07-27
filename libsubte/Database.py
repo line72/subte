@@ -199,10 +199,13 @@ class Database(object):
                 previous_trip = trip_node.findtext('previous_block')
                 next_trip = trip_node.findtext('next_block')
 
-                try:
-                    previous_block = Trip.get(int(previous_trip))
-                    trip.previous_block = previous_block
-                except Exception, e: pass
+                # !mwd - no need to set previous blocks
+                #  since setting the next block automatically
+                #  sets previously blocks
+                #try:
+                #    previous_block = Trip.get(int(previous_trip))
+                #    trip.previous_block = previous_block
+                #except Exception, e: pass
 
                 try:
                     next_block = Trip.get(int(next_trip))
