@@ -42,14 +42,15 @@ class TripList(Gtk.VBox):
         self.scrolled_window = Gtk.ScrolledWindow(None, None)
 
         # add a final column for the next trip
-        self.next_block_model = Gtk.ListStore((int, str))
+        cols = [GObject.TYPE_INT, str]
+        self.next_block_model = Gtk.ListStore(*cols)
         for i in trip_route.route.trip_routes:
             if i.calendar == self.calendar:
                 direction = 'Outbound' if i.direction == 0 else 'Inbound'
                 for j in i.trips:
                     if j != self:
                         if len(j.stops) > 0:
-                            next_block_model.append((j.trip_route_id, '%s @ %s' % (direction, j.stops[0].arrival)))
+                            self.next_block_model.append((j.trip_route_id, '%s @ %s' % (direction, j.stops[0].arrival)))
 
         cols = [GObject.TYPE_INT]
         for i in trip_route.stops:
