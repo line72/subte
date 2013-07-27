@@ -41,11 +41,20 @@ class TripList(Gtk.VBox):
 
         self.scrolled_window = Gtk.ScrolledWindow(None, None)
 
+        # add a final column for the next trip
+        self.next_block_model = Gtk.ListStore((int, str))
+        for i in trip_route.route.trip_routes:
+            if i.calendar == self.calendar:
+                direction = 'Outbound' if i.direction == 0 else: 'Inbound'
+                for j in i.trips:
+                    if j != self:
+                        if len(j.stops) > 0:
+                            next_block_model.append((j.trip_route_id, '%s @ %s' % (direction, j.stops[0].arrival)))
+
         cols = [GObject.TYPE_INT]
         for i in trip_route.stops:
             cols.append(str)
-
-        # add a final column for the next trip
+        cols.append(str)
 
         self.model = Gtk.ListStore(*cols)
         self.treeview = Gtk.TreeView(model = self.model)
@@ -64,6 +73,16 @@ class TripList(Gtk.VBox):
             #  is hidden, it is c+1
             column = Gtk.TreeViewColumn(i.name, renderer, text = c+1)
             self.treeview.append_column(column)
+        # and a column for the next block
+        combo_renderer = Gtk.CellRendererCombo()
+        combo_renderer.set_property("editable", "False")
+        combo_renderer.set_property("model", self.next_block_model)
+        combo_renderer.set_property("text-column", 1)
+        combo_renderer.set_property("has-entry", False)
+        #combo_renderer.connect("edited", self.on_edited)
+        column = Gtk.TreeViewColumn("Next Trip", combo_renderer, text = c+1)
+        treeview.append_column(combo_renderer)
+        
 
         # add the trips
         self.update_model()
