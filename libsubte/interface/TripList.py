@@ -45,7 +45,7 @@ class TripList(Gtk.VBox):
         cols = [GObject.TYPE_INT, str]
         self.next_block_model = Gtk.ListStore(*cols)
         for i in trip_route.route.trip_routes:
-            if i.calendar == self.calendar:
+            if i.calendar == trip_route.calendar:
                 direction = 'Outbound' if i.direction == 0 else 'Inbound'
                 for j in i.trips:
                     if j != self:
