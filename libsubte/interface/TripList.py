@@ -41,9 +41,23 @@ class TripList(Gtk.VBox):
 
         self.scrolled_window = Gtk.ScrolledWindow(None, None)
 
+        # add a final column for the next trip
+        cols = [GObject.TYPE_INT, str]
+        self.next_block_model = Gtk.ListStore(*cols)
+        self.next_block_model.append((-1, ''))
+        for i in trip_route.route.trip_routes:
+            if i == self:
+                continue
+            if i.calendar == trip_route.calendar:
+                direction = 'Outbound' if i.direction == 0 else 'Inbound'
+                for j in i.trips:
+                    if len(j.stops) > 0:
+                        self.next_block_model.append((j.trip_id, '%s @ %s' % (direction, j.stops[0].arrival)))
+
         cols = [GObject.TYPE_INT]
         for i in trip_route.stops:
             cols.append(str)
+        cols.append(str)
 
         self.model = Gtk.ListStore(*cols)
         self.treeview = Gtk.TreeView(model = self.model)
@@ -62,6 +76,17 @@ class TripList(Gtk.VBox):
             #  is hidden, it is c+1
             column = Gtk.TreeViewColumn(i.name, renderer, text = c+1)
             self.treeview.append_column(column)
+        # and a column for the next block
+        combo_renderer = Gtk.CellRendererCombo()
+        combo_renderer.set_property("editable", "False")
+        combo_renderer.set_property("model", self.next_block_model)
+        combo_renderer.set_property("text-column", 1)
+        combo_renderer.set_property("has-entry", False)
+        #combo_renderer.connect("edited", self.on_next_block_edited)
+        combo_renderer.connect("changed", self.on_next_block_changed)
+        column = Gtk.TreeViewColumn("Next Trip", combo_renderer, text = c+2)
+        self.treeview.append_column(column)
+        
 
         # add the trips
         self.update_model()
@@ -91,6 +116,27 @@ class TripList(Gtk.VBox):
             for j, s in enumerate(self._trip_route.stops):
                 ts = t.stops[j]
                 trip.append(ts.arrival)
+
+            # see if there is a next block
+            if t.next_block:
+                it = self.next_block_model.get_iter_first()
+                done = False
+                while it and not done:
+                    cols = [0, 1]
+                    values = self.next_block_model.get(it, *cols)
+
+                    if values[0] == t.next_block.trip_id:
+                        trip.append(values[1])
+                        done = True
+
+                    it = self.next_block_model.iter_next(it)
+
+                if not done:
+                    print 'Unable to find a match for the next stop. This must be a missing reference'
+                    trip.append('') # didn't find a match
+            else:
+                trip.append('')
+
             self.model.append(trip)
 
     def clear_model(self):
@@ -149,5 +195,41 @@ class TripList(Gtk.VBox):
         except (AttributeError, IndexError), e:
             print 'Warning->', e
             return False
+
+        return True
+
+    def on_next_block_edited(self, widget, path, text):
+        self.model[path][len(self._trip_route.stops) + 1] = text
+
+        print 'widget=', widget
+
+        # look up the id in the next_block_model
+        it = self.next_block_model.get_iter_first();
+        while it:
+            cols = [0, 1]
+            values = self.next_block_model.get(it, *cols)
+            print 'values = ', values
+
+            it = self.next_block_model.iter_next(it)
+
+        return True
+
+    def on_next_block_changed(self, widget, path, it):
+        # get the value
+        cols = [0, 1]
+        values = self.next_block_model.get(it, *cols)
+
+        # set the text
+        self.model[path][len(self._trip_route.stops) + 1] = values[1]
+
+        # try to look up the next Trip
+        next_trip = libsubte.Trip.get(values[0])
+        
+        # get our current trip
+        current_trip = self._trip_route.trips[int(path)]
+
+        # set it
+        print 'setting next trip for', current_trip, 'to', next_trip
+        current_trip.next_block = next_trip
 
         return True
