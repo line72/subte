@@ -114,6 +114,7 @@ class TripList(Gtk.VBox):
             for j, s in enumerate(self._trip_route.stops):
                 ts = t.stops[j]
                 trip.append(ts.arrival)
+                trip.append('')
             self.model.append(trip)
 
     def clear_model(self):
