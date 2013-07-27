@@ -37,8 +37,8 @@ class Trip(BaseObject):
 
         self.stops = []
 
-        self.next_block = None
-        self.previous_block = None
+        self._next_block = None
+        self._previous_block = None
 
         # add us
         Trip.trips.append(self)
@@ -46,6 +46,8 @@ class Trip(BaseObject):
     trip_route = property(lambda x: x._trip_route(), None)
     calendar = property(lambda x: x._calendar(), None)
     first_block = property(lambda x: x.get_first_block(), None)
+    next_block = property(lambda x: x.get_next_block(), lambda x, v: x.set_next_block(v))
+    previous_block = property(lambda x: x.get_previous_block(), lambda x, v: x.set_previous_block(v))
 
     def destroy(self):
         self.stops = []
@@ -121,6 +123,24 @@ class Trip(BaseObject):
         '''Check to see if we are linked to 
         any other trips through blocks'''
         return (self.previous_block != None or self.next_block != None)
+
+    def get_next_block(self):
+        if self._block:
+            return self._block()
+        return self._block
+
+    def set_next_block(self, b):
+        self._next_block = weakref.ref(b)
+        b._previous_block = weakref.ref(self)
+
+    def get_previous_block(self):
+        if self._previous_block:
+            return self._previous_block()
+        return self._previous_block
+
+    def set_previous_block(self, b):
+        self._previous_block = weakref.ref(b)
+        b._next_block = weakref.ref(self)
 
     def get_first_block(self):
         '''Return the first block (which may be us)
