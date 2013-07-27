@@ -125,9 +125,9 @@ class Trip(BaseObject):
         return (self.previous_block != None or self.next_block != None)
 
     def get_next_block(self):
-        if self._block:
-            return self._block()
-        return self._block
+        if self._next_block:
+            return self._next_block()
+        return self._next_block
 
     def set_next_block(self, b, link = True):
         if link:
