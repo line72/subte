@@ -83,7 +83,7 @@ class TripList(Gtk.VBox):
         combo_renderer.set_property("has-entry", False)
         #combo_renderer.connect("edited", self.on_edited)
         column = Gtk.TreeViewColumn("Next Trip", combo_renderer, text = c+1)
-        treeview.append_column(combo_renderer)
+        self.treeview.append_column(combo_renderer)
         
 
         # add the trips
