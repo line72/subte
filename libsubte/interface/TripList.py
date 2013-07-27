@@ -44,6 +44,7 @@ class TripList(Gtk.VBox):
         # add a final column for the next trip
         cols = [GObject.TYPE_INT, str]
         self.next_block_model = Gtk.ListStore(*cols)
+        self.next_block_model.append((-1, ''))
         for i in trip_route.route.trip_routes:
             if i == self:
                 continue
@@ -81,8 +82,9 @@ class TripList(Gtk.VBox):
         combo_renderer.set_property("model", self.next_block_model)
         combo_renderer.set_property("text-column", 1)
         combo_renderer.set_property("has-entry", False)
-        #combo_renderer.connect("edited", self.on_edited)
-        column = Gtk.TreeViewColumn("Next Trip", combo_renderer, text = c+1)
+        #combo_renderer.connect("edited", self.on_next_block_edited)
+        combo_renderer.connect("changed", self.on_next_block_changed)
+        column = Gtk.TreeViewColumn("Next Trip", combo_renderer, text = c+2)
         self.treeview.append_column(column)
         
 
@@ -114,7 +116,7 @@ class TripList(Gtk.VBox):
             for j, s in enumerate(self._trip_route.stops):
                 ts = t.stops[j]
                 trip.append(ts.arrival)
-                trip.append('')
+            trip.append('')
             self.model.append(trip)
 
     def clear_model(self):
@@ -173,5 +175,41 @@ class TripList(Gtk.VBox):
         except (AttributeError, IndexError), e:
             print 'Warning->', e
             return False
+
+        return True
+
+    def on_next_block_edited(self, widget, path, text):
+        self.model[path][len(self._trip_route.stops) + 1] = text
+
+        print 'widget=', widget
+
+        # look up the id in the next_block_model
+        it = self.next_block_model.get_iter_first();
+        while it:
+            cols = [0, 1]
+            values = self.next_block_model.get(it, *cols)
+            print 'values = ', values
+
+            it = self.next_block_model.iter_next(it)
+
+        return True
+
+    def on_next_block_changed(self, widget, path, it):
+        # get the value
+        cols = [0, 1]
+        values = self.next_block_model.get(it, *cols)
+
+        # set the text
+        self.model[path][len(self._trip_route.stops) + 1] = values[1]
+
+        # try to look up the next Trip
+        next_trip = libsubte.Trip.get(values[0])
+        
+        # get our current trip
+        current_trip = self._trip_route.trips[int(path)]
+
+        # set it
+        print 'setting next trip for', current_trip, 'to', next_trip
+        current_trip.next_block = next_trip
 
         return True
