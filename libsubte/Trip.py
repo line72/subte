@@ -129,18 +129,35 @@ class Trip(BaseObject):
             return self._block()
         return self._block
 
-    def set_next_block(self, b):
-        self._next_block = weakref.ref(b)
-        b._previous_block = weakref.ref(self)
+    def set_next_block(self, b, link = True):
+        if link:
+            if self.next_block:
+                self.next_block.set_previous_block(None, False)
+
+        if b:
+            self._next_block = weakref.ref(b)
+            if link:
+                b.set_previous_block(self, False)
+        else:
+            self._next_block = None
+
 
     def get_previous_block(self):
         if self._previous_block:
             return self._previous_block()
         return self._previous_block
 
-    def set_previous_block(self, b):
-        self._previous_block = weakref.ref(b)
-        b._next_block = weakref.ref(self)
+    def set_previous_block(self, b, link = True):
+        if link:
+            if self.previous_block:
+                self.previous_block.set_next_block(None, False)
+
+        if b:
+            self._previous_block = weakref.ref(b)
+            if link:
+                b.set_next_block(self, False)
+        else:
+            self._previous_block = None
 
     def get_first_block(self):
         '''Return the first block (which may be us)
