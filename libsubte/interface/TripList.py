@@ -146,8 +146,28 @@ class TripList(Gtk.VBox):
         trip = [t.trip_id]
         for i, s in enumerate(self._trip_route.stops):
             ts = t.stops[i]
-            #ts = t.get_stop(s)
             trip.append(ts.arrival)
+
+        # see if there is a next block
+        if t.next_block:
+            it = self.next_block_model.get_iter_first()
+            done = False
+            while it and not done:
+                cols = [0, 1]
+                values = self.next_block_model.get(it, *cols)
+
+                if values[0] == t.next_block.trip_id:
+                    trip.append(values[1])
+                    done = True
+
+                it = self.next_block_model.iter_next(it)
+
+            if not done:
+                print 'Unable to find a match for the next stop. This must be a missing reference'
+                trip.append('') # didn't find a match
+        else:
+            trip.append('')
+
 
         self.model.append(trip)
 
