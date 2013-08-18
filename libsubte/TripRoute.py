@@ -69,6 +69,15 @@ class TripRoute(BaseObject):
         except ValueError, e:
             pass
 
+    def copy(self):
+        '''Make a shallow copy.
+        This doesn't copy trips or frequencies'''
+        tr = TripRoute(self.name + ' Copy', self.route, self.calendar, self.headsign, self.direction, self.path)
+        for s in self._stops:
+            tr.add_stop(s)
+
+        return tr
+
     def add_trip(self):
         trip = Trip('', self, self.calendar)
 

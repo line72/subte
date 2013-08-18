@@ -153,6 +153,12 @@ class GTGui(Gtk.Window):
         remove_trip.connect('clicked', self.controller.on_remove_trip_clicked)
         toolbar.add(remove_trip)
 
+        copy_trip = Gtk.ToolButton()
+        copy_trip.set_icon_name('gtk-copy')
+        copy_trip.set_tooltip_text('Copy a trip')
+        copy_trip.connect('clicked', self.controller.on_copy_trip_clicked)
+        toolbar.add(copy_trip)
+
         toolbar.add(Gtk.SeparatorToolItem())
 
         ## PICTURES
