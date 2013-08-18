@@ -25,6 +25,7 @@ from Calendar import Calendar
 from Trip import Trip
 from TripRoute import TripRoute
 from Path import Path
+from Frequency import Frequency
 from Database import Database
 
 from Picture import Picture

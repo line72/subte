@@ -25,6 +25,7 @@ from PathDialog import PathChoice
 from RouteDialog import RouteChoice
 from StopListGui import StopListGui
 from TripList import TripListDialog
+from FrequencyList import FrequencyListDialog
 
 class AddTripRouteDialog(Gtk.Dialog):
     def __init__(self, parent, trip_route):
@@ -109,6 +110,16 @@ class AddTripRoute(Gtk.VBox):
         edit_trip_btn = Gtk.Button.new_from_stock(Gtk.STOCK_INFO)
         edit_trip_btn.connect('clicked', self.on_modify_trips)
         hbox.pack_start(edit_trip_btn, True, True, 5)
+        self.pack_start(hbox, True, True, 5)
+
+        # edit frequencies
+        hbox = Gtk.HBox(False)
+        edit_frequencies_lbl = Gtk.Label('Edit Frequencies: ')
+        size_group.add_widget(edit_frequencies_lbl)
+        hbox.pack_start(edit_frequencies_lbl, False, False, 0)
+        edit_frequencies_btn = Gtk.Button.new_from_stock(Gtk.STOCK_INFO)
+        edit_frequencies_btn.connect('clicked', self.on_modify_frequencies)
+        hbox.pack_start(edit_frequencies_btn, True, True, 5)
         self.pack_start(hbox, True, True, 5)
 
         # and all our stops
@@ -210,6 +221,17 @@ class AddTripRoute(Gtk.VBox):
         print 'on-modify-trips'
         if self._trip_route:
             dlg = TripListDialog(None, self._trip_route)
+            dlg.show_all()
+
+            dlg.run()
+
+            dlg.destroy()
+
+        return True
+    
+    def on_modify_frequencies(self, btn):
+        if self._trip_route:
+            dlg = FrequencyListDialog(None, self._trip_route)
             dlg.show_all()
 
             dlg.run()

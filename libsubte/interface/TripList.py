@@ -196,6 +196,8 @@ class TripList(Gtk.VBox):
 
         self.model.remove(it)
 
+        return True
+
     def on_cell_edited(self, renderer, path, text, column):
         # !mwd - validate
 
