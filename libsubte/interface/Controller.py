@@ -325,6 +325,16 @@ class Controller(object):
 
         return True
 
+    def on_copy_trip_clicked(self, toolbutton, user_data = None):
+        trip_route = self.gui.trip_list_widget.get_selected()
+        if trip_route is None:
+            return True
+
+        trip_route_copy = trip_route.copy()
+        self.add_trip(trip_route_copy)
+
+        return True
+
     def on_add_picture_clicked(self, toolbutton, user_data = None):
         print 'on add picture'
         # pop up a load dialg

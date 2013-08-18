@@ -72,7 +72,7 @@ class TripRoute(BaseObject):
     def copy(self):
         '''Make a shallow copy.
         This doesn't copy trips or frequencies'''
-        tr = TripRoute(self.name + 'Copy', self.route, self.calendar, self.headsign, self.direction, self.path)
+        tr = TripRoute(self.name + ' Copy', self.route, self.calendar, self.headsign, self.direction, self.path)
         for s in self._stops:
             tr.add_stop(s)
 
