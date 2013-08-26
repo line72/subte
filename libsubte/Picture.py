@@ -19,7 +19,10 @@ import weakref
 import md5
 import os
 import sys
-import EXIF
+try:
+    import EXIF
+except ImportError, e:
+    import exifread as EXIF
 try:
     import Image
 except ImportError, e: # try Pillow support
