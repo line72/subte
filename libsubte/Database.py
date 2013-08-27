@@ -68,8 +68,6 @@ class Database(object):
 
     def load(self, fname):
         try:
-            #d = os.path.dirname(fname)
-            #tree = ElementTree.parse(os.path.join(d, '.subte.xml'))
             tree = ElementTree.parse(fname)
 
             for agency_node in tree.getroot().findall('Agency'):

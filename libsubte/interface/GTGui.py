@@ -43,9 +43,7 @@ class GTGui(Gtk.Window):
         self.connect('delete-event', self.on_quit)
 
         # load up our database
-        #self._db_file = os.path.join(os.path.expanduser('~'), '.libsubte.db')
         self.db = libsubte.Database()
-        #self.db.load(self._db_file)
 
         # setup a controller
         self.controller = Controller(self)
