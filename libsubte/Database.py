@@ -44,6 +44,28 @@ class Database(object):
     dbname = property(lambda x: x._dbname, None)
     is_open = property(lambda x: x._is_open, None)
 
+    def is_empty(self):
+        if len(Agency.agencies) > 0:
+            return False
+        if len(Calendar.calendars) > 0:
+            return False
+        if len(Stop.stops) > 0:
+            return False
+        if len(Path.paths) > 0:
+            return False
+        if len(Route.routes) > 0:
+            return False
+        if len(TripRoute.trip_routes) > 0:
+            return False
+        if len(Trip.trips) > 0:
+            return False
+        if len(Frequency.frequencies) > 0:
+            return False
+        if len(Picture.pictures) > 0:
+            return False
+
+        return True
+
     def load(self, fname):
         try:
             #d = os.path.dirname(fname)

@@ -99,10 +99,13 @@ class GTGui(Gtk.Window):
 
     def on_quit(self, widget, evt, data = None):
         # try to save
-        self.controller.clear_project(True)
+        if self.controller.clear_project(True) == False: # they cancelled, stay in
+            return True
 
         GTGui.instance = None
         Gtk.main_quit()
+
+        return True
         
     def _build_tool_bar(self):
         toolbar = Gtk.Toolbar()
@@ -125,6 +128,7 @@ class GTGui(Gtk.Window):
         close_db.connect('clicked', self.controller.on_close_project_clicked)
         toolbar.add(close_db)
 
+        toolbar.add(Gtk.SeparatorToolItem())
 
         ## STOPS
         #!mwd - how do I add a frakin' label?

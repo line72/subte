@@ -127,7 +127,9 @@ class Controller(object):
             fname = dlg.get_filename()
 
             # clear
-            self.clear_project(True)
+            if self.clear_project(True) == False: # they cancelled saving, don't clear it
+                dlg.destroy()
+                return True
 
             # !mwd - pop up a loading dialog
             
@@ -528,14 +530,14 @@ class Controller(object):
 
 
     def clear_project(self, ask_if_open = True):
-        if ask_if_open:
+        if ask_if_open and self.gui.db.is_empty() == False:
             save_msg = "Save As"
             if self.gui.db.is_open:
                 save_msg = "Save"
 
             dlg = Gtk.MessageDialog(self.gui, Gtk.DialogFlags.MODAL,
                                     Gtk.MessageType.QUESTION,
-                                    Gtk.ButtonsTYPE.NONE,
+                                    Gtk.ButtonsType.NONE,
                                     "Would you like to save this project?")
             dlg.add_buttons("Close without Saving", Gtk.ResponseType.REJECT,
                             "Cancel", Gtk.ResponseType.CANCEL,
