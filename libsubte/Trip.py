@@ -236,6 +236,14 @@ class Trip(BaseObject):
 
 
     @classmethod
+    def clear(cls):
+        for trip in cls.trips:
+            trip.destroy()
+
+        cls.trips = []
+        cls.trip_id = 0
+
+    @classmethod
     def get(cls, trip_id):
         for trip in cls.trips:
             if trip.trip_id == trip_id:

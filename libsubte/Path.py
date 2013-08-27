@@ -65,6 +65,14 @@ class Path(BaseObject):
                         (i+1), '')
 
     @classmethod
+    def clear(cls):
+        for path in cls.paths:
+            path.destroy()
+
+        cls.paths = []
+        cls.path_id = 0
+
+    @classmethod
     def get(cls, path_id):
         for path in cls.paths:
             if path.path_id == path_id:

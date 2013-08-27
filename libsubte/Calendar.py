@@ -53,6 +53,11 @@ class Calendar(BaseObject):
                     self.end_date)
 
     @classmethod
+    def clear(cls):
+        cls.calendars = []
+        cls.calendar_id = 0
+
+    @classmethod
     def write_calendars(cls, directory = '.'):
         f = open(os.path.join(directory, 'calendar.txt'), 'w')
         # header

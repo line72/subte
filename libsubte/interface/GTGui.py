@@ -43,9 +43,9 @@ class GTGui(Gtk.Window):
         self.connect('delete-event', self.on_quit)
 
         # load up our database
-        self._db_file = os.path.join(os.path.expanduser('~'), '.libsubte.db')
+        #self._db_file = os.path.join(os.path.expanduser('~'), '.libsubte.db')
         self.db = libsubte.Database()
-        self.db.load(self._db_file)
+        #self.db.load(self._db_file)
 
         # setup a controller
         self.controller = Controller(self)
@@ -98,7 +98,9 @@ class GTGui(Gtk.Window):
         self.trip_list_widget.treeview.connect('cursor-changed', self.controller.on_route_trip_list_selected)
 
     def on_quit(self, widget, evt, data = None):
-        self.db.save(self._db_file)
+        # try to save
+        self.controller.clear_project(True)
+
         GTGui.instance = None
         Gtk.main_quit()
         
@@ -106,6 +108,23 @@ class GTGui(Gtk.Window):
         toolbar = Gtk.Toolbar()
         toolbar.set_icon_size(Gtk.IconSize.LARGE_TOOLBAR)
         #toolbar.set_style(Gtk.ToolbarStyle.BOTH_HORIZ)
+
+        ## LOAD/SAVE/CLOSE DB
+        load_db = Gtk.ToolButton.new_from_stock(Gtk.STOCK_OPEN)
+        load_db.set_tooltip_text('Load a project')
+        load_db.connect('clicked', self.controller.on_load_project_clicked)
+        toolbar.add(load_db)
+        
+        save_db = Gtk.ToolButton.new_from_stock(Gtk.STOCK_SAVE)
+        save_db.set_tooltip_text('Save a project')
+        save_db.connect('clicked', self.controller.on_save_project_clicked)
+        toolbar.add(save_db)
+        
+        close_db = Gtk.ToolButton.new_from_stock(Gtk.STOCK_CLOSE)
+        close_db.set_tooltip_text('Close a project')
+        close_db.connect('clicked', self.controller.on_close_project_clicked)
+        toolbar.add(close_db)
+
 
         ## STOPS
         #!mwd - how do I add a frakin' label?

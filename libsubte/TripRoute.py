@@ -188,6 +188,14 @@ class TripRoute(BaseObject):
         except Exception, e: return None
 
     @classmethod
+    def clear(cls):
+        for trip_route in cls.trip_routes:
+            trip_route.destroy()
+
+        cls.trip_routes = []
+        cls.trip_route_id = 0
+
+    @classmethod
     def get(cls, trip_route_id):
         for trip_route in cls.trip_routes:
             if trip_route.trip_route_id == trip_route_id:

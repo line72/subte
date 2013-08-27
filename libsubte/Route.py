@@ -63,7 +63,7 @@ class Route(BaseObject):
 
     def remove_trip_route(self, trip_route):
         try: self.trip_routes.remove(trip_route)
-        except ValuError, e:
+        except ValueError, e:
             pass
 
     def write(self, f):
@@ -73,6 +73,14 @@ class Route(BaseObject):
                     self.description or '', self.route_type or 3,
                     self.url or '', self.color or '',
                     self.text_color or '')
+
+    @classmethod
+    def clear(cls):
+        for route in cls.routes:
+            route.destroy()
+
+        cls.routes = []
+        cls.route_id = 0
 
     @classmethod
     def get(cls, route_id):
