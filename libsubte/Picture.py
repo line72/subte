@@ -175,6 +175,13 @@ class Picture(object):
             self._longitude = 0
             self.orientation = 0
         
+    @classmethod
+    def clear(cls):
+        for picture in cls.pictures:
+            picture.destroy()
+
+        cls.pictures = []
+        cls.picture_id = 0
 
     @classmethod
     def is_duplicate(cls, md5sum):

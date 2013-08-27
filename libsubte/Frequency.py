@@ -54,6 +54,14 @@ class Frequency(BaseObject):
                     self.start, self.end, self.headway, 0)
 
     @classmethod
+    def clear(cls):
+        for frequency in cls.frequencies:
+            frequency.destroy()
+
+        cls.frequencies = []
+        cls.frequency_id = 0
+        
+    @classmethod
     def get(cls, frequency_id):
         for frequency in cls.frequencies:
             if frequency.frequency_id == frequency_id:

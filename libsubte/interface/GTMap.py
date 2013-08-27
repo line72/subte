@@ -63,6 +63,14 @@ class GTMap(GtkChamplain.Embed):
         self.view.set_kinetic_mode(True)
         self.view.set_reactive(True)
 
+    def clear_all(self):
+        self.stop_layer.remove_all()
+        self.route_layer.remove_all()
+        self.path_layer.remove_all()
+        self.popup_layer.remove_all()
+        self.popup_layer.hide()
+        self.picture_group.remove_all()
+        self.image_layer.hide()
 
     def add_stop(self, stop):
         m = StopMarker(self, stop)

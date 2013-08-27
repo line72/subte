@@ -37,10 +37,38 @@ from Picture import Picture
 from Frequency import Frequency
 
 class Database(object):
+    def __init__(self):
+        self._dbname = None
+        self._is_open = False
+
+    dbname = property(lambda x: x._dbname, None)
+    is_open = property(lambda x: x._is_open, None)
+
+    def is_empty(self):
+        if len(Agency.agencies) > 0:
+            return False
+        if len(Calendar.calendars) > 0:
+            return False
+        if len(Stop.stops) > 0:
+            return False
+        if len(Path.paths) > 0:
+            return False
+        if len(Route.routes) > 0:
+            return False
+        if len(TripRoute.trip_routes) > 0:
+            return False
+        if len(Trip.trips) > 0:
+            return False
+        if len(Frequency.frequencies) > 0:
+            return False
+        if len(Picture.pictures) > 0:
+            return False
+
+        return True
+
     def load(self, fname):
         try:
-            d = os.path.dirname(fname)
-            tree = ElementTree.parse(os.path.join(d, '.subte.xml'))
+            tree = ElementTree.parse(fname)
 
             for agency_node in tree.getroot().findall('Agency'):
                 agency_id = agency_node.get('id', Agency.new_id())
@@ -254,12 +282,23 @@ class Database(object):
                 except Exception, e:
                     print >> sys.stderr, 'Invalid picture: %s' % e
 
+            self._dbname = fname
+            self._is_open = True
+
         except (IOError, xml.parsers.expat.ExpatError), e:
             print 'Error loading saved state', e
             return
             
+    def save_as(self, fname):
+        self._dbname = fname
+        self._is_open = True
 
-    def save(self, fname):
+        return self.save()
+
+    def save(self):
+        if self.dbname is None or self.is_open is False:
+            return False
+
         # save the xml
         root = ElementTree.Element('subte')
 
@@ -446,16 +485,31 @@ class Database(object):
         # make a tree and save it
         self.__indent(root)
         tree = ElementTree.ElementTree(root)
-        d = os.path.dirname(fname)
+        d = os.path.dirname(self.dbname)
         tmpname = ''.join([random.choice(string.ascii_letters) for i in range(8)])
         # write out a temporary
         tree.write(os.path.join(d, tmpname), encoding = 'UTF-8')
         # make a backup
-        try: os.rename(os.path.join(d, '.subte.xml'), os.path.join(d, '.subte.xml-bk'))
+        try: os.rename(self.dbname, '%s-bk' % self.dbname)
         except OSError, e: pass
         # move the temporary to the new
-        try: os.rename(os.path.join(d, tmpname), os.path.join(d, '.subte.xml'))
+        try: os.rename(os.path.join(d, tmpname), self.dbname)
         except OSError, e: pass
+
+    def close(self):
+        self._is_open = False
+        self._dbname = None
+        
+        # clear everything
+        Agency.clear()
+        Calendar.clear()
+        Stop.clear()
+        Path.clear()
+        Route.clear()
+        TripRoute.clear()
+        Trip.clear()
+        Frequency.clear()
+        Picture.clear()
 
     def __indent(self, elem, level = 0):
         i = "\n" + level * "  "

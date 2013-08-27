@@ -115,6 +115,44 @@ class Controller(object):
 
         return True
 
+    def on_load_project_clicked(self, toolbutton, user_data = None):
+        # !mwd - pop up a file dialog
+        dlg = Gtk.FileChooserDialog("Open a Subte project",
+                                    self.gui, Gtk.FileChooserAction.OPEN,
+                                    (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                     Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
+        dlg.show_all()
+
+        if dlg.run() == Gtk.ResponseType.ACCEPT:
+            fname = dlg.get_filename()
+
+            # clear
+            if self.clear_project(True) == False: # they cancelled saving, don't clear it
+                dlg.destroy()
+                return True
+
+            # !mwd - pop up a loading dialog
+            
+
+            # load
+            self.gui.db.load(fname)
+            self.initialize()
+
+            # close the loading dialog
+        
+
+        dlg.destroy()
+
+        return True
+
+    def on_save_project_clicked(self, toolbutton, user_data = None):
+        return self.save_project()
+
+    def on_close_project_clicked(self, toolbutton, user_data = None):
+        self.clear_project(True)
+
+        return True
+
     def on_add_stop_clicked(self, toolbutton, user_data = None):
         print 'adding a stop'
         stop_dialog = AddStop(self)
@@ -465,5 +503,66 @@ class Controller(object):
 
     def add_path(self, p):
         self.gui.path_list_widget.add_path(p)
+
+    def save_project(self):
+        if self.gui.db.is_open:
+            self.gui.db.save()
+        else:
+            dlg = Gtk.FileChooserDialog("Save a Subte project",
+                                    self.gui, Gtk.FileChooserAction.SAVE,
+                                    (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                     Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
+            dlg.set_do_overwrite_confirmation(True)
+
+            if self.gui.db.dbname:
+                dlg.set_filename(self.gui.db.dbname)
+
+            dlg.show_all()
+
+            if dlg.run() == Gtk.ResponseType.ACCEPT:
+                fname = dlg.get_filename()
+
+                self.gui.db.save_as(fname)
+
+            dlg.destroy()
+
+        return True
+
+
+    def clear_project(self, ask_if_open = True):
+        if ask_if_open and self.gui.db.is_empty() == False:
+            save_msg = "Save As"
+            if self.gui.db.is_open:
+                save_msg = "Save"
+
+            dlg = Gtk.MessageDialog(self.gui, Gtk.DialogFlags.MODAL,
+                                    Gtk.MessageType.QUESTION,
+                                    Gtk.ButtonsType.NONE,
+                                    "Would you like to save this project?")
+            dlg.add_buttons("Close without Saving", Gtk.ResponseType.REJECT,
+                            "Cancel", Gtk.ResponseType.CANCEL,
+                            save_msg, Gtk.ResponseType.ACCEPT)
+            dlg.set_default_response(Gtk.ResponseType.CANCEL)
+
+            resp = dlg.run()
+            if resp == Gtk.ResponseType.CANCEL: # don't do anything, return
+                dlg.destroy()
+                return False
+            elif resp == Gtk.ResponseType.ACCEPT: # save it
+                self.save_project()
+            elif resp == Gtk.ResponseType.REJECT: # clear it without saving
+                pass
+
+            dlg.destroy()               
+        
+        self.gui.db.close()
+
+        # remove everything from the gui
+        self.gui.map_widget.clear_all()
+        self.gui.stop_list_widget.clear_model()
+        self.gui.trip_list_widget.clear_model()
+        self.gui.path_list_widget.clear_model()
+
+        return True
 
     gui = property(lambda x: x._gui(), None)

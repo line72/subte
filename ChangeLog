@@ -1,3 +1,6 @@
+2013-08-27  Marcus Dillavou  <dillavou@vipaar.com>
+	* mf fix-load-save - Added the ability to load and save projects instead of just defaulting to ~/.subte.xml
+
 1.0.0
 ==========
 2013-08-26  Marcus Dillavou  <line72@line72.net>

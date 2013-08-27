@@ -52,6 +52,11 @@ class Agency(BaseObject):
         return None        
 
     @classmethod
+    def clear(cls):
+        cls.agencies = []
+        cls.agency_id = 0
+
+    @classmethod
     def new_id(cls):
         while True:
             cls.agency_id += 1

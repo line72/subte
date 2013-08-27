@@ -127,6 +127,14 @@ class Stop(BaseObject):
                     self.parent_station)
 
     @classmethod
+    def clear(cls):
+        for stop in cls.stops:
+            stop.destroy()
+
+        cls.stops = []
+        cls.stop_id = 0
+
+    @classmethod
     def load_stops(cls, filename):
         stops = []
 
