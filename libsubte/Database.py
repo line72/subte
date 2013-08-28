@@ -257,12 +257,16 @@ class Database(object):
 
             for picture_node in tree.getroot().findall('Picture'):
                 picture_id = picture_node.get('id', Picture.new_id())
-                image = picture_node.findtext('image')
+                relative_image = picture_node.findtext('image')
                 stop_id = picture_node.findtext('stop_id', -1)
                 ignored = picture_node.findtext('ignored')
                 latitude = picture_node.findtext('latitude')
                 longitude = picture_node.findtext('longitude')
                 orientation = picture_node.findtext('orientation')
+
+                # update the image with the full path
+                dirname = os.path.dirname(fname)
+                image = os.path.join(dirname, relative_image)
 
                 try:
                     stop_id = int(stop_id)
@@ -467,10 +471,14 @@ class Database(object):
 
         # the pictures
         for p in Picture.pictures:
+            image = p.image
+            dirname = os.path.dirname(self.dbname)
+            relative_image = os.path.relpath(image, dirname)
+
             node = ElementTree.SubElement(root, 'Picture')
             node.attrib['id'] = '%s' % p.picture_id
             e = ElementTree.SubElement(node, 'image')
-            e.text = '%s' % p.image
+            e.text = '%s' % relative_image
             e = ElementTree.SubElement(node, 'stop_id')
             e.text = '%s' % p.stop_id
             e = ElementTree.SubElement(node, 'ignored')
