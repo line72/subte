@@ -1,3 +1,8 @@
+1.0.1
+==========
+2013-08-28  Marcus Dillavou  <dillavou@vipaar.com>
+	* mf fix-relative-paths - Store images as relative paths to the project file
+
 2013-08-27  Marcus Dillavou  <dillavou@vipaar.com>
 	* mf fix-load-save - Added the ability to load and save projects instead of just defaulting to ~/.subte.xml
 
