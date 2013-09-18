@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-import xml.etree.ElementTree as ElementTree
+from lxml import etree
 
 import libsubte
 
@@ -27,24 +27,29 @@ class KMLParser(object):
         '''Parse a kml file and return all the paths'''
         paths = []
 
-        tree = ElementTree.parse(f)
+        tree = etree.parse(f)
 
         # go through each placemark
-        for placemark in tree.getroot().iter('{http://www.opengis.net/kml/2.2}Placemark'):
-            name = placemark.findtext('{http://www.opengis.net/kml/2.2}name')
+        for placemark in tree.getroot().iter('{*}Placemark'):
+            name = placemark.findtext('{*}name')
             coords = []
 
-            geom_node = placemark.find('{http://www.opengis.net/kml/2.2}MultiGeometry')
+            geom_node = placemark.find('{*}MultiGeometry')
             if geom_node is not None:
-                line_str = geom_node.find('{http://www.opengis.net/kml/2.2}LineString')
-                if line_str is not None:
-                    coord_str = line_str.findtext('{http://www.opengis.net/kml/2.2}coordinates')
-                    if coord_str is not None:
-                        x = coord_str.split(' ')
-                        for k in x:
-                            x2 = k.split(',')
-                            if len(x2) == 2:
-                                coords.append((float(x2[1]), float(x2[0])))
+                line_str = geom_node.find('{*}LineString')
+            else:
+                line_str = placemark.find('{*}LineString')
+
+            if line_str is not None:
+                coord_str = line_str.findtext('{*}coordinates')
+                if coord_str is not None:
+                    x = coord_str.split(' ')
+                    for k in x:
+                        x2 = k.split(',')
+                        if len(x2) == 2:
+                            coords.append((float(x2[1]), float(x2[0])))
+                        elif len(x2) == 3:
+                            coords.append((float(x2[1]), float(x2[0])))
 
             if len(coords) > 0:
                 path = libsubte.Path(name, coords)
