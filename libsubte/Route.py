@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-import os
+import os, sys
 import time
 import datetime
 import weakref
@@ -23,6 +23,7 @@ import weakref
 from BaseObject import BaseObject
 from Trip import Trip
 from Stop import Stop
+from Agency import Agency
 
 class Route(BaseObject):
     routes = []
@@ -105,4 +106,42 @@ class Route(BaseObject):
             r.write(f)
         f.close()
 
+    @classmethod
+    def import_routes(cls, directory):
+        try:
+            f = open(os.path.join(directory, 'routes.txt'), 'r')
+
+            mappings = {'agency_id': ('agency', lambda x: Agency.get(x)),
+                        'route_short_name': ('short_name', lambda x: x),
+                        'route_long_name': ('long_name', lambda x: x),
+                        'route_desc': ('description', lambda x: x),
+                        'route_type': ('route_type', lambda x: int(x)),
+                        'route_url': ('url', lambda x: x),
+                        'route_color': ('color', lambda x: x),
+                        'route_text_color': ('text_color', lambda x: x),
+                    }
+
+            header_l = f.readline()
+            # create a headers with an index
+            headers = header_l.strip().split(',')
+            r_headers = dict([(x, i) for i, x in enumerate(headers)])
+
+            for l in f.readlines():
+                l2 = l.strip().split(',')
+                if len(l2) != len(headers):
+                    print >> sys.stderr, 'Invalid line', l, l2, headers
+                    continue
+                
+                kw = {}
+                for i, a in enumerate(l2):
+                    key = headers[i]
+                    if key in mappings:
+                        kw[mappings[key][0]] = mappings[key][1](BaseObject.unquote(a))
+                # create the route
+                route = Route(**kw)
+                # set the id
+                route.route_id = BaseObject.unquote(l2[r_headers['route_id']])
+
+        except IOError, e:
+            print >> sys.stderr, 'Unable to open routes.txt:', e
 

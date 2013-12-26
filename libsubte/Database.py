@@ -549,6 +549,7 @@ class Database(object):
         Calendar.import_calendars(directory)
         Stop.import_stops(directory)
         Path.import_paths(directory)
+        Route.import_routes(directory)
 
 """
 <?xml>
