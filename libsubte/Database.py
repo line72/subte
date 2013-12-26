@@ -548,6 +548,7 @@ class Database(object):
         Agency.import_agencies(directory)
         Calendar.import_calendars(directory)
         Stop.import_stops(directory)
+        Path.import_paths(directory)
 
 """
 <?xml>

@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-import os
+import os, sys
 
 from BaseObject import BaseObject
 
@@ -94,3 +94,46 @@ class Path(BaseObject):
         for p in cls.paths:
             p.write(f)
         f.close()
+
+    @classmethod
+    def import_paths(cls, directory):
+        try:
+            f = open(os.path.join(directory, 'shapes.txt'), 'r')
+
+            shapes = {}
+
+            header_l = f.readline()
+            # create a headers with an index
+            headers = header_l.strip().split(',')
+            r_headers = dict([(x, i) for i, x in enumerate(headers)])
+
+            for l in f.readlines():
+                l2 = l.strip().split(',')
+                if len(l2) != len(headers):
+                    print >> sys.stderr, 'Invalid line', l, l2, headers
+                    continue
+
+                sid = l2[r_headers['shape_id']]
+                lat = float(l2[r_headers['shape_pt_lat']])
+                lon = float(l2[r_headers['shape_pt_lon']])
+                seq = int(l2[r_headers['shape_pt_sequence']])
+                #dis = float(l2[r_headers['shape_dist_traveled']])
+
+                if sid not in shapes:
+                    shapes[sid] = {'coords': [],
+                                   'distance': []}
+
+                #!mwd - we don't handle the dist travelled correctly yet
+                #!mwd - we should actually use the sequnce to verify
+                #  these are in order instead of just appending them
+                shapes[sid]['coords'].append((lat, lon))
+                #shapes[sid]['distance'].append(dis)
+
+            # now create the paths
+            for k, v in shapes.iteritems():
+                path = Path(k, v['coords'])
+                path.path_id = k
+
+        except IOError, e:
+            print >> sys.stderr, 'Unable to open paths.txt:', e
+
