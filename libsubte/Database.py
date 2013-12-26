@@ -551,6 +551,7 @@ class Database(object):
         Path.import_paths(directory)
         Route.import_routes(directory)
         Trip.import_trips(directory)
+        Frequency.import_frequencies(directory)
 
 """
 <?xml>

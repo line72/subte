@@ -86,3 +86,39 @@ class Frequency(BaseObject):
         for frequency in cls.frequencies:
             frequency.write(f)
         f.close()
+
+    @classmethod
+    def import_frequencies(cls, directory):
+        from Trip import Trip
+
+        try:
+            f = open(os.path.join(directory, 'frequencies.txt'), 'r')
+
+            mappings = {'trip_id': ('trip_route', lambda x: Trip.get(x).trip_route),
+                        'start_time': ('start', lambda x: x),
+                        'end_time': ('end', lambda x: x),
+                        'headway_secs': ('headway', lambda x: x),
+                    }
+
+            header_l = f.readline()
+            # create a headers with an index
+            headers = header_l.strip().split(',')
+            r_headers = dict([(x, i) for i, x in enumerate(headers)])
+
+            for l in f.readlines():
+                l2 = l.strip().split(',')
+                if len(l2) != len(headers):
+                    print >> sys.stderr, 'Invalid line', l, l2, headers
+                    continue
+                
+                kw = {}
+                for i, a in enumerate(l2):
+                    key = headers[i]
+                    if key in mappings:
+                        kw[mappings[key][0]] = mappings[key][1](BaseObject.unquote(a))
+                # create the frequency
+                frequency = Frequency(**kw)
+                trip_route = frequency.trip_route.frequencies.append(frequency)
+
+        except IOError, e:
+            print >> sys.stderr, 'Unable to open frequencies.txt:', e
