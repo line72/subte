@@ -550,6 +550,7 @@ class Database(object):
         Stop.import_stops(directory)
         Path.import_paths(directory)
         Route.import_routes(directory)
+        Trip.import_trips(directory)
 
 """
 <?xml>
