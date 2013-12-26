@@ -547,6 +547,7 @@ class Database(object):
     def import_gtfs(cls, directory):
         Agency.import_agencies(directory)
         Calendar.import_calendars(directory)
+        Stop.import_stops(directory)
 
 """
 <?xml>
