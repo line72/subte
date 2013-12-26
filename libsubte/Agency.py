@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-import os
+import os, sys
 from BaseObject import BaseObject
 
 class Agency(BaseObject):
@@ -72,6 +72,42 @@ class Agency(BaseObject):
         for a in cls.agencies:
             a.write(f)
         f.close()
+
+    @classmethod
+    def import_agencies(cls, directory):
+        try:
+            f = open(os.path.join(directory, 'agency.txt'), 'r')
+
+            mappings = {'agency_name': 'name',
+                        'agency_url': 'url',
+                        'agency_timezone': 'timezone',
+                        'agency_lang': 'language',
+                        'agency_phone': 'phone',
+                        'agency_fare_url': 'fare_url'}
+
+            header_l = f.readline()
+            # create a headers with an index
+            headers = header_l.strip().split(',')
+            r_headers = dict([(x, i) for i, x in enumerate(headers)])
+
+            for l in f.readlines():
+                l2 = l.strip().split(',')
+                if len(l2) != len(headers):
+                    print >> sys.stderr, 'Invalid line', l, l2, headers
+                    continue
+                
+                kw = {}
+                for i, a in enumerate(l2):
+                    key = headers[i]
+                    if key in mappings:
+                        kw[mappings[key]] = BaseObject.unquote(a)
+                # create the agency
+                agency = Agency(**kw)
+                # set the id
+                agency.agency_id = BaseObject.unquote(l2[r_headers['agency_id']])
+
+        except IOError, e:
+            print >> sys.stderr, 'Unable to open agency.txt:', e
 
 if __name__ == '__main__':
     a1 = Agency('bjcta', 'Birmingham-Jefferson County Transit Authority',

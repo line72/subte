@@ -16,3 +16,7 @@ class BaseObject(object):
             return '"%s"' % t
 
         return t
+
+    @classmethod
+    def unquote(cls, t):
+        return t.strip('"')

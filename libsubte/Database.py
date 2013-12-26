@@ -543,6 +543,10 @@ class Database(object):
         Frequency.write_frequencies(directory)
         Path.write_paths(directory)
 
+    @classmethod
+    def import_gtfs(cls, directory):
+        Agency.import_agencies(directory)
+
 """
 <?xml>
 <subte version="1.0">
