@@ -19,6 +19,7 @@ import os, sys
 import time
 import datetime
 import weakref
+import csv
 
 from BaseObject import BaseObject
 from Trip import Trip
@@ -121,7 +122,8 @@ class Route(BaseObject):
     @classmethod
     def import_routes(cls, directory):
         try:
-            f = open(os.path.join(directory, 'routes.txt'), 'r')
+            f = open(os.path.join(directory, 'routes.txt'), 'rb')
+            reader = csv.reader(f)
 
             mappings = {'agency_id': ('agency', lambda x: Agency.get_by_gtfs_id(x)),
                         'route_short_name': ('short_name', lambda x: x),
@@ -133,15 +135,13 @@ class Route(BaseObject):
                         'route_text_color': ('text_color', lambda x: x),
                     }
 
-            header_l = f.readline()
             # create a headers with an index
-            headers = header_l.strip().split(',')
+            headers = reader.next()
             r_headers = dict([(x, i) for i, x in enumerate(headers)])
 
-            for l in f.readlines():
-                l2 = l.strip().split(',')
+            for l2 in reader:
                 if len(l2) != len(headers):
-                    print >> sys.stderr, 'Invalid line', l, l2, headers
+                    print >> sys.stderr, 'Invalid line', l2, headers
                     continue
                 
                 kw = {}

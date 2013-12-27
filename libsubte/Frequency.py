@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
 import os, sys
+import csv
 import weakref
 
 from BaseObject import BaseObject
@@ -92,7 +93,8 @@ class Frequency(BaseObject):
         from Trip import Trip
 
         try:
-            f = open(os.path.join(directory, 'frequencies.txt'), 'r')
+            f = open(os.path.join(directory, 'frequencies.txt'), 'rb')
+            reader = csv.reader(f)
 
             mappings = {'trip_id': ('trip_route', lambda x: Trip.get_by_gtfs_id(x).trip_route),
                         'start_time': ('start', lambda x: x),
@@ -100,15 +102,13 @@ class Frequency(BaseObject):
                         'headway_secs': ('headway', lambda x: x),
                     }
 
-            header_l = f.readline()
             # create a headers with an index
-            headers = header_l.strip().split(',')
+            headers = reader.next()
             r_headers = dict([(x, i) for i, x in enumerate(headers)])
 
-            for l in f.readlines():
-                l2 = l.strip().split(',')
+            for l2 in reader:
                 if len(l2) != len(headers):
-                    print >> sys.stderr, 'Invalid line', l, l2, headers
+                    print >> sys.stderr, 'Invalid line', l2, headers
                     continue
                 
                 kw = {}

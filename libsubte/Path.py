@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
 import os, sys
+import csv
 
 from BaseObject import BaseObject
 
@@ -110,19 +111,18 @@ class Path(BaseObject):
     @classmethod
     def import_paths(cls, directory):
         try:
-            f = open(os.path.join(directory, 'shapes.txt'), 'r')
+            f = open(os.path.join(directory, 'shapes.txt'), 'rb')
+            reader = csv.reader(f)
 
             shapes = {}
 
-            header_l = f.readline()
             # create a headers with an index
-            headers = header_l.strip().split(',')
+            headers = reader.next()
             r_headers = dict([(x, i) for i, x in enumerate(headers)])
 
-            for l in f.readlines():
-                l2 = l.strip().split(',')
+            for l2 in reader:
                 if len(l2) != len(headers):
-                    print >> sys.stderr, 'Invalid line', l, l2, headers
+                    print >> sys.stderr, 'Invalid line', l2, headers
                     continue
 
                 sid = l2[r_headers['shape_id']]

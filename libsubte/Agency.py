@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
 import os, sys
+import csv
 from BaseObject import BaseObject
 
 class Agency(BaseObject):
@@ -88,7 +89,8 @@ class Agency(BaseObject):
     @classmethod
     def import_agencies(cls, directory):
         try:
-            f = open(os.path.join(directory, 'agency.txt'), 'r')
+            f = open(os.path.join(directory, 'agency.txt'), 'rb')
+            reader = csv.reader(f)
 
             mappings = {'agency_name': 'name',
                         'agency_url': 'url',
@@ -97,15 +99,13 @@ class Agency(BaseObject):
                         'agency_phone': 'phone',
                         'agency_fare_url': 'fare_url'}
 
-            header_l = f.readline()
             # create a headers with an index
-            headers = header_l.strip().split(',')
+            headers = reader.next()
             r_headers = dict([(x, i) for i, x in enumerate(headers)])
 
-            for l in f.readlines():
-                l2 = l.strip().split(',')
+            for l2 in reader:
                 if len(l2) != len(headers):
-                    print >> sys.stderr, 'Invalid line', l, l2, headers
+                    print >> sys.stderr, 'Invalid line', l2, headers
                     continue
                 
                 kw = {}

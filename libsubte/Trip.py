@@ -17,6 +17,7 @@
 
 import os, sys
 import weakref
+import csv
 
 from BaseObject import BaseObject
 
@@ -289,7 +290,8 @@ class Trip(BaseObject):
         from Stop import Stop
 
         try:
-            f = open(os.path.join(directory, 'trips.txt'), 'r')
+            f = open(os.path.join(directory, 'trips.txt'), 'rb')
+            reader = csv.reader(f)
 
             mappings = {'route_id': ('route', lambda x: Route.get_by_gtfs_id(x)),
                         'service_id': ('calendar', lambda x: Calendar.get_by_gtfs_id(x)),
@@ -299,15 +301,13 @@ class Trip(BaseObject):
                         'shape_id': ('path', lambda x: Path.get_by_gtfs_id(x)),
             }
 
-            header_l = f.readline()
             # create a headers with an index
-            headers = header_l.strip().split(',')
+            headers = reader.next()
             r_headers = dict([(x, i) for i, x in enumerate(headers)])
 
-            for l in f.readlines():
-                l2 = l.strip().split(',')
+            for l2 in reader:
                 if len(l2) != len(headers):
-                    print >> sys.stderr, 'Invalid line', l, l2, headers
+                    print >> sys.stderr, 'Invalid line', l2, headers
                     continue
                 
                 kw = {}
@@ -334,22 +334,21 @@ class Trip(BaseObject):
 
         # load all the stops
         try:
-            f = open(os.path.join(directory, 'stop_times.txt'), 'r')
+            f = open(os.path.join(directory, 'stop_times.txt'), 'rb')
+            reader = csv.reader(f)
 
             mappings = {'arrival_time': ('arrival', lambda x: x),
                         'departure_time': ('departure', lambda x: x),
                         'stop_id': ('stop', lambda x: Stop.get_by_gtfs_id(x)),
             }
 
-            header_l = f.readline()
             # create a headers with an index
-            headers = header_l.strip().split(',')
+            headers = reader.next()
             r_headers = dict([(x, i) for i, x in enumerate(headers)])
 
-            for l in f.readlines():
-                l2 = l.strip().split(',')
+            for l2 in reader:
                 if len(l2) != len(headers):
-                    print >> sys.stderr, 'Invalid line', l, l2, headers
+                    print >> sys.stderr, 'Invalid line', l2, headers
                     continue
                 
                 kw = {}
