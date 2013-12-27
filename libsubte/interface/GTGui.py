@@ -209,6 +209,13 @@ class GTGui(Gtk.Window):
 
         toolbar.add(Gtk.SeparatorToolItem())
 
+        ## Import
+        import_gtfs = Gtk.ToolButton('Import')
+        import_gtfs.set_icon_name('document-import')
+        import_gtfs.set_tooltip_text('Import GTFS')
+        import_gtfs.connect('clicked', self.controller.on_import_gtfs)
+        toolbar.add(import_gtfs)
+
         ## EXPORT
         export = Gtk.ToolButton('Export')
         export.set_icon_name('document-send')

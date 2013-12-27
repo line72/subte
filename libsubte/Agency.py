@@ -37,9 +37,14 @@ class Agency(BaseObject):
         # add us
         Agency.agencies.append(self)
 
+    def get_id(self):
+        if self.gtfs_id:
+            return self.gtfs_id
+        return self.agency_id
+
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s,%s,%s\n', 
-                    self.agency_id, self.name or '',
+                    self.get_id(), self.name or '',
                     self.url or '', self.timezone,
                     self.language, self.phone or '', 
                     self.fare_url or '')
@@ -50,6 +55,13 @@ class Agency(BaseObject):
             if agency.agency_id == agency_id:
                 return agency
         return None        
+
+    @classmethod
+    def get_by_gtfs_id(cls, gtfs_id):
+        for agency in cls.agencies:
+            if agency.gtfs_id == gtfs_id:
+                return agency
+        return None
 
     @classmethod
     def clear(cls):
@@ -104,7 +116,7 @@ class Agency(BaseObject):
                 # create the agency
                 agency = Agency(**kw)
                 # set the id
-                agency.agency_id = BaseObject.unquote(l2[r_headers['agency_id']])
+                agency.gtfs_id = BaseObject.unquote(l2[r_headers['agency_id']])
 
         except IOError, e:
             print >> sys.stderr, 'Unable to open agency.txt:', e

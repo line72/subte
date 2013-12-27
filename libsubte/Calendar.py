@@ -44,9 +44,14 @@ class Calendar(BaseObject):
         # add us
         Calendar.calendars.append(self)
 
+    def get_id(self):
+        if self.gtfs_id:
+            return self.gtfs_id
+        return self.calendar_id
+
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-                    self.calendar_id,
+                    self.get_id(),
                     self.days[0], self.days[1], self.days[2],
                     self.days[3], self.days[4], self.days[5], self.days[6],
                     self.start_date,
@@ -70,6 +75,13 @@ class Calendar(BaseObject):
     def get(cls, calendar_id):
         for c in cls.calendars:
             if c.calendar_id == calendar_id:
+                return c
+        return None
+
+    @classmethod
+    def get_by_gtfs_id(cls, gtfs_id):
+        for c in cls.calendars:
+            if c.gtfs_id == gtfs_id:
                 return c
         return None
 
@@ -127,7 +139,7 @@ class Calendar(BaseObject):
                 # create the calendar
                 calendar = Calendar(**kw)
                 # set the id
-                calendar.calendar_id = BaseObject.unquote(l2[r_headers['service_id']])
+                calendar.gtfs_id = BaseObject.unquote(l2[r_headers['service_id']])
 
         except IOError, e:
             print >> sys.stderr, 'Unable to open calendar.txt:', e

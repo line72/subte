@@ -114,12 +114,17 @@ class Stop(BaseObject):
         except ValueError:
             pass
 
+    def get_id(self):
+        if self.gtfs_id:
+            return self.gtfs_id
+        return self.stop_id
+
     def write(self, f):
         if self.is_orphan(): # skip us
             return
 
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-                    self.stop_id, self.code,
+                    self.get_id(), self.code,
                     self.name, self.description,
                     self.latitude, self.longitude,
                     self.zone_id, self.url,
@@ -138,6 +143,13 @@ class Stop(BaseObject):
     def get(cls, stop_id):
         for stop in cls.stops:
             if stop.stop_id == stop_id:
+                return stop
+        return None
+
+    @classmethod
+    def get_by_gtfs_id(cls, gtfs_id):
+        for stop in cls.stops:
+            if stop.gtfs_id == gtfs_id:
                 return stop
         return None
 
@@ -192,7 +204,7 @@ class Stop(BaseObject):
                 # create the stop
                 stop = Stop(**kw)
                 # set the id
-                stop.stop_id = BaseObject.unquote(l2[r_headers['stop_id']])
+                stop.gtfs_id = BaseObject.unquote(l2[r_headers['stop_id']])
 
         except IOError, e:
             print >> sys.stderr, 'Unable to open stops.txt:', e

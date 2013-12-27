@@ -67,9 +67,14 @@ class Route(BaseObject):
         except ValueError, e:
             pass
 
+    def get_id(self):
+        if self.gtfs_id:
+            return self.gtfs_id
+        return self.route_id
+
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-                    self.route_id, self.agency.agency_id,
+                    self.get_id(), self.agency.agency_id,
                     self.short_name or '', self.long_name or '',
                     self.description or '', self.route_type or 3,
                     self.url or '', self.color or '',
@@ -91,6 +96,13 @@ class Route(BaseObject):
         return None
         
     @classmethod
+    def get_by_gtfs_id(cls, gtfs_id):
+        for route in cls.routes:
+            if route.gtfs_id == gtfs_id:
+                return route
+        return None
+
+    @classmethod
     def new_id(cls):
         while True:
             cls.route_id += 1
@@ -111,7 +123,7 @@ class Route(BaseObject):
         try:
             f = open(os.path.join(directory, 'routes.txt'), 'r')
 
-            mappings = {'agency_id': ('agency', lambda x: Agency.get(x)),
+            mappings = {'agency_id': ('agency', lambda x: Agency.get_by_gtfs_id(x)),
                         'route_short_name': ('short_name', lambda x: x),
                         'route_long_name': ('long_name', lambda x: x),
                         'route_desc': ('description', lambda x: x),
@@ -140,7 +152,7 @@ class Route(BaseObject):
                 # create the route
                 route = Route(**kw)
                 # set the id
-                route.route_id = BaseObject.unquote(l2[r_headers['route_id']])
+                route.gtfs_id = BaseObject.unquote(l2[r_headers['route_id']])
 
         except IOError, e:
             print >> sys.stderr, 'Unable to open routes.txt:', e

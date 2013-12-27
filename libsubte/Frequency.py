@@ -94,7 +94,7 @@ class Frequency(BaseObject):
         try:
             f = open(os.path.join(directory, 'frequencies.txt'), 'r')
 
-            mappings = {'trip_id': ('trip_route', lambda x: Trip.get(x).trip_route),
+            mappings = {'trip_id': ('trip_route', lambda x: Trip.get_by_gtfs_id(x).trip_route),
                         'start_time': ('start', lambda x: x),
                         'end_time': ('end', lambda x: x),
                         'headway_secs': ('headway', lambda x: x),

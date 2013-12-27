@@ -188,6 +188,11 @@ class TripRoute(BaseObject):
         try: return self._route()
         except Exception, e: return None
 
+    def get_id(self):
+        if self.gtfs_id:
+            return self.gtfs_id
+        return self.trip_route_id
+
     @classmethod
     def clear(cls):
         for trip_route in cls.trip_routes:
@@ -200,6 +205,13 @@ class TripRoute(BaseObject):
     def get(cls, trip_route_id):
         for trip_route in cls.trip_routes:
             if trip_route.trip_route_id == trip_route_id:
+                return trip_route
+        return None
+
+    @classmethod
+    def get_by_gtfs_id(cls, gtfs_id):
+        for trip_route in cls.trip_routes:
+            if trip_route.gtfs_id == gtfs_id:
                 return trip_route
         return None
 

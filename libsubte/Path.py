@@ -44,6 +44,11 @@ class Path(BaseObject):
         except ValueError, e:
             pass
 
+    def get_id(self):
+        if self.gtfs_id:
+            return self.gtfs_id
+        return self.path_id
+
     def write(self, f):
         if self.coords is None:
             return
@@ -60,7 +65,7 @@ class Path(BaseObject):
 
         for i, coord in enumerate(self.coords):
             self._write(f, '%s,%s,%s,%s,%s\n',
-                        self.path_id,
+                        self.get_id(),
                         coord[0], coord[1],
                         (i+1), '')
 
@@ -76,6 +81,13 @@ class Path(BaseObject):
     def get(cls, path_id):
         for path in cls.paths:
             if path.path_id == path_id:
+                return path
+        return None
+
+    @classmethod
+    def get_by_gtfs_id(cls, gtfs_id):
+        for path in cls.paths:
+            if path.gtfs_id == gtfs_id:
                 return path
         return None
 
@@ -132,7 +144,7 @@ class Path(BaseObject):
             # now create the paths
             for k, v in shapes.iteritems():
                 path = Path(k, v['coords'])
-                path.path_id = k
+                path.gtfs_id = k
 
         except IOError, e:
             print >> sys.stderr, 'Unable to open paths.txt:', e
