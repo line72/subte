@@ -295,7 +295,7 @@ class Trip(BaseObject):
                         'service_id': ('calendar', lambda x: Calendar.get_by_gtfs_id(x)),
                         'trip_id': ('name', lambda x: x),
                         'trip_headsign': ('headsign', lambda x: x),
-                        'direction_id': ('direction', lambda x: int(x)),
+                        'direction_id': ('direction', lambda x: int(x) if x else 0),
                         'shape_id': ('path', lambda x: Path.get_by_gtfs_id(x)),
             }
 
@@ -363,8 +363,6 @@ class Trip(BaseObject):
                 trip = Trip.get_by_gtfs_id(trip_id)
                 if trip is None:
                     print >> sys.stderr, 'no trip for id', trip_id
-                # create the TripStop
-                #trip_stop = TripStop(**kw)
 
                 # add the trip stop
                 stop_id = BaseObject.unquote(l2[r_headers['stop_id']])

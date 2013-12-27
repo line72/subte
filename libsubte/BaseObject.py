@@ -22,4 +22,4 @@ class BaseObject(object):
 
     @classmethod
     def unquote(cls, t):
-        return t.strip('"')
+        return t.strip().strip('"')
