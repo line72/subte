@@ -183,7 +183,7 @@ class Stop(BaseObject):
                         'stop_lon': ('longitude', lambda x: float(x)),
                         'zone_id': ('zone_id', lambda x: x),
                         'stop_url': ('url', lambda x: x),
-                        'location_type': ('location_type', lambda x: int(x)),
+                        'location_type': ('location_type', lambda x: int(x) if x else 0),
                         'parent_station': ('parent_station', lambda x: x),
                     }
 

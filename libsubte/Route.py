@@ -37,6 +37,8 @@ class Route(BaseObject):
 
         self.route_id = Route.new_id()
         self.agency = agency
+        if agency is None:
+            self.agency = Agency.agencies[0]
         self.short_name = short_name
         self.long_name = long_name
         self.description = description
