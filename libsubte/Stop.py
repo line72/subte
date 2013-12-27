@@ -15,7 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-import os
+import os, sys
+import csv
 
 from BaseObject import BaseObject
 
@@ -114,12 +115,17 @@ class Stop(BaseObject):
         except ValueError:
             pass
 
+    def get_id(self):
+        if self.gtfs_id:
+            return self.gtfs_id
+        return self.stop_id
+
     def write(self, f):
         if self.is_orphan(): # skip us
             return
 
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-                    self.stop_id, self.code,
+                    self.get_id(), self.code,
                     self.name, self.description,
                     self.latitude, self.longitude,
                     self.zone_id, self.url,
@@ -135,28 +141,16 @@ class Stop(BaseObject):
         cls.stop_id = 0
 
     @classmethod
-    def load_stops(cls, filename):
-        stops = []
-
-        f = open(filename)
-        title = f.readline()
-
-        for l in f.readlines():
-            info = l.strip().split(',')
-
-            stops.append(Stop(stop_id = info[0],
-                              name = info[1],
-                              description = info[2],
-                              latitude = float(info[3]),
-                              longitude = float(info[4]),
-                              zone_id = info[5]))
-
-        return stops
-
-    @classmethod
     def get(cls, stop_id):
         for stop in cls.stops:
             if stop.stop_id == stop_id:
+                return stop
+        return None
+
+    @classmethod
+    def get_by_gtfs_id(cls, gtfs_id):
+        for stop in cls.stops:
+            if stop.gtfs_id == gtfs_id:
                 return stop
         return None
 
@@ -175,6 +169,46 @@ class Stop(BaseObject):
         for s in cls.stops:
             s.write(f)
         f.close()
+
+    @classmethod
+    def import_stops(cls, directory):
+        try:
+            f = open(os.path.join(directory, 'stops.txt'), 'rb')
+            reader = csv.reader(f)
+
+            mappings = {'stop_code': ('code', lambda x: x),
+                        'stop_name': ('name', lambda x: x),
+                        'stop_desc': ('description', lambda x: x),
+                        'stop_lat': ('latitude', lambda x: float(x)),
+                        'stop_lon': ('longitude', lambda x: float(x)),
+                        'zone_id': ('zone_id', lambda x: x),
+                        'stop_url': ('url', lambda x: x),
+                        'location_type': ('location_type', lambda x: int(x) if x else 0),
+                        'parent_station': ('parent_station', lambda x: x),
+                    }
+
+            # create a headers with an index
+            headers = reader.next()
+            r_headers = dict([(x, i) for i, x in enumerate(headers)])
+
+            for l2 in reader:
+                if len(l2) != len(headers):
+                    print >> sys.stderr, 'Invalid line', l2, headers
+                    continue
+                
+                kw = {}
+                for i, a in enumerate(l2):
+                    key = headers[i]
+                    if key in mappings:
+                        kw[mappings[key][0]] = mappings[key][1](BaseObject.unquote(a))
+                # create the stop
+                stop = Stop(**kw)
+                # set the id
+                stop.gtfs_id = BaseObject.unquote(l2[r_headers['stop_id']])
+
+        except IOError, e:
+            print >> sys.stderr, 'Unable to open stops.txt:', e
+
 
 if __name__ == '__main__':
     s1 = Stop('central', '', 'Central Station', '',

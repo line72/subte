@@ -15,7 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-import os
+import os, sys
+import csv
 from BaseObject import BaseObject
 
 class Agency(BaseObject):
@@ -37,9 +38,14 @@ class Agency(BaseObject):
         # add us
         Agency.agencies.append(self)
 
+    def get_id(self):
+        if self.gtfs_id:
+            return self.gtfs_id
+        return self.agency_id
+
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s,%s,%s\n', 
-                    self.agency_id, self.name or '',
+                    self.get_id(), self.name or '',
                     self.url or '', self.timezone,
                     self.language, self.phone or '', 
                     self.fare_url or '')
@@ -50,6 +56,13 @@ class Agency(BaseObject):
             if agency.agency_id == agency_id:
                 return agency
         return None        
+
+    @classmethod
+    def get_by_gtfs_id(cls, gtfs_id):
+        for agency in cls.agencies:
+            if agency.gtfs_id == gtfs_id:
+                return agency
+        return None
 
     @classmethod
     def clear(cls):
@@ -72,6 +85,41 @@ class Agency(BaseObject):
         for a in cls.agencies:
             a.write(f)
         f.close()
+
+    @classmethod
+    def import_agencies(cls, directory):
+        try:
+            f = open(os.path.join(directory, 'agency.txt'), 'rb')
+            reader = csv.reader(f)
+
+            mappings = {'agency_name': 'name',
+                        'agency_url': 'url',
+                        'agency_timezone': 'timezone',
+                        'agency_lang': 'language',
+                        'agency_phone': 'phone',
+                        'agency_fare_url': 'fare_url'}
+
+            # create a headers with an index
+            headers = reader.next()
+            r_headers = dict([(x, i) for i, x in enumerate(headers)])
+
+            for l2 in reader:
+                if len(l2) != len(headers):
+                    print >> sys.stderr, 'Invalid line', l2, headers
+                    continue
+                
+                kw = {}
+                for i, a in enumerate(l2):
+                    key = headers[i]
+                    if key in mappings:
+                        kw[mappings[key]] = BaseObject.unquote(a)
+                # create the agency
+                agency = Agency(**kw)
+                # set the id
+                agency.gtfs_id = BaseObject.unquote(l2[r_headers['agency_id']])
+
+        except IOError, e:
+            print >> sys.stderr, 'Unable to open agency.txt:', e
 
 if __name__ == '__main__':
     a1 = Agency('bjcta', 'Birmingham-Jefferson County Transit Authority',

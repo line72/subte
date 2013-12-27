@@ -15,8 +15,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-import os
+import os, sys
 import weakref
+import csv
 
 from BaseObject import BaseObject
 
@@ -188,6 +189,10 @@ class Trip(BaseObject):
 
         return 'B_%s' % (self.get_first_block().trip_id)
 
+    def get_id(self):
+        if self.gtfs_id:
+            return self.gtfs_id
+        return self.trip_id
 
     def write(self, trip_f, stop_times_f):
         has_trips = False
@@ -220,19 +225,19 @@ class Trip(BaseObject):
                 departure = '%s:00' % trip_stop.departure
 
             self._write(stop_times_f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-                        self.trip_id, arrival, departure,
-                        trip_stop.stop.stop_id, i+1, '', 0, 0, '')
+                        self.get_id(), arrival, departure,
+                        trip_stop.stop.get_id(), i+1, '', 0, 0, '')
 
         if has_trips:
             shape_id = ''
             if self.trip_route.path is not None:
-                shape_id = self.trip_route.path.path_id
+                shape_id = self.trip_route.path.get_id()
 
             block_id = self.get_block_id()
 
             self._write(trip_f, '%s,%s,%s,%s,%s,%s,%s\n',
-                        self.trip_route.route.route_id, self.calendar.calendar_id,
-                        self.trip_id, self.trip_route.headsign, self.trip_route.direction, block_id, shape_id)
+                        self.trip_route.route.get_id(), self.calendar.get_id(),
+                        self.get_id(), self.trip_route.headsign, self.trip_route.direction, block_id, shape_id)
 
 
     @classmethod
@@ -247,6 +252,13 @@ class Trip(BaseObject):
     def get(cls, trip_id):
         for trip in cls.trips:
             if trip.trip_id == trip_id:
+                return trip
+        return None
+
+    @classmethod
+    def get_by_gtfs_id(cls, gtfs_id):
+        for trip in cls.trips:
+            if trip.gtfs_id == gtfs_id:
                 return trip
         return None
 
@@ -268,6 +280,105 @@ class Trip(BaseObject):
             t.write(f, f2)
         f.close()
         f2.close()
+
+    @classmethod
+    def import_trips(cls, directory):
+        from Route import Route
+        from Calendar import Calendar
+        from TripRoute import TripRoute
+        from Path import Path
+        from Stop import Stop
+
+        try:
+            f = open(os.path.join(directory, 'trips.txt'), 'rb')
+            reader = csv.reader(f)
+
+            mappings = {'route_id': ('route', lambda x: Route.get_by_gtfs_id(x)),
+                        'service_id': ('calendar', lambda x: Calendar.get_by_gtfs_id(x)),
+                        'trip_id': ('name', lambda x: x),
+                        'trip_headsign': ('headsign', lambda x: x),
+                        'direction_id': ('direction', lambda x: int(x) if x else 0),
+                        'shape_id': ('path', lambda x: Path.get_by_gtfs_id(x)),
+            }
+
+            # create a headers with an index
+            headers = reader.next()
+            r_headers = dict([(x, i) for i, x in enumerate(headers)])
+
+            for l2 in reader:
+                if len(l2) != len(headers):
+                    print >> sys.stderr, 'Invalid line', l2, headers
+                    continue
+                
+                kw = {}
+                for i, a in enumerate(l2):
+                    key = headers[i]
+                    if key in mappings:
+                        kw[mappings[key][0]] = mappings[key][1](BaseObject.unquote(a))
+                # create the trip route
+                trip_route = TripRoute(**kw)
+                # set the id
+                trip_route.gtfs_id = BaseObject.unquote(l2[r_headers['trip_id']])
+                # create a trip
+                trip = trip_route.add_trip()
+                trip.gtfs_id = BaseObject.unquote(l2[r_headers['trip_id']])
+
+            # go through the list again and set block ids
+            #!mwd - I'm not sure how to do this. We link
+            #  blocks by trip ids, but block ids are 
+            #  random in gtfs, so we have no way to link
+            #  them back
+
+        except IOError, e:
+            print >> sys.stderr, 'Unable to open trips.txt:', e
+
+        # load all the stops
+        try:
+            f = open(os.path.join(directory, 'stop_times.txt'), 'rb')
+            reader = csv.reader(f)
+
+            mappings = {'arrival_time': ('arrival', lambda x: x),
+                        'departure_time': ('departure', lambda x: x),
+                        'stop_id': ('stop', lambda x: Stop.get_by_gtfs_id(x)),
+            }
+
+            # create a headers with an index
+            headers = reader.next()
+            r_headers = dict([(x, i) for i, x in enumerate(headers)])
+
+            for l2 in reader:
+                if len(l2) != len(headers):
+                    print >> sys.stderr, 'Invalid line', l2, headers
+                    continue
+                
+                kw = {}
+                for i, a in enumerate(l2):
+                    key = headers[i]
+                    if key in mappings:
+                        kw[mappings[key][0]] = mappings[key][1](BaseObject.unquote(a))
+
+                # find the corresponding trip
+                trip_id = BaseObject.unquote(l2[r_headers['trip_id']])
+                trip = Trip.get_by_gtfs_id(trip_id)
+                if trip is None:
+                    print >> sys.stderr, 'no trip for id', trip_id
+
+                # add the trip stop
+                stop_id = BaseObject.unquote(l2[r_headers['stop_id']])
+                stop = Stop.get_by_gtfs_id(stop_id)
+                trip.trip_route.add_stop(stop)
+
+                trip_stop = trip.stops[-1]
+                trip_stop.arrival = BaseObject.unquote(l2[r_headers['arrival_time']])
+                trip_stop.departure = BaseObject.unquote(l2[r_headers['departure_time']])
+
+        except IOError, e:
+            print >> sys.stderr, 'Unable to open stop_times.txt:', e
+        
+
+        # merge trip routes
+        TripRoute.merge()
+
 
 class TripStop(BaseObject):
     def __init__(self, stop, arrival = None, departure = None):

@@ -1,5 +1,8 @@
 
 class BaseObject(object):
+    def __init__(self):
+        self.gtfs_id = None
+
     def _write(self, f, fmt, *objs):
         # make sure everything is quoted correctly
         f.write(fmt % tuple(map(self._quote, objs)))
@@ -16,3 +19,7 @@ class BaseObject(object):
             return '"%s"' % t
 
         return t
+
+    @classmethod
+    def unquote(cls, t):
+        return t.strip().strip('"')

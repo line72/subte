@@ -476,6 +476,29 @@ class Controller(object):
 
         return True
 
+    def on_import_gtfs(self, toolbutton, user_data = None):
+        # pop up an open dialog
+        dlg = Gtk.FileChooserDialog('Import from...', self._gui(),
+                                    Gtk.FileChooserAction.SELECT_FOLDER,
+                                    (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                     Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
+        resp = dlg.run()
+        if resp == Gtk.ResponseType.ACCEPT:
+            directory = dlg.get_filename()
+            libsubte.Database.import_gtfs(directory)
+
+            # remove everything from the gui
+            self.gui.map_widget.clear_all()
+            self.gui.stop_list_widget.clear_model()
+            self.gui.trip_list_widget.clear_model()
+            self.gui.path_list_widget.clear_model()
+            # re-initialize it
+            self.initialize()
+
+        dlg.destroy()
+
+        return True
+
     def add_stop(self, s):
         m = self.gui.map_widget.add_stop(s)
         #!mwd - this doesn't work since we have a custom marker

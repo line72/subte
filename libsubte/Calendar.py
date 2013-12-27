@@ -15,7 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-import os
+import os, sys
+import csv
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -44,9 +45,14 @@ class Calendar(BaseObject):
         # add us
         Calendar.calendars.append(self)
 
+    def get_id(self):
+        if self.gtfs_id:
+            return self.gtfs_id
+        return self.calendar_id
+
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-                    self.calendar_id,
+                    self.get_id(),
                     self.days[0], self.days[1], self.days[2],
                     self.days[3], self.days[4], self.days[5], self.days[6],
                     self.start_date,
@@ -74,8 +80,66 @@ class Calendar(BaseObject):
         return None
 
     @classmethod
+    def get_by_gtfs_id(cls, gtfs_id):
+        for c in cls.calendars:
+            if c.gtfs_id == gtfs_id:
+                return c
+        return None
+
+    @classmethod
     def new_id(cls):
         while True:
             cls.calendar_id += 1
             if cls.calendar_id not in [x.calendar_id for x in Calendar.calendars]:
                 return cls.calendar_id
+
+    @classmethod
+    def import_calendars(cls, directory):
+        try:
+            f = open(os.path.join(directory, 'calendar.txt'), 'rb')
+            reader = csv.reader(f)
+
+            mappings = {'service_id': 'service_name',
+                        'monday': 'monday',
+                        'tuesday': 'tuesday',
+                        'wednesday': 'wednesday',
+                        'thursday': 'thursday',
+                        'friday': 'friday',
+                        'saturday': 'saturday',
+                        'sunday': 'sunday',
+                        'start_date': 'start_date',
+                        'end_date': 'end_date',
+                    }
+            transforms = {'service_id': lambda x: x,
+                          'monday': lambda x: int(x),
+                          'tuesday': lambda x: int(x),
+                          'wednesday': lambda x: int(x),
+                          'thursday': lambda x: int(x),
+                          'friday': lambda x: int(x),
+                          'saturday': lambda x: int(x),
+                          'sunday': lambda x: int(x),
+                          'start_date': lambda x: x,
+                          'end_date': lambda x: x,
+                      }
+
+            # create a headers with an index
+            headers = reader.next()
+            r_headers = dict([(x, i) for i, x in enumerate(headers)])
+
+            for l2 in reader:
+                if len(l2) != len(headers):
+                    print >> sys.stderr, 'Invalid line', l2, headers
+                    continue
+                
+                kw = {}
+                for i, a in enumerate(l2):
+                    key = headers[i]
+                    if key in mappings:
+                        kw[mappings[key]] = transforms[key](BaseObject.unquote(a))
+                # create the calendar
+                calendar = Calendar(**kw)
+                # set the id
+                calendar.gtfs_id = BaseObject.unquote(l2[r_headers['service_id']])
+
+        except IOError, e:
+            print >> sys.stderr, 'Unable to open calendar.txt:', e

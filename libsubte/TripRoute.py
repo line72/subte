@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
-import os
+import os, sys
 import weakref
 
 from BaseObject import BaseObject
@@ -58,9 +58,10 @@ class TripRoute(BaseObject):
     calendar = property(lambda x: x.get_calendar(), lambda x, c: x.set_calendar(c))
     stops = property(lambda x: x._stops[:], None)
 
-    def destroy(self):
-        for trip in self.trips:
-            trip.destroy()
+    def destroy(self, destroy_trips = True):
+        if destroy_trips:
+            for trip in self.trips:
+                trip.destroy()
         self.trips = []
         self._stops = []
 
@@ -187,6 +188,11 @@ class TripRoute(BaseObject):
         try: return self._route()
         except Exception, e: return None
 
+    def get_id(self):
+        if self.gtfs_id:
+            return self.gtfs_id
+        return self.trip_route_id
+
     @classmethod
     def clear(cls):
         for trip_route in cls.trip_routes:
@@ -203,9 +209,51 @@ class TripRoute(BaseObject):
         return None
 
     @classmethod
+    def get_by_gtfs_id(cls, gtfs_id):
+        for trip_route in cls.trip_routes:
+            if trip_route.gtfs_id == gtfs_id:
+                return trip_route
+        return None
+
+    @classmethod
     def new_id(cls):
         while True:
             cls.trip_route_id += 1
             if cls.trip_route_id not in [x.trip_route_id for x in TripRoute.trip_routes]:
                 return cls.trip_route_id
+
+    @classmethod
+    def merge(cls):
+        '''Merge similar trip routes into a single trip route'''
+        completed = []
+        done = False
+
+        while not done:
+            trs = TripRoute.trip_routes[:]
+            trip_route = None
+            rest = []
+            for i, tr in enumerate(trs):
+                if tr not in completed: # already done
+                    trip_route = tr
+                    rest = trs[i+1:]
+                    break
+            if trip_route is None:
+                done = True
+            else:
+                completed.append(trip_route)
+                for trc in rest:
+                    if trip_route.route == trc.route and \
+                       trip_route.calendar == trc.calendar and \
+                       trip_route.headsign == trc.headsign and \
+                       trip_route.direction == trc.direction and \
+                       trip_route.path == trc.path and \
+                       trip_route.stops == trc.stops:
+                        # we have a match
+                        print >> sys.stderr, 'Merging trip routes:', trip_route, trc
+                        for j in trc.trips:
+                            j._trip_route = weakref.ref(trip_route)
+                            trip_route.trips.append(j)
+                        # delete trc without destroying the trips
+                        trc.destroy(False)
+
 

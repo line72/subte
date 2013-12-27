@@ -72,6 +72,7 @@ class Database(object):
 
             for agency_node in tree.getroot().findall('Agency'):
                 agency_id = agency_node.get('id', Agency.new_id())
+                gtfs_id = agency_node.get('gtfs_id', None)
                 name = agency_node.findtext('name')
                 url = agency_node.findtext('url')
                 timezone = agency_node.findtext('timezone')
@@ -82,9 +83,11 @@ class Database(object):
                 a = Agency(name = name, url = url, timezone = timezone, language = language,
                            phone = phone, fare_url = fare_url)
                 a.agency_id = int(agency_id)
+                a.gtfs_id = gtfs_id
             
             for calendar_node in tree.getroot().findall('Calendar'):
                 calendar_id = calendar_node.get('id', Calendar.new_id())
+                gtfs_id = calendar_node.get('gtfs_id', None)
                 name = calendar_node.findtext('name')
                 days = calendar_node.findtext('days')
                 start_date = calendar_node.findtext('start_date')
@@ -97,9 +100,11 @@ class Database(object):
                              saturday = days[5], sunday = days[6],
                              start_date = start_date, end_date = end_date)
                 c.calendar_id = int(calendar_id)
+                c.gtfs_id = gtfs_id
 
             for stop_node in tree.getroot().findall('Stop'):
                 stop_id = stop_node.get('id', Stop.new_id())
+                gtfs_id = stop_node.get('gtfs_id', None)
                 code = stop_node.findtext('code')
                 name = stop_node.findtext('name')
                 description = stop_node.findtext('description')
@@ -119,11 +124,13 @@ class Database(object):
                              zone_id = zone_id, url = url, location_type = location_type,
                              parent_station = parent_station)
                     s.stop_id = int(stop_id)
+                    s.gtfs_id = gtfs_id
                 except Exception, e:
                     print >> sys.stderr, 'Error loading stop', name, e
 
             for path_node in tree.getroot().findall('Path'):
                 path_id = path_node.get('id', Path.new_id())
+                gtfs_id = path_node.get('gtfs_id', None)
                 name = path_node.findtext('name')
 
                 coords_node = path_node.find('coordinates')
@@ -140,11 +147,13 @@ class Database(object):
                 try:
                     p = Path(name = name, coords = coords)
                     p.path_id = int(path_id)
+                    p.gtfs_id = gtfs_id
                 except Exception, e:
                     print >> sys.stderr, 'Error loading path', name, e
 
             for route_node in tree.getroot().findall('Route'):
                 route_id = route_node.get('id', Route.new_id())
+                gtfs_id = route_node.get('gtfs_id', None)
                 agency_id = route_node.findtext('agency_id')
                 short_name = route_node.findtext('short_name')
                 long_name = route_node.findtext('long_name')
@@ -160,9 +169,11 @@ class Database(object):
                           description = description, route_type = route_type,
                           url = url, color = color, text_color = text_color)
                 r.route_id = int(route_id)
+                r.gtfs_id = gtfs_id
 
             for trip_route_node in tree.getroot().findall('TripRoute'):
                 trip_route_id = trip_route_node.get('id', TripRoute.new_id())
+                gtfs_id = trip_route_node.get('gtfs_id', None)
                 name = trip_route_node.findtext('name')
                 route_id = trip_route_node.findtext('route_id')
                 calendar_id = trip_route_node.findtext('calendar_id')
@@ -178,6 +189,7 @@ class Database(object):
 
                 tr = TripRoute(name, route, calendar, headsign, int(direction), path)
                 tr.trip_route_id = int(trip_route_id)
+                tr.gtfs_id = gtfs_id
                 route.add_trip_route(tr)
 
                 # stops
@@ -199,6 +211,7 @@ class Database(object):
 
             for trip_node in tree.getroot().findall('Trip'):
                 trip_id = trip_node.get('id', Trip.new_id())
+                gtfs_id = trip_node.get('gtfs_id', None)
                 name = trip_node.findtext('name')
                 calendar_id = trip_node.findtext('calendar_id')
                 route_id = trip_node.findtext('route_id')
@@ -207,6 +220,7 @@ class Database(object):
 
                 trip = Trip.get(int(trip_id))
                 trip.name = name
+                trip.gtfs_id = gtfs_id
 
                 # trip stops
                 trip_stops_node = trip_node.find('TripStops')
@@ -244,6 +258,7 @@ class Database(object):
 
             for frequency_node in tree.getroot().findall('Frequency'):
                 frequency_id = frequency_node.get('id', Frequency.new_id())
+                gtfs_id = frequency_node.get('gtfs_id', None)
                 trip_route_id = frequency_node.findtext('trip_route_id')
                 start = frequency_node.findtext('start')
                 end = frequency_node.findtext('end')
@@ -253,6 +268,7 @@ class Database(object):
 
                 frequency = trip_route.add_frequency(start, end, headway)
                 frequency.frequency_id = int(frequency_id)
+                frequency.gtfs_id = gtfs_id
 
 
             for picture_node in tree.getroot().findall('Picture'):
@@ -310,6 +326,8 @@ class Database(object):
         for a in Agency.agencies:
             node = ElementTree.SubElement(root, 'Agency')
             node.attrib['id'] = '%s' % a.agency_id
+            if a.gtfs_id:
+                node.attrib['gtfs_id'] = '%s' % a.gtfs_id
             e = ElementTree.SubElement(node, 'name')
             e.text = a.name
             e = ElementTree.SubElement(node, 'url')
@@ -326,6 +344,8 @@ class Database(object):
         for c in Calendar.calendars:
             node = ElementTree.SubElement(root, 'Calendar')
             node.attrib['id'] = '%s' % c.calendar_id
+            if c.gtfs_id:
+                node.attrib['gtfs_id'] = '%s' % c.gtfs_id
             e = ElementTree.SubElement(node, 'name')
             e.text = c.name
             e = ElementTree.SubElement(node, 'days')
@@ -338,6 +358,8 @@ class Database(object):
         for s in Stop.stops:
             node = ElementTree.SubElement(root, 'Stop')
             node.attrib['id'] = '%s' % s.stop_id
+            if s.gtfs_id:
+                node.attrib['gtfs_id'] = '%s' % s.gtfs_id
             e = ElementTree.SubElement(node, 'code')
             e.text = s.code or ''
             e = ElementTree.SubElement(node, 'name')
@@ -361,6 +383,8 @@ class Database(object):
         for r in Route.routes:
             node = ElementTree.SubElement(root, 'Route')
             node.attrib['id'] = '%s' % r.route_id
+            if r.gtfs_id:
+                node.attrib['gtfs_id'] = '%s' % r.gtfs_id
             e = ElementTree.SubElement(node, 'agency_id')
             e.text = '%s' % r.agency.agency_id
             e = ElementTree.SubElement(node, 'short_name')
@@ -382,6 +406,8 @@ class Database(object):
         for t in Trip.trips:
             node = ElementTree.SubElement(root, 'Trip')
             node.attrib['id'] = '%s' % t.trip_id
+            if t.gtfs_id:
+                node.attrib['gtfs_id'] = '%s' % t.gtfs_id
             e = ElementTree.SubElement(node, 'name')
             e.text = '%s' % t.name
             e = ElementTree.SubElement(node, 'calendar_id')
@@ -416,6 +442,8 @@ class Database(object):
         for tr in TripRoute.trip_routes:
             node = ElementTree.SubElement(root, 'TripRoute')
             node.attrib['id'] = '%s' % tr.trip_route_id
+            if tr.gtfs_id:
+                node.attrib['gtfs_id'] = '%s' % tr.gtfs_id
             e = ElementTree.SubElement(node, 'name')
             e.text = '%s' % tr.name
             e = ElementTree.SubElement(node, 'route_id')
@@ -446,6 +474,8 @@ class Database(object):
         for f in Frequency.frequencies:
             node = ElementTree.SubElement(root, 'Frequency')
             node.attrib['id'] = '%s' % f.frequency_id
+            if f.gtfs_id:
+                node.attrib['gtfs_id'] = '%s' % f.gtfs_id
             e = ElementTree.SubElement(node, 'trip_route_id')
             e.text = '%s' % f.trip_route.trip_route_id
             e = ElementTree.SubElement(node, 'start')
@@ -459,6 +489,8 @@ class Database(object):
         for p in Path.paths:
             node = ElementTree.SubElement(root, 'Path')
             node.attrib['id'] = '%s' % p.path_id
+            if p.gtfs_id:
+                node.attrib['gtfs_id'] = '%s' % p.gtfs_id
             e = ElementTree.SubElement(node, 'name')
             e.text = '%s' % p.name
             coord_node = ElementTree.SubElement(node, 'coordinates')
@@ -542,6 +574,16 @@ class Database(object):
         Trip.write_trips(directory)
         Frequency.write_frequencies(directory)
         Path.write_paths(directory)
+
+    @classmethod
+    def import_gtfs(cls, directory):
+        Agency.import_agencies(directory)
+        Calendar.import_calendars(directory)
+        Stop.import_stops(directory)
+        Path.import_paths(directory)
+        Route.import_routes(directory)
+        Trip.import_trips(directory)
+        Frequency.import_frequencies(directory)
 
 """
 <?xml>

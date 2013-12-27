@@ -1,3 +1,6 @@
+2013-12-27  Marcus Dillavou  <dillavou@vipaar.com>
+	* mf fix-import-gtfs - Add support for importing GTFS files. Note that this is not heavily optimized and can take a *very* long time for large networks
+
 1.0.1
 ==========
 2013-08-28  Marcus Dillavou  <dillavou@vipaar.com>
