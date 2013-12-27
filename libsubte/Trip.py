@@ -225,7 +225,7 @@ class Trip(BaseObject):
 
             self._write(stop_times_f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
                         self.get_id(), arrival, departure,
-                        trip_stop.stop.stop_id, i+1, '', 0, 0, '')
+                        trip_stop.stop.get_id(), i+1, '', 0, 0, '')
 
         if has_trips:
             shape_id = ''

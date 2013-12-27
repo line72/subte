@@ -74,7 +74,7 @@ class Route(BaseObject):
 
     def write(self, f):
         self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
-                    self.get_id(), self.agency.agency_id,
+                    self.get_id(), self.agency.get_id(),
                     self.short_name or '', self.long_name or '',
                     self.description or '', self.route_type or 3,
                     self.url or '', self.color or '',
