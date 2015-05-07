@@ -199,7 +199,7 @@ class GTGui(Gtk.Window):
 
         ## PATHS
         add_path = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)
-        add_path.set_tooltip_text('Add a new path from a .kml file')
+        add_path.set_tooltip_text('Add a new path from a .kml (or .kmz) file')
         add_path.connect('clicked', self.controller.on_add_path_clicked)
         toolbar.add(add_path)
 

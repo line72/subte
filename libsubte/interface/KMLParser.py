@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
 from lxml import etree
+import zipfile
 
 import libsubte
 
@@ -24,10 +25,16 @@ class KMLParser(object):
         pass
 
     def parse(self, f):
-        '''Parse a kml file and return all the paths'''
+        '''Parse a kml file (or a kmz file with the file `doc.kml` inside)
+        and return all the paths'''
         paths = []
 
-        tree = etree.parse(f)
+        if zipfile.is_zipfile(f):
+            with zipfile.ZipFile(f) as zf:
+                print 'parsing doc.kml from archive',f
+                tree = etree.parse(zf.open('doc.kml'))
+        else:
+            tree = etree.parse(f)
 
         # go through each placemark
         for placemark in tree.getroot().iter('{*}Placemark'):
