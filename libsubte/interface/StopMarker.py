@@ -59,7 +59,9 @@ class StopMarker(Champlain.CustomMarker):
 
         # trying to capture it, then make us emit a signal doesn't
         #  seem to be working
-        #self.marker.connect('button-release-event', self.on_click)
+        #!lukstafi -- changed button-release to button-press
+        # and uncommented next line
+        self.marker.connect('button-press-event', self.on_click)
 
         self.set_reactive(False)
 
@@ -107,8 +109,9 @@ class StopMarker(Champlain.CustomMarker):
 
     def on_click(self, actor, event, user_data = None):
         #!mwd - this doesn't work :(
-        print 'on_click and emitting', actor, event
-        self.emit('button-release-event', event)
+        print 'on_click (no emitting)', actor, event
+        #!lukstafi - commented out
+        #self.emit('button-press-event', event)
         return True
 
     def on_expand_picture(self, actor, event, picture):
@@ -141,7 +144,8 @@ class StopMarker(Champlain.CustomMarker):
 
 
         self.full_picture_box.set_reactive(True)
-        self.full_picture_box.connect('button-release-event', self.on_close_picture)
+        #!lukstafi -- changed button-release to button-press
+        self.full_picture_box.connect('button-press-event', self.on_close_picture)
         self.full_picture_box.show_all()
 
         self.gtmap.show_image(self.full_picture_box)
@@ -237,7 +241,8 @@ class StopMarker(Champlain.CustomMarker):
                     picture_box.set_height(100)
                     picture_box.set_position(width - ((w/h) * 100) - (w/2) - 25, 50)
 
-                picture_box.connect('button-release-event', self.on_expand_picture, picture)
+                #!lukstafi -- changed button-release to button-press
+                picture_box.connect('button-press-event', self.on_expand_picture, picture)
                 picture_box.set_reactive(True)
                 group.add_child(picture_box)
             except GLib.GError, e:

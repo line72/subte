@@ -91,7 +91,8 @@ class GTGui(Gtk.Window):
         self.controller.initialize()
         
         # some signals
-        self.map_widget.view.connect('button-release-event', self.controller.on_map_click, self.map_widget)
+        #!lukstafi -- changed button-release to button-press
+        self.map_widget.view.connect('button-press-event', self.controller.on_map_click, self.map_widget)
         self.stop_list_widget.treeview.connect('cursor-changed', self.controller.on_stop_list_selected)
         self.trip_list_widget.treeview.connect('cursor-changed', self.controller.on_route_trip_list_selected)
 

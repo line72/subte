@@ -91,7 +91,8 @@ class PictureMarker(Champlain.CustomMarker):
         self.link_stop.set_size(20, 25)
         self.link_stop.set_position(5, 15)
         self.link_stop.set_anchor_point(0, 0)
-        self.link_stop.connect('button-release-event', self.on_link_stop)
+        #!lukstafi -- changed button-release to button-press
+        self.link_stop.connect('button-press-event', self.on_link_stop)
         self.group.add_child(self.link_stop)
 
         self.unlink_stop = Clutter.Text()
@@ -100,7 +101,8 @@ class PictureMarker(Champlain.CustomMarker):
         self.unlink_stop.set_size(20, 25)
         self.unlink_stop.set_position(5, 15)
         self.unlink_stop.set_anchor_point(0, 0)
-        self.unlink_stop.connect('button-release-event', self.on_unlink_stop)
+        #!lukstafi -- changed button-release to button-press
+        self.unlink_stop.connect('button-press-event', self.on_unlink_stop)
         self.group.add_child(self.unlink_stop)
 
 
@@ -163,7 +165,8 @@ class PictureMarker(Champlain.CustomMarker):
         # our position
         self.set_location(self.latitude, self.longitude)
         
-        marker.connect('button-release-event', self.on_click)
+        #!lukstafi -- changed button-release to button-press
+        marker.connect('button-press-event', self.on_click)
 
         self.set_reactive(False)
 
@@ -261,7 +264,8 @@ class PictureMarker(Champlain.CustomMarker):
                 self.picture_box.set_position(25, 60)
                 self.picture_box.set_anchor_point(0, 0)
                 self.picture_box.set_z_rotation_from_gravity(self.orientation, Clutter.Gravity.CENTER)
-                self.picture_box.connect('button-release-event', self.on_expand_picture)
+                #!lukstafi -- changed button-release to button-press
+                self.picture_box.connect('button-press-event', self.on_expand_picture)
                 self.picture_box.set_reactive(True)
                 self.group.add_child(self.picture_box)
             except GLib.GError, e:
@@ -311,7 +315,8 @@ class PictureMarker(Champlain.CustomMarker):
 
 
         self.full_picture_box.set_reactive(True)
-        self.full_picture_box.connect('button-release-event', self.on_close_picture)
+        #!lukstafi -- changed button-release to button-press
+        self.full_picture_box.connect('button-press-event', self.on_close_picture)
         self.full_picture_box.show_all()
 
         self.gtmap.show_image(self.full_picture_box)

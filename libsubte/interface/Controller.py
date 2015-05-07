@@ -503,7 +503,8 @@ class Controller(object):
         m = self.gui.map_widget.add_stop(s)
         #!mwd - this doesn't work since we have a custom marker
         #m.connect('button-release-event', self.on_stop_marker_clicked, s)
-        m.marker.connect('button-release-event', self.on_stop_marker_clicked, m, s)
+        #!lukstafi - changed button-release to button-press
+        m.marker.connect('button-press-event', self.on_stop_marker_clicked, m, s)
         self.gui.stop_list_widget.add_stop(s)
 
     def update_stop(self, s):
