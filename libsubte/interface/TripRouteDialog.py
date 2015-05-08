@@ -36,6 +36,9 @@ class AddTripRouteDialog(Gtk.Dialog):
 
         self.content = AddTripRoute(trip_route)
         self.get_content_area().add(self.content)
+        print 'AddTripRouteDialog: pre modal=',self.get_modal()
+        self.set_modal(False)
+        print 'AddTripRouteDialog: modal=',self.get_modal()
 
 class EditTripRouteDialog(Gtk.Dialog):
     def __init__(self, parent, trip_route):
@@ -45,6 +48,9 @@ class EditTripRouteDialog(Gtk.Dialog):
 
         self.content = AddTripRoute(trip_route)
         self.get_content_area().add(self.content)
+        print 'EditTripRouteDialog: pre modal=',self.get_modal()
+        self.set_modal(False)
+        print 'EditTripRouteDialog: modal=',self.get_modal()
 
 
 class AddTripRoute(Gtk.VBox):
@@ -191,6 +197,7 @@ class AddTripRoute(Gtk.VBox):
         return self.stops.get_stops()
 
     def on_stop_selected(self, stop):
+        print 'on_stop_selected TripRoute',stop
         self.stops.add_stop(stop)
         self._trip_route.add_stop(stop)
 

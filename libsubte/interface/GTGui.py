@@ -93,6 +93,9 @@ class GTGui(Gtk.Window):
         # some signals
         #!lukstafi -- changed button-release to button-press
         self.map_widget.view.connect('button-press-event', self.controller.on_map_click, self.map_widget)
+        #!lukstafi -- for some reason AddTripRoute dialogs behave as modal
+        # although they should be modeless, and these or similar signals
+        # are not sent when AddTripRoute dialogs are open
         self.stop_list_widget.treeview.connect('cursor-changed', self.controller.on_stop_list_selected)
         self.trip_list_widget.treeview.connect('cursor-changed', self.controller.on_route_trip_list_selected)
 

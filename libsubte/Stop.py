@@ -23,6 +23,8 @@ from BaseObject import BaseObject
 class Stop(BaseObject):
     stops = []
     stop_id = 0
+    #!lukstafi - bypassing the signal passing MVC pattern
+    activate_stop_hook = None
 
     def __init__(self, code = None, name = None,
                  description = None, latitude = None, longitude = None,

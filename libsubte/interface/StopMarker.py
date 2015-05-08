@@ -97,6 +97,7 @@ class StopMarker(Champlain.CustomMarker):
         return True
 
     def clicked(self, status):
+        print 'StopMarker.clicked status=', status
         if status == self._visible: # nothing to do here
             return True
 
@@ -109,9 +110,15 @@ class StopMarker(Champlain.CustomMarker):
 
     def on_click(self, actor, event, user_data = None):
         #!mwd - this doesn't work :(
-        print 'on_click (no emitting)', actor, event
+        print 'StopMarker.on_click (no emitting)', actor, event
         #!lukstafi - commented out
         #self.emit('button-press-event', event)
+
+        #!lukstafi - instead of signals we self-call and invoke the hook
+        self.clicked(self, True)
+        if libsubte.Stop.activate_stop_hook:
+            libsubte.Stop.activate_stop_hook(self.stop)
+
         return True
 
     def on_expand_picture(self, actor, event, picture):

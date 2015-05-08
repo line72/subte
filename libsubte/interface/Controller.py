@@ -279,9 +279,11 @@ class Controller(object):
         dlg = win.content
 
         handler = self.connect('on-stop-selected', dlg.on_stop_selected)
+        libsubte.Stop.activate_stop_hook = dlg.on_stop_selected
 
         resp = win.run()
         self.disconnect('on-stop-selected', handler)
+        libsubte.Stop.activate_stop_hook = None
 
         if resp == Gtk.ResponseType.ACCEPT:
             name = dlg.get_name()
