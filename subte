@@ -6,8 +6,13 @@ GtkClutter.init([]) # this must be initialized before anything else!
 import libsubte.interface as interface
 
 from gi.repository import Gtk, GObject
+import sys
 
 if __name__ == '__main__':
+    #!lukstafi - assumes Python 2.7 (might not work with Python 3)
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+
     GObject.threads_init()
 
     win = interface.GTGui()
