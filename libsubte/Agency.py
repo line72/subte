@@ -24,7 +24,7 @@ class Agency(BaseObject):
     agency_id = 0
 
     def __init__(self, name = None, url = None,
-                 timezone = 'America/Chicago', language = 'en', phone = None, fare_url = None):
+                 timezone = 'America/Chicago', language = 'EN', phone = None, fare_url = None):
         BaseObject.__init__(self)
 
         self.agency_id = Agency.new_id()

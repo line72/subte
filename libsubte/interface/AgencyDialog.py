@@ -29,6 +29,16 @@ class AddAgencyDialog(Gtk.Dialog):
         self.content = AddAgency()
         self.get_content_area().add(self.content)
 
+class EditAgencyDialog(Gtk.Dialog):
+    def __init__(self, parent):
+        Gtk.Dialog.__init__(self, 'Edit Agency', parent,
+                            Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                            ('Edit', Gtk.ResponseType.ACCEPT,
+                             'Cancel', Gtk.ResponseType.CANCEL))
+
+        self.content = AddAgency()
+        self.get_content_area().add(self.content)
+
 class AddAgency(Gtk.VBox):
     '''A vbox for adding an agency'''
     def __init__(self):
@@ -37,25 +47,100 @@ class AddAgency(Gtk.VBox):
         size_group = Gtk.SizeGroup(mode = Gtk.SizeGroupMode.HORIZONTAL)
 
         # name
-        hbox = Gtk.HBox(False)
+        name_hbox = Gtk.HBox(False)
         name_lbl = Gtk.Label('Name: ')
         size_group.add_widget(name_lbl)       
-        hbox.pack_start(name_lbl, False, False, 0)
+        name_hbox.pack_start(name_lbl, False, False, 0)
         self.name_txt = Gtk.Entry()
-        hbox.pack_start(self.name_txt, True, True, 5)
-        self.pack_start(hbox, True, True, 5)
+        name_hbox.pack_start(self.name_txt, True, True, 5)
+        self.pack_start(name_hbox, True, True, 5)
 
         # url
+        url_hbox = Gtk.HBox(False)
+        url_lbl = Gtk.Label('URL: ')
+        size_group.add_widget(url_lbl)       
+        url_hbox.pack_start(url_lbl, False, False, 0)
+        self.url_txt = Gtk.Entry()
+        url_hbox.pack_start(self.url_txt, True, True, 5)
+        self.pack_start(url_hbox, True, True, 5)
 
         # timezone
+        timezone_hbox = Gtk.HBox(False)
+        timezone_lbl = Gtk.Label('Timezone: ')
+        size_group.add_widget(timezone_lbl)       
+        timezone_hbox.pack_start(timezone_lbl, False, False, 0)
+        self.timezone_combo = Gtk.ComboBoxText.new()
+        self.timezone_combo.append_text('America/Chicago')
+        self.timezone_combo.append_text('Europe/Warsaw')
+        timezone_hbox.pack_start(self.timezone_combo, True, True, 5)
+        self.pack_start(timezone_hbox, True, True, 5)
 
         # language
+        language_hbox = Gtk.HBox(False)
+        language_lbl = Gtk.Label('Language: ')
+        size_group.add_widget(language_lbl)       
+        language_hbox.pack_start(language_lbl, False, False, 0)
+        self.language_combo = Gtk.ComboBoxText.new()
+        self.language_combo.append_text('EN')
+        self.language_combo.append_text('PL')
+        language_hbox.pack_start(self.language_combo, True, True, 5)
+        self.pack_start(language_hbox, True, True, 5)
 
         # phone
+        phone_hbox = Gtk.HBox(False)
+        phone_lbl = Gtk.Label('Phone: ')
+        size_group.add_widget(phone_lbl)       
+        phone_hbox.pack_start(phone_lbl, False, False, 0)
+        self.phone_txt = Gtk.Entry()
+        phone_hbox.pack_start(self.phone_txt, True, True, 5)
+        self.pack_start(phone_hbox, True, True, 5)
 
         # fare url
+        fare_hbox = Gtk.HBox(False)
+        fare_url_lbl = Gtk.Label('Fare URL: ')
+        size_group.add_widget(fare_url_lbl)       
+        fare_hbox.pack_start(fare_url_lbl, False, False, 0)
+        self.fare_url_txt = Gtk.Entry()
+        fare_hbox.pack_start(self.fare_url_txt, True, True, 5)
+        self.pack_start(fare_hbox, True, True, 5)
 
     name = property(lambda x: x.name_txt.get_text(), None)
+    url = property(lambda x: x.url_txt.get_text(), None)
+    timezone = property(lambda x: x.timezone_combo.get_active_text(), None)
+    language = property(lambda x: x.language_combo.get_active_text(), None)
+    phone = property(lambda x: x.phone_txt.get_text(), None)
+    fare_url = property(lambda x: x.fare_url_txt.get_text(), None)
+
+
+    def _fill(self, agency):
+        if agency is None:
+            return
+
+        self.name_txt.set_text(agency.name)
+        self.url_txt.set_text(agency.url)
+
+        model = self.timezone_combo.get_model()
+        it = model.get_iter_first()
+        while it:
+            if model.get_value(it, 0) == agency.timezone:
+                self.timezone_combo.set_active_iter(it)
+                break
+            it = model.iter_next(it)
+        if not it:
+            self.timezone_combo.append_text(agency.timezone)
+
+        model = self.language_combo.get_model()
+        it = model.get_iter_first()
+        while it:
+            if model.get_value(it, 0) == agency.language.upper():
+                self.language_combo.set_active_iter(it)
+                break
+            it = model.iter_next(it)
+        if not it:
+            self.language_combo.append_text(agency.language.upper())
+
+        self.phone_txt.set_text(agency.phone)
+        self.fare_url_txt.set_text(agency.fare_url)
 
 
 class AgencyChoice(Gtk.HBox):
@@ -73,6 +158,11 @@ class AgencyChoice(Gtk.HBox):
         add_btn = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
         add_btn.connect('clicked', self.on_add_agency)
         self.pack_start(add_btn, False, False, 5)
+
+        # a modify button
+        edit_btn = Gtk.Button.new_from_stock(Gtk.STOCK_EDIT)
+        edit_btn.connect('clicked', self.on_edit_agency)
+        self.pack_start(edit_btn, False, False, 5)
 
         # add our agencies
         for agency in libsubte.Agency.agencies:
@@ -120,3 +210,28 @@ class AgencyChoice(Gtk.HBox):
 
         dlg.destroy()
 
+    def on_edit_agency(self, btn, user_data = None):
+        agency = self.get_selection()
+        if agency is None:
+            return True
+
+        # !mwd - we need a parent window
+        dlg = EditAgencyDialog(None)
+        dlg.content._fill(agency)
+        dlg.show_all()
+
+        if dlg.run() == Gtk.ResponseType.ACCEPT:
+            ind = self.choice.get_active()
+            self.choice.remove(ind)
+            self.choice.insert_text(ind, dlg.content.name)
+            self.choice.set_active(ind)
+            agency.name = dlg.content.name
+            agency.url = dlg.content.url
+            agency.timezone = dlg.content.timezone
+            agency.language = dlg.content.language
+            agency.phone = dlg.content.phone
+            agency.fare_url = dlg.content.fare_url
+
+        dlg.destroy()
+
+        return True
