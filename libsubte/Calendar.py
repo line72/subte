@@ -17,19 +17,20 @@
 
 import os, sys
 import csv
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
 
 from BaseObject import BaseObject
+from libsubte import TripRoute
+from libsubte import Trip
 
 class Calendar(BaseObject):
     calendars = []
     calendar_id = 0
 
-    def __init__(self, service_name, monday = 0,
-                 tuesday = 0, wednesday = 0, thursday = 0,
-                 friday = 0, saturday = 0, sunday = 0,
-                 start_date = '20120101', end_date = '20140101'):
+    def __init__(self, service_name,
+                 monday = 1, tuesday = 1, wednesday = 1, thursday = 1,
+                 friday = 1, saturday = 1, sunday = 1,
+                 start_date = '20150601', end_date = '20170601',
+                 added_excn = [], remov_excn = []):
         BaseObject.__init__(self)
 
         self.calendar_id = Calendar.new_id()
@@ -37,10 +38,11 @@ class Calendar(BaseObject):
         self.days = [monday, tuesday, wednesday,
                      thursday, friday, saturday,
                      sunday]
-        #self.start_date = start_date or datetime.now()
-        #self.end_date = end_date or datetime.now() + relativedelta(years=+1)
         self.start_date = start_date
         self.end_date = end_date
+        self.added_excn = added_excn
+        self.remov_excn = remov_excn
+        #!lukstafi - TODO: handle excn
 
         # add us
         Calendar.calendars.append(self)
@@ -57,6 +59,12 @@ class Calendar(BaseObject):
                     self.days[3], self.days[4], self.days[5], self.days[6],
                     self.start_date,
                     self.end_date)
+
+    def destroy(self):
+        try:
+            Calendar.calendars.remove(self)
+        except ValueError:
+            pass
 
     @classmethod
     def clear(cls):

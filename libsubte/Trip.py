@@ -45,7 +45,7 @@ class Trip(BaseObject):
         Trip.trips.append(self)
 
     trip_route = property(lambda x: x._trip_route(), None)
-    calendar = property(lambda x: x._calendar(), None)
+    calendar = property(lambda x: x.get_calendar(), lambda x, c: x.set_calendar(c))
     first_block = property(lambda x: x.get_first_block(), None)
     next_block = property(lambda x: x.get_next_block(), lambda x, v: x.set_next_block(v))
     previous_block = property(lambda x: x.get_previous_block(), lambda x, v: x.set_previous_block(v))
@@ -57,6 +57,16 @@ class Trip(BaseObject):
             Trip.trips.remove(self)
         except ValueError, e:
             pass
+
+    def get_calendar(self):
+        try: return self._calendar()
+        except Exception, e: return None
+
+    def set_calendar(self, calendar):
+        if calendar == None:
+            self._calendar = None
+        else:
+            self._calendar = weakref.ref(calendar)
 
     def add_trip_stop(self, tripstop):
         self.stops.append(tripstop)

@@ -45,14 +45,18 @@ class TripList(Gtk.VBox):
         cols = [GObject.TYPE_INT, str]
         self.next_block_model = Gtk.ListStore(*cols)
         self.next_block_model.append((-1, ''))
-        for i in trip_route.route.trip_routes:
-            if i == self:
-                continue
-            if i.calendar == trip_route.calendar:
-                direction = 'Outbound' if i.direction == 0 else 'Inbound'
-                for j in i.trips:
-                    if len(j.stops) > 0:
-                        self.next_block_model.append((j.trip_id, '%s @ %s' % (direction, j.stops[0].arrival)))
+        print 'TripList: trip_route.route',trip_route.route
+        if trip_route.route:
+            for i in trip_route.route.trip_routes:
+                if i == self:
+                    continue
+                if i.calendar == trip_route.calendar:
+                    direction = 'Outbound' if i.direction == 0 else 'Inbound'
+                    for j in i.trips:
+                        if len(j.stops) > 0:
+                            self.next_block_model.append((j.trip_id, '%s @ %s' % (direction, j.stops[0].arrival)))
+        else:
+            print 'TripList: trip_route.route FAIL'
 
         cols = [GObject.TYPE_INT]
         for i in trip_route.stops:
