@@ -42,7 +42,6 @@ class Calendar(BaseObject):
         self.end_date = end_date
         self.added_excn = added_excn
         self.remov_excn = remov_excn
-        #!lukstafi - TODO: handle excn
 
         # add us
         Calendar.calendars.append(self)
@@ -52,13 +51,17 @@ class Calendar(BaseObject):
             return self.gtfs_id
         return self.calendar_id
 
-    def write(self, f):
-        self._write(f, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
+    def write(self, f_cal, f_cal_dates):
+        self._write(f_cal, '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',
                     self.get_id(),
                     self.days[0], self.days[1], self.days[2],
                     self.days[3], self.days[4], self.days[5], self.days[6],
-                    self.start_date,
-                    self.end_date)
+                    self.start_date, self.end_date)
+
+        for d in self.added_excn:
+            self._write(f_cal_dates, '%s,%s,1\n', self.get_id(), d)
+        for d in self.remov_excn:
+            self._write(f_cal_dates, '%s,%s,2\n', self.get_id(), d)
 
     def destroy(self):
         try:
@@ -73,12 +76,15 @@ class Calendar(BaseObject):
 
     @classmethod
     def write_calendars(cls, directory = '.'):
-        f = open(os.path.join(directory, 'calendar.txt'), 'w')
+        f_cal = open(os.path.join(directory, 'calendar.txt'), 'w')
+        f_cal_dates = open(os.path.join(directory, 'calendar_dates.txt'), 'w')
         # header
-        f.write('service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date\n')
+        f_cal.write('service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date\n')
+        f_cal_dates.write('service_id,date,exception_type\n')
         for c in cls.calendars:
-            c.write(f)
-        f.close()
+            c.write(f_cal, f_cal_dates)
+        f_cal.close()
+        f_cal_dates.close()
 
     @classmethod
     def get(cls, calendar_id):

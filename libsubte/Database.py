@@ -92,13 +92,17 @@ class Database(object):
                 days = calendar_node.findtext('days')
                 start_date = calendar_node.findtext('start_date')
                 end_date = calendar_node.findtext('end_date')
+                added_excn = calendar_node.findtext('added_excn') or ''
+                remov_excn = calendar_node.findtext('remov_excn') or ''
 
                 days = [int(x) for x in days.split()]
                 c = Calendar(service_name = name, monday = days[0],
                              tuesday = days[1], wednesday = days[2],
                              thursday = days[3], friday = days[4],
                              saturday = days[5], sunday = days[6],
-                             start_date = start_date, end_date = end_date)
+                             start_date = start_date, end_date = end_date,
+                             added_excn = added_excn.split(),
+                             remov_excn = remov_excn.split())
                 c.calendar_id = int(calendar_id)
                 c.gtfs_id = gtfs_id
 
@@ -354,6 +358,10 @@ class Database(object):
             e.text = '%s' % (c.start_date or '')
             e = ElementTree.SubElement(node, 'end_date')
             e.text = '%s' % (c.end_date or '')
+            e = ElementTree.SubElement(node, 'added_excn')
+            e.text = ' '.join(c.added_excn)
+            e = ElementTree.SubElement(node, 'remov_excn')
+            e.text = ' '.join(c.remov_excn)
         # the stops
         for s in Stop.stops:
             node = ElementTree.SubElement(root, 'Stop')
