@@ -22,6 +22,7 @@ import weakref
 import cPickle as pickle
 import string
 import random
+from itertools import groupby
 
 import xml.etree.ElementTree as ElementTree
 import xml.parsers.expat
@@ -531,7 +532,7 @@ class Database(object):
             e.text = '%s' % p.orientation
 
         # make a tree and save it
-        self.__indent(root)
+        indent(root)
         tree = ElementTree.ElementTree(root)
         d = os.path.dirname(self.dbname)
         tmpname = ''.join([random.choice(string.ascii_letters) for i in range(8)])
@@ -559,19 +560,226 @@ class Database(object):
         Frequency.clear()
         Picture.clear()
 
-    def __indent(self, elem, level = 0):
-        i = "\n" + level * "  "
-        if len(elem):
-            if not elem.text or not elem.text.strip():
-                elem.text = i + "  "
-            for elem in elem:
-                self.__indent(elem, level + 1)
-            if not elem.tail or not elem.tail.strip():
-                elem.tail = i
-        else:
-            if level and (not elem.tail or not elem.tail.strip()):
-                elem.tail = i
+    @classmethod
+    def export_kml(cls, directory, calendars_as_placemark = True):
 
+        # save the kml
+        root = ElementTree.Element('kml')
+        root.set('xmlns', '"http://www.opengis.net/kml/2.2"')
+        docu = ElementTree.SubElement(root, 'Document')
+
+        # the html content of a blurb with calendars
+        cal_table = ElementTree.Element('table')
+        node = ElementTree.SubElement(cal_table, 'tr')
+        e = ElementTree.SubElement(node, 'th')
+        e.text = 'Calendar'
+        e = ElementTree.SubElement(node, 'th')
+        e.text = 'Monday'
+        e = ElementTree.SubElement(node, 'th')
+        e.text = 'Tuesday'
+        e = ElementTree.SubElement(node, 'th')
+        e.text = 'Wednesday'
+        e = ElementTree.SubElement(node, 'th')
+        e.text = 'Thursday'
+        e = ElementTree.SubElement(node, 'th')
+        e.text = 'Friday'
+        e = ElementTree.SubElement(node, 'th')
+        e.text = 'Saturday'
+        e = ElementTree.SubElement(node, 'th')
+        e.text = 'Sunday'
+        e = ElementTree.SubElement(node, 'th')
+        e.text = 'Also goes on'
+        e = ElementTree.SubElement(node, 'th')
+        e.text = 'Does not go on'
+
+        # the calendars
+        for c in Calendar.calendars:
+            node = ElementTree.SubElement(cal_table, 'tr')
+            e = ElementTree.SubElement(node, 'td')
+            e.text = c.name
+            for cond in c.days:
+                e = ElementTree.SubElement(node, 'td')
+                e.text = ('x' if cond == 1 else '-')
+                #!lukstafi - TODO: translate dates to nicer format
+            e = ElementTree.SubElement(node, 'td')
+            e.text = ' '.join(c.added_excn)
+            e = ElementTree.SubElement(node, 'td')
+            e.text = ' '.join(c.remov_excn)
+
+        cal_table = ElementTree.tostring(cal_table, encoding = 'utf-8',
+                                         method = 'html')
+        if calendars_as_placemark:
+            node = ElementTree.SubElement(docu, 'Placemark')
+            e = ElementTree.SubElement(node, 'Point')
+            e = ElementTree.SubElement(e, 'coordinates')
+            #!lukstafi - TODO: better location selection
+            e.text = '%s,%s' % (Stop.stops[0].longitude,
+                                Stop.stops[1].latitude)
+            e = ElementTree.SubElement(node, 'description')
+            e.text = cal_table
+        else:
+            node = ElementTree.SubElement(docu, 'description')
+            node.text = cal_table
+            # no Point element
+
+        # Tabulate the times at stops and on routes.
+        # stop->route->calendar->list of departure times
+        stop_tables = dict()
+        for s in Stop.stops:
+            stop_tables[s.stop_id] = dict()
+            stop_tables[s.stop_id]['name'] = s.name
+            for r in Route.routes:
+                stop_tables[s.stop_id][r.route_id] = dict()
+                stop_tables[s.stop_id][r.route_id]['name'] = r.short_name
+                for c in Calendar.calendars:
+                    stop_tables[s.stop_id][r.route_id][c.calendar_id] = {'times': list(), 'name': c.name}
+                
+        # route->stop->calendar->list of departure times (transpose of above)
+        route_tables = dict()
+        for r in Route.routes:
+            route_tables[r.route_id] = dict()
+            route_tables[r.route_id]['name'] = r.short_name
+            for s in Stop.stops:
+                route_tables[r.route_id][s.stop_id] = dict()
+                route_tables[r.route_id][s.stop_id]['name'] = s.name
+                for c in Calendar.calendars:
+                    route_tables[r.route_id][s.stop_id][c.calendar_id] = {'times': list(), 'name': c.name}
+
+        # Fill-in the dates.
+        for t in Trip.trips:
+            for rs in t.stops:
+                stop_tables[rs.stop.stop_id][t.trip_route.route.route_id][t.calendar.calendar_id]['times'].append(rs.departure)
+                route_tables[t.trip_route.route.route_id][rs.stop.stop_id][t.calendar.calendar_id]['times'].append(rs.departure)
+
+        #!lukstafi - TODO: handle the frequencies!
+
+        for s in Stop.stops:
+            for r in Route.routes:
+                for c in Calendar.calendars:
+                    if len(stop_tables[s.stop_id][r.route_id][c.calendar_id]['times']) == 0:
+                        del stop_tables[s.stop_id][r.route_id][c.calendar_id]
+                    else:
+                        stop_tables[s.stop_id][r.route_id][c.calendar_id]['times'].sort()
+                if len(stop_tables[s.stop_id][r.route_id].viewitems()) <= 1:
+                    del stop_tables[s.stop_id][r.route_id]
+            if len(stop_tables[s.stop_id].viewitems()) <= 1:
+                del stop_tables[s.stop_id]
+
+        # the stops
+        for s in Stop.stops:
+            if s.stop_id not in stop_tables:
+                continue
+            node = ElementTree.SubElement(docu, 'Placemark')
+            e = ElementTree.SubElement(node, 'name')
+            e.text = s.code or s.name or s.description or ''
+            e = ElementTree.SubElement(node, 'Icon')
+            e = ElementTree.SubElement(e, 'href')
+            e.text = 'http://maps.google.com/mapfiles/kml/shapes/bus.png'
+            e = ElementTree.SubElement(node, 'Point')
+            e = ElementTree.SubElement(e, 'coordinates')
+            e.text = '%s,%s' % (s.longitude, s.latitude)
+            stop_tbl = ElementTree.Element('div')
+            #stop_tbl.text = s.description or s.name or ''
+            for tbl in stop_tables[s.stop_id].viewvalues():
+                print 'Trying table for stop ',(s.code or s.name or s.description or '')
+                #!lukstafi - FIXME: this is not nice
+                if isinstance(tbl, basestring):
+                    continue
+                tbl_e = ElementTree.SubElement(stop_tbl, 'table')
+                # route name
+                e = ElementTree.SubElement(tbl_e, 'tr')
+                e = ElementTree.SubElement(e, 'th')
+                e.text = tbl['name']
+                print 'Stop route ',tbl['name']
+                # calendars
+                cals = ElementTree.SubElement(tbl_e, 'tr')
+                for cal in tbl.viewvalues():
+                    print 'Trying calendar'
+                    if isinstance(cal, basestring):
+                        continue
+                    print 'Calendar name=',cal['name'],'; times=',cal['times']
+                    e = ElementTree.SubElement(cals, 'th')
+                    e.text = cal['name']
+                cals = ElementTree.SubElement(tbl_e, 'tr')
+                for cal in tbl.viewvalues():
+                    if isinstance(cal, basestring):
+                        continue
+                    e = ElementTree.SubElement(cals, 'td')
+                    times_table(e, cal['times'])
+                    
+            e = ElementTree.SubElement(node, 'description')
+            #stop_tree = ElementTree.ElementTree(stop_tbl)
+            e.text = ElementTree.tostring(stop_tbl, encoding = 'utf-8', method = 'html')
+
+        #!lukstafi - TODO: perhaps split the routes with different
+        #   sets of stops into route-calenadar groups
+        # route->list of stops on the route
+        route_stops = dict()
+        for tr in TripRoute.trip_routes:
+            if tr.route.route_id in route_stops:
+                if len(tr.stops) > len(route_stops[tr.route.route_id]):
+                    route_stops[tr.route.route_id] = tr.stops
+            else:
+                route_stops[tr.route.route_id] = tr.stops
+
+        # the routes
+        for r in Route.routes:
+            if r.route_id not in route_tables:
+                continue
+            node = ElementTree.SubElement(docu, 'Placemark')
+            e = ElementTree.SubElement(node, 'name')
+            e.text = r.short_name or r.long_name or r.description or ''
+            e = ElementTree.SubElement(node, 'LineString')
+            #!lukstafi - TODO: use user-defined paths when available
+            e = ElementTree.SubElement(e, 'coordinates')
+            stops = map(lambda s: '%s,%s' % (s.longitude, s.latitude),
+                        route_stops[r.route_id])
+            e.text = '\n'.join(stops)
+            route_tbl = ElementTree.Element('table')
+            # route_tbl.text = s.long_name or s.description or ''
+            # route name
+            e = ElementTree.SubElement(route_tbl, 'tr')
+            e = ElementTree.SubElement(e, 'th')
+            e.text = r.short_name or r.long_name or r.description or ''
+            # stops
+            stops_e = ElementTree.SubElement(route_tbl, 'tr')
+            for tbl in route_tables[r.route_id].viewvalues():
+                print 'Trying table for route',(r.short_name or r.long_name or r.description or '')
+                if isinstance(tbl, basestring):
+                    continue
+                print 'Route stop name=',tbl['name']
+                e = ElementTree.SubElement(stops_e, 'th')
+                e.text = tbl['name']
+            stops_e = ElementTree.SubElement(route_tbl, 'tr')
+            for tbl in route_tables[r.route_id].viewvalues():
+                if isinstance(tbl, basestring):
+                    continue
+                tbl_e = ElementTree.SubElement(stops_e, 'td')
+                tbl_e = ElementTree.SubElement(tbl_e, 'table')
+                # calendars
+                cals = ElementTree.SubElement(tbl_e, 'tr')
+                for cal in tbl.viewvalues():
+                    print 'Trying calendar'
+                    if isinstance(cal, basestring):
+                        continue
+                    print 'Calendar name=',cal['name'],'; times=',cal['times']
+                    e = ElementTree.SubElement(cals, 'th')
+                    e.text = cal['name']
+                cals = ElementTree.SubElement(tbl_e, 'tr')
+                for cal in tbl.viewvalues():
+                    if isinstance(cal, basestring):
+                        continue
+                    e = ElementTree.SubElement(cals, 'td')
+                    times_table(e, cal['times'])
+                    
+            e = ElementTree.SubElement(node, 'description')
+            # route_tree = ElementTree.ElementTree(route_tbl)
+            e.text = ElementTree.tostring(route_tbl, encoding = 'utf-8', method = 'html')
+
+        # make a tree and save it
+        indent(root)
+        tree = ElementTree.ElementTree(root)
+        tree.write(os.path.join(directory, 'doc.kml'), encoding = 'UTF-8')
 
     @classmethod
     def export(cls, directory):
@@ -582,6 +790,7 @@ class Database(object):
         Trip.write_trips(directory)
         Frequency.write_frequencies(directory)
         Path.write_paths(directory)
+        cls.export_kml(directory)
 
     @classmethod
     def import_gtfs(cls, directory):
@@ -592,6 +801,60 @@ class Database(object):
         Route.import_routes(directory)
         Trip.import_trips(directory)
         Frequency.import_frequencies(directory)
+
+def indent(elem, level = 0):
+    i = "\n" + level * "  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        for elem in elem:
+            indent(elem, level + 1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+
+def split_time(t):
+    if len(t) <= 2: assert False
+    if len(t) <= 5:
+        pos3 = len(t)
+    else:
+        if t[4] == ':':
+            pos3 = 4
+        else:
+            if t[5] == ':':
+                pos3 = 5
+            else:
+                pos3 = 4
+    if t[1] == ':':
+        pos1 = 1
+        pos2 = 2
+    else:
+        if t[2] == ':':
+            pos1 = 2
+            pos2 = 3
+        else:
+            if len(t) == 3:
+                pos1 = 1
+                pos2 = 1
+            else:
+                pos1 = 2
+                pos2 = 2
+    return (t[0:pos1], t[pos2:pos3])
+
+def times_table (root, times):
+    table = ElementTree.SubElement(root, 'table')
+    times = map(split_time, times)
+    for h, minutes in groupby(times, key=(lambda x: x[0])):
+        node = ElementTree.SubElement(table, 'tr')
+        e = ElementTree.SubElement(node, 'td')
+        e = ElementTree.SubElement(e, 'b')
+        e.text = h
+        for m in minutes:
+            e = ElementTree.SubElement(node, 'td')
+            e.text = m[1]
+
 
 """
 <?xml>
