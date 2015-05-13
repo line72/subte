@@ -56,7 +56,7 @@ class TripList(Gtk.VBox):
                         if len(j.stops) > 0:
                             self.next_block_model.append((j.trip_id, '%s @ %s' % (direction, j.stops[0].arrival)))
         else:
-            print 'TripList: trip_route.route FAIL'
+            assert False
 
         cols = [GObject.TYPE_INT]
         for i in trip_route.stops:
@@ -71,6 +71,7 @@ class TripList(Gtk.VBox):
         self.clear_model()
 
         # add the columns
+        cp = 1
         for c, i in enumerate(trip_route.stops):
             renderer = Gtk.CellRendererText()
             renderer.props.editable = True
@@ -80,6 +81,7 @@ class TripList(Gtk.VBox):
             #  is hidden, it is c+1
             column = Gtk.TreeViewColumn(i.name, renderer, text = c+1)
             self.treeview.append_column(column)
+            cp = c + 2
         # and a column for the next block
         combo_renderer = Gtk.CellRendererCombo()
         combo_renderer.set_property("editable", "False")
@@ -88,7 +90,7 @@ class TripList(Gtk.VBox):
         combo_renderer.set_property("has-entry", False)
         #combo_renderer.connect("edited", self.on_next_block_edited)
         combo_renderer.connect("changed", self.on_next_block_changed)
-        column = Gtk.TreeViewColumn("Next Trip", combo_renderer, text = c+2)
+        column = Gtk.TreeViewColumn("Next Trip", combo_renderer, text = cp)
         self.treeview.append_column(column)
         
 

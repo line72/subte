@@ -223,6 +223,13 @@ class AddTripRoute(Gtk.VBox):
     def on_modify_trips(self, btn):
         print 'on-modify-trips'
         if self._trip_route:
+            if not self._trip_route.route:
+                print 'on-modify-trips: hack - set route',self.get_route()
+                self._trip_route.route = self.get_route()
+            if not self._trip_route.calendar:
+                print 'on-modify-trips: hack - set calendar',self.get_calendar()
+                self._trip_route.calendar = self.get_calendar()
+
             dlg = TripListDialog(None, self._trip_route)
             dlg.show_all()
 
