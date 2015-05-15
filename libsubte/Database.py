@@ -686,7 +686,9 @@ class Database(object):
             e = ElementTree.SubElement(e, 'coordinates')
             e.text = '%s,%s' % (s.longitude, s.latitude)
             stop_tbl = ElementTree.Element('div')
-            #stop_tbl.text = s.description or s.name or ''
+            e = ElementTree.SubElement(stop_tbl, 'span')
+            # e = ElementTree.SubElement(stop_tbl, 'b')
+            e.text = s.name + ' - ' + s.description
             for r_name, tbl in stop_tables_js[s_name].viewitems():
                 tbl_e = ElementTree.SubElement(stop_tbl, 'table')
                 # route name
@@ -735,12 +737,11 @@ class Database(object):
             e = ElementTree.SubElement(e, 'coordinates')
             stops = map(lambda s: '%s,%s' % (s.longitude, s.latitude), route_stops[r.route_id])
             e.text = '\n'.join(stops)
-            route_tbl = ElementTree.Element('table')
-            # route_tbl.text = s.long_name or s.description or ''
-            # route name
-            e = ElementTree.SubElement(route_tbl, 'tr')
-            e = ElementTree.SubElement(e, 'th')
-            e.text = r.short_name or r.long_name or r.description or ''
+            route_h = ElementTree.Element('div')
+            e = ElementTree.SubElement(route_h, 'span')
+            # e = ElementTree.SubElement(stop_tbl, 'b')
+            e.text = r.long_name + ' - ' + r.description
+            route_tbl = ElementTree.SubElement(route_h, 'table')
             # stops
             stops_e = ElementTree.SubElement(route_tbl, 'tr')
             for s_name, tbl in route_tables_js[r_name].viewitems():
@@ -766,7 +767,7 @@ class Database(object):
 
             e = ElementTree.SubElement(node, 'description')
             # route_tree = ElementTree.ElementTree(route_tbl)
-            e.text = ElementTree.tostring(route_tbl, encoding = 'utf-8', method = 'html')
+            e.text = ElementTree.tostring(route_h, encoding = 'utf-8', method = 'html')
 
         # make a tree and save it
         indent(root)
