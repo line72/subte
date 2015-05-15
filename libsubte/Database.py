@@ -26,6 +26,7 @@ from itertools import groupby
 
 import xml.etree.ElementTree as ElementTree
 import xml.parsers.expat
+import json
 
 from Route import Route
 from Stop import Stop
@@ -561,8 +562,12 @@ class Database(object):
         Picture.clear()
 
     @classmethod
-    def export_kml(cls, directory, calendars_as_placemark = True):
-
+    def export_kml_and_js(cls, directory, calendars_as_placemark = True):
+        """Export a self-contained KML file with timetable information,
+        and a JSON file with timetable mapping with the names of stops
+        and routes as keys. The keys are the same as the 'name' property
+        of corresponding placemarks.
+        """
         # save the kml
         root = ElementTree.Element('kml')
         root.set('xmlns', '"http://www.opengis.net/kml/2.2"')
@@ -602,6 +607,9 @@ class Database(object):
 
         calendars = list(Calendar.calendars)
         calendars.sort(key = lambda c: c.days, reverse = True)
+        calendars_js = dict()
+        for c in calendars:
+            calendars_js[c.name] = {'days': c.days, 'added_excn': c.added_excn, 'remov_excn': c.remov_excn}
         # the calendars
         for c in calendars:
             node = ElementTree.SubElement(cal_table, 'tr')
@@ -615,12 +623,13 @@ class Database(object):
             e.text = '_'.join(c.added_excn)
             e = ElementTree.SubElement(node, 'td')
             e.text = '_'.join(c.remov_excn)
-        calendars = map(lambda c: c.calendar_id, calendars)
+        calendars = map(lambda c: c.name, calendars)
 
-        cal_table = ElementTree.tostring(cal_table, encoding = 'utf-8',
-                                         method = 'html')
+        cal_table = ElementTree.tostring(cal_table, encoding = 'utf-8', method = 'html')
         if calendars_as_placemark:
             node = ElementTree.SubElement(docu, 'Placemark')
+            e = ElementTree.SubElement(node, 'name')
+            e.text = 'Days of operation'
             e = ElementTree.SubElement(node, 'Point')
             e = ElementTree.SubElement(e, 'coordinates')
             #!lukstafi - TODO: better location selection
@@ -636,43 +645,41 @@ class Database(object):
         # Tabulate the times at stops and on routes.
         # stop->route->calendar->list of departure times
         # route->stop->calendar->list of departure times (transpose of above)
-        stop_tables = dict()
-        route_tables = dict()
+        stop_tables_js = dict()
+        route_tables_js = dict()
         for t in Trip.trips:
             for rs in t.stops:
-                s_id = rs.stop.stop_id
-                r_id = t.trip_route.route.route_id
+                s_name = rs.stop.code or rs.stop.name or rs.stop.description
+                r_name = t.trip_route.route.short_name or t.trip_route.route.long_name or t.trip_route.route.description
                 #!lukstafi - FIXME: we need trip route calendar rather than
                 # trip calendar, find out why old trip calendars are reset
-                c_id = t.trip_route.calendar.calendar_id
-                s_name = rs.stop.name
-                r_name = t.trip_route.route.short_name
                 c_name = t.trip_route.calendar.name
 
-                if s_id not in stop_tables:
-                    stop_tables[s_id] = {'r': dict(), 'name': s_name}
-                if r_id not in stop_tables[s_id]['r']:
-                    stop_tables[s_id]['r'][r_id] = {'c': dict(), 'name': r_name}
-                if c_id not in stop_tables[s_id]['r'][r_id]['c']:
-                    stop_tables[s_id]['r'][r_id]['c'][c_id] = {'t': list(), 'name': c_name}
-                if r_id not in route_tables:
-                    route_tables[r_id] = {'s': dict(), 'name': r_name}
-                if s_id not in route_tables[r_id]['s']:
-                    route_tables[r_id]['s'][s_id] = {'c': dict(), 'name': s_name}
-                if c_id not in route_tables[r_id]['s'][s_id]['c']:
-                    route_tables[r_id]['s'][s_id]['c'][c_id] = {'t': list(), 'name': c_name}
-                stop_tables[s_id]['r'][r_id]['c'][c_id]['t'].append(rs.departure)
-                route_tables[r_id]['s'][s_id]['c'][c_id]['t'].append(rs.departure)
+                if s_name not in stop_tables_js:
+                    stop_tables_js[s_name] = dict()
+                if r_name not in stop_tables_js[s_name]:
+                    stop_tables_js[s_name][r_name] = dict()
+                if c_name not in stop_tables_js[s_name][r_name]:
+                    stop_tables_js[s_name][r_name][c_name] = list()
+                if r_name not in route_tables_js:
+                    route_tables_js[r_name] = dict()
+                if s_name not in route_tables_js[r_name]:
+                    route_tables_js[r_name][s_name] = dict()
+                if c_name not in route_tables_js[r_name][s_name]:
+                    route_tables_js[r_name][s_name][c_name] = list()
+                stop_tables_js[s_name][r_name][c_name].append(rs.departure)
+                route_tables_js[r_name][s_name][c_name].append(rs.departure)
 
         #!lukstafi - TODO: handle the frequencies!
 
         # the stops
         for s in Stop.stops:
-            if s.stop_id not in stop_tables:
+            s_name = s.code or s.name or s.description
+            if s_name not in stop_tables_js:
                 continue
             node = ElementTree.SubElement(docu, 'Placemark')
             e = ElementTree.SubElement(node, 'name')
-            e.text = s.code or s.name or s.description or ''
+            e.text = s_name
             e = ElementTree.SubElement(node, 'styleUrl')
             e.text = '#MyBusStop'
             e = ElementTree.SubElement(node, 'Point')
@@ -680,27 +687,25 @@ class Database(object):
             e.text = '%s,%s' % (s.longitude, s.latitude)
             stop_tbl = ElementTree.Element('div')
             #stop_tbl.text = s.description or s.name or ''
-            for tbl in stop_tables[s.stop_id]['r'].viewvalues():
+            for r_name, tbl in stop_tables_js[s_name].viewitems():
                 tbl_e = ElementTree.SubElement(stop_tbl, 'table')
                 # route name
                 e = ElementTree.SubElement(tbl_e, 'tr')
                 e = ElementTree.SubElement(e, 'th')
-                e.text = tbl['name']
+                e.text = r_name
                 # calendars
                 cals = ElementTree.SubElement(tbl_e, 'tr')
-                for c_id in calendars:
-                    if c_id not in tbl['c']:
+                for c_name in calendars:
+                    if c_name not in tbl:
                         continue
-                    cal = tbl['c'][c_id]
                     e = ElementTree.SubElement(cals, 'th')
-                    e.text = cal['name']
+                    e.text = c_name
                 cals = ElementTree.SubElement(tbl_e, 'tr')
-                for c_id in calendars:
-                    if c_id not in tbl['c']:
+                for c_name in calendars:
+                    if c_name not in tbl:
                         continue
-                    cal = tbl['c'][c_id]
                     e = ElementTree.SubElement(cals, 'td')
-                    times_table(e, cal['t'])
+                    times_table(e, tbl[c_name])
 
             e = ElementTree.SubElement(node, 'description')
             #stop_tree = ElementTree.ElementTree(stop_tbl)
@@ -719,16 +724,16 @@ class Database(object):
 
         # the routes
         for r in Route.routes:
-            if r.route_id not in route_tables:
+            r_name = r.short_name or r.long_name or r.description
+            if r_name not in route_tables_js:
                 continue
             node = ElementTree.SubElement(docu, 'Placemark')
             e = ElementTree.SubElement(node, 'name')
-            e.text = r.short_name or r.long_name or r.description or ''
+            e.text = r_name
             e = ElementTree.SubElement(node, 'LineString')
             #!lukstafi - TODO: use user-defined paths when available
             e = ElementTree.SubElement(e, 'coordinates')
-            stops = map(lambda s: '%s,%s' % (s.longitude, s.latitude),
-                        route_stops[r.route_id])
+            stops = map(lambda s: '%s,%s' % (s.longitude, s.latitude), route_stops[r.route_id])
             e.text = '\n'.join(stops)
             route_tbl = ElementTree.Element('table')
             # route_tbl.text = s.long_name or s.description or ''
@@ -738,28 +743,26 @@ class Database(object):
             e.text = r.short_name or r.long_name or r.description or ''
             # stops
             stops_e = ElementTree.SubElement(route_tbl, 'tr')
-            for tbl in route_tables[r.route_id]['s'].viewvalues():
+            for s_name, tbl in route_tables_js[r_name].viewitems():
                 e = ElementTree.SubElement(stops_e, 'th')
-                e.text = tbl['name']
+                e.text = s_name
             stops_e = ElementTree.SubElement(route_tbl, 'tr')
-            for tbl in route_tables[r.route_id]['s'].viewvalues():
+            for s_name, tbl in route_tables_js[r_name].viewitems():
                 tbl_e = ElementTree.SubElement(stops_e, 'td')
                 tbl_e = ElementTree.SubElement(tbl_e, 'table')
                 # calendars
                 cals = ElementTree.SubElement(tbl_e, 'tr')
-                for c_id in calendars:
-                    if c_id not in tbl['c']:
+                for c_name in calendars:
+                    if c_name not in tbl:
                         continue
-                    cal = tbl['c'][c_id]
                     e = ElementTree.SubElement(cals, 'th')
-                    e.text = cal['name']
+                    e.text = c_name
                 cals = ElementTree.SubElement(tbl_e, 'tr')
-                for c_id in calendars:
-                    if c_id not in tbl['c']:
+                for c_name in calendars:
+                    if c_name not in tbl:
                         continue
-                    cal = tbl['c'][c_id]
                     e = ElementTree.SubElement(cals, 'td')
-                    times_table(e, cal['t'])
+                    times_table(e, tbl[c_name])
 
             e = ElementTree.SubElement(node, 'description')
             # route_tree = ElementTree.ElementTree(route_tbl)
@@ -770,6 +773,15 @@ class Database(object):
         tree = ElementTree.ElementTree(root)
         tree.write(os.path.join(directory, 'doc.kml'), encoding = 'UTF-8')
 
+        with open(os.path.join(directory, 'doc.js'), 'w') as outfile:
+            outfile.write('var calendars = ')
+            json.dump(calendars_js, outfile, sort_keys = True, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar stop_tables = ')
+            json.dump(stop_tables_js, outfile, sort_keys = True, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar route_tables = ')
+            json.dump(route_tables_js, outfile, sort_keys = True, indent = 4, ensure_ascii=False)
+                           
+
     @classmethod
     def export(cls, directory):
         Agency.write_agencies(directory)
@@ -779,7 +791,7 @@ class Database(object):
         Trip.write_trips(directory)
         Frequency.write_frequencies(directory)
         Path.write_paths(directory)
-        cls.export_kml(directory)
+        cls.export_kml_and_js(directory)
 
     @classmethod
     def import_gtfs(cls, directory):
