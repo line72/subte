@@ -20,20 +20,21 @@ import weakref
 from gi.repository import Gtk
 
 import libsubte
+from Locale import _
 
 class AddStopDialog(Gtk.Dialog):
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, 'Add Stop', parent,
+        Gtk.Dialog.__init__(self, _('Add Stop'), parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Add', Gtk.ResponseType.ACCEPT,
-                            'Cancel', Gtk.ResponseType.CANCEL))
+                            (_('Add'), Gtk.ResponseType.ACCEPT,
+                            _('Cancel'), Gtk.ResponseType.CANCEL))
 
 class EditStopDialog(Gtk.Dialog):
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, 'Edit Stop', parent,
+        Gtk.Dialog.__init__(self, _('Edit Stop'), parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Edit', Gtk.ResponseType.ACCEPT,
-                            'Cancel', Gtk.ResponseType.CANCEL))
+                            (_('Edit'), Gtk.ResponseType.ACCEPT,
+                            _('Cancel'), Gtk.ResponseType.CANCEL))
 
 class AddStop(Gtk.VBox):
     '''A dialog that creates a new stop'''
@@ -46,7 +47,7 @@ class AddStop(Gtk.VBox):
 
         # name
         hbox = Gtk.HBox(False)
-        name_lbl = Gtk.Label('Name: ')
+        name_lbl = Gtk.Label(_('Name: '))
         size_group.add_widget(name_lbl)       
         hbox.pack_start(name_lbl, False, False, 0)
         self.name_txt = Gtk.Entry()
@@ -56,7 +57,7 @@ class AddStop(Gtk.VBox):
 
         # description
         hbox = Gtk.HBox(False)
-        description_lbl = Gtk.Label('Description: ')
+        description_lbl = Gtk.Label(_('Description: '))
         size_group.add_widget(description_lbl)       
         hbox.pack_start(description_lbl, False, False, 0)
         self.description_txt = Gtk.TextView()
@@ -66,13 +67,13 @@ class AddStop(Gtk.VBox):
 
         # lat long
         hbox = Gtk.HBox(False)
-        lat_lbl = Gtk.Label('Latitude: ')
+        lat_lbl = Gtk.Label(_('Latitude: '))
         size_group.add_widget(lat_lbl)
         hbox.pack_start(lat_lbl, False, False, 0)
         self.latitude_txt = Gtk.Entry()
         hbox.pack_start(self.latitude_txt, True, True, 5)
 
-        long_lbl = Gtk.Label('Longitude: ')
+        long_lbl = Gtk.Label(_('Longitude: '))
         size_group.add_widget(long_lbl)
         hbox.pack_start(long_lbl, False, False, 0)
         self.longitude_txt = Gtk.Entry()

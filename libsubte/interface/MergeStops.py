@@ -20,13 +20,14 @@ import weakref
 from gi.repository import Gtk
 
 import libsubte
+from Locale import _
 
 class MergeStopsDialog(Gtk.Dialog):
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, 'Merge Stops', parent, 
+        Gtk.Dialog.__init__(self, _('Merge Stops'), parent, 
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Merge', Gtk.ResponseType.ACCEPT,
-                             'Cancel', Gtk.ResponseType.CANCEL))
+                            (_('Merge'), Gtk.ResponseType.ACCEPT,
+                             _('Cancel'), Gtk.ResponseType.CANCEL))
 
 class MergeStops(Gtk.VBox):
     '''A dialog that merges two stops'''
@@ -45,7 +46,7 @@ class MergeStops(Gtk.VBox):
 
         # stop 1
         hbox = Gtk.HBox(False)
-        stop1_lbl = Gtk.Label('Stop 1: ')
+        stop1_lbl = Gtk.Label(_('Stop 1: '))
         size_group.add_widget(stop1_lbl)
         hbox.pack_start(stop1_lbl, False, False, 0)
         self.stop1_input = Gtk.Label('')
@@ -58,7 +59,7 @@ class MergeStops(Gtk.VBox):
 
         # stop 2
         hbox = Gtk.HBox(False)
-        stop2_lbl = Gtk.Label('Stop 2: ')
+        stop2_lbl = Gtk.Label(_('Stop 2: '))
         size_group.add_widget(stop2_lbl)
         hbox.pack_start(stop2_lbl, False, False, 0)
         self.stop2_input = Gtk.Label('')

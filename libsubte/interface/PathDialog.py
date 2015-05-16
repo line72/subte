@@ -18,12 +18,13 @@
 from gi.repository import Gtk
 
 import libsubte
+from Locale import _
 
 class PathChoice(Gtk.HBox):
     def __init__(self):
         Gtk.HBox.__init__(self, False)
 
-        self.lbl = Gtk.Label('Path: ')
+        self.lbl = Gtk.Label(_('Path: '))
         self.pack_start(self.lbl, False, False, 0)
 
         # our choices

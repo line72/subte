@@ -18,25 +18,26 @@
 from gi.repository import Gtk
 
 import libsubte
+from Locale import _
 
 from AgencyDialog import AgencyChoice
 
 class AddRouteDialog(Gtk.Dialog):
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, 'Add Route', parent,
+        Gtk.Dialog.__init__(self, _('Add Route'), parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Add', Gtk.ResponseType.ACCEPT,
-                             'Cancel', Gtk.ResponseType.CANCEL))
+                            (_('Add'), Gtk.ResponseType.ACCEPT,
+                             _('Cancel'), Gtk.ResponseType.CANCEL))
 
         self.content = AddRoute()
         self.get_content_area().add(self.content)
 
 class EditRouteDialog(Gtk.Dialog):
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, 'Edit Route', parent,
+        Gtk.Dialog.__init__(self, _('Edit Route'), parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Edit', Gtk.ResponseType.ACCEPT,
-                             'Cancel', Gtk.ResponseType.CANCEL))
+                            (_('Edit'), Gtk.ResponseType.ACCEPT,
+                             _('Cancel'), Gtk.ResponseType.CANCEL))
 
         self.content = AddRoute()
         self.get_content_area().add(self.content)
@@ -52,7 +53,7 @@ class AddRoute(Gtk.VBox):
 
         # name
         hbox = Gtk.HBox(False)
-        name_lbl = Gtk.Label('Short Name: ')
+        name_lbl = Gtk.Label(_('Short Name: '))
         size_group.add_widget(name_lbl)       
         hbox.pack_start(name_lbl, False, False, 0)
         self.name_txt = Gtk.Entry()
@@ -62,7 +63,7 @@ class AddRoute(Gtk.VBox):
 
         # name
         hbox = Gtk.HBox(False)
-        name_lbl = Gtk.Label('Long Name: ')
+        name_lbl = Gtk.Label(_('Long Name: '))
         size_group.add_widget(name_lbl)       
         hbox.pack_start(name_lbl, False, False, 0)
         self.long_name_txt = Gtk.Entry()
@@ -73,7 +74,7 @@ class AddRoute(Gtk.VBox):
 
         # description
         hbox = Gtk.HBox(False)
-        description_lbl = Gtk.Label('Description: ')
+        description_lbl = Gtk.Label(_('Description: '))
         size_group.add_widget(description_lbl)       
         hbox.pack_start(description_lbl, False, False, 0)
         self.description_txt = Gtk.TextView()
@@ -119,7 +120,7 @@ class RouteChoice(Gtk.HBox):
     def __init__(self):
         Gtk.HBox.__init__(self, False)
 
-        self.lbl = Gtk.Label('Route: ')
+        self.lbl = Gtk.Label(_('Route: '))
         self.pack_start(self.lbl, False, False, 0)
 
         # our choices

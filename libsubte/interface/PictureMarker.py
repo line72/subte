@@ -24,6 +24,7 @@ from gi.repository import Gtk, Champlain, Clutter, GLib
 import EXIF
 
 import libsubte
+from Locale import _
 
 import GTGui
 from AddStop import AddStop, AddStopDialog

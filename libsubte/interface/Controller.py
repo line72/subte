@@ -24,6 +24,7 @@ import sys
 from gi.repository import Gtk
 
 import libsubte
+from Locale import _
 
 from AddStop import AddStopDialog, EditStopDialog, AddStop
 from AddRoute import AddRouteDialog, EditRouteDialog, AddRoute
@@ -378,7 +379,7 @@ class Controller(object):
     def on_add_picture_clicked(self, toolbutton, user_data = None):
         print 'on add picture'
         # pop up a load dialg
-        dlg = Gtk.FileChooserDialog('Import from...', self._gui(),
+        dlg = Gtk.FileChooserDialog(_('Import from...'), self._gui(),
                                     Gtk.FileChooserAction.SELECT_FOLDER,
                                     (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                                      Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
@@ -426,7 +427,7 @@ class Controller(object):
     #     picture.destroy()
 
     def on_add_path_clicked(self, toolbutton, user_data = None):
-        dlg = Gtk.FileChooserDialog('Import from...', self._gui(),
+        dlg = Gtk.FileChooserDialog(_('Import from...'), self._gui(),
                                     Gtk.FileChooserAction.OPEN,
                                     (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                                      Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
@@ -465,7 +466,7 @@ class Controller(object):
 
     def on_export(self, toolbutton, user_data = None):
         # pop up a save dialg
-        dlg = Gtk.FileChooserDialog('Export to...', self._gui(),
+        dlg = Gtk.FileChooserDialog(_('Export to...'), self._gui(),
                                     Gtk.FileChooserAction.SELECT_FOLDER,
                                     (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                                      Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
@@ -480,7 +481,7 @@ class Controller(object):
 
     def on_import_gtfs(self, toolbutton, user_data = None):
         # pop up an open dialog
-        dlg = Gtk.FileChooserDialog('Import from...', self._gui(),
+        dlg = Gtk.FileChooserDialog(_('Import from...'), self._gui(),
                                     Gtk.FileChooserAction.SELECT_FOLDER,
                                     (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                                      Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))

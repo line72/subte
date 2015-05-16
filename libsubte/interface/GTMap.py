@@ -19,6 +19,7 @@ import sys
 
 from gi.repository import Gtk, Champlain, GtkChamplain, Clutter
 
+from Locale import _
 from StopMarker import StopMarker
 from PopupMarker import PopupMarker
 

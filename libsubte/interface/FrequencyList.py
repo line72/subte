@@ -18,6 +18,7 @@
 from gi.repository import Gtk, GObject
 
 import libsubte
+from Locale import _
 
 class FrequencyListDialog(Gtk.Dialog):
     def __init__(self, parent, trip_route):
@@ -47,6 +48,8 @@ class FrequencyList(Gtk.VBox):
         self.treeview.set_headers_visible(True)
 
         self.clear_model()
+
+        #!lukstafi - TODO: localize and include in KML and JSON generation
 
         # add the columns
         for c, i in enumerate(('Start Time', 'End Time', 'Headway')):

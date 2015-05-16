@@ -18,23 +18,24 @@
 from gi.repository import Gtk
 
 import libsubte
+from Locale import _
 
 class AddAgencyDialog(Gtk.Dialog):
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, 'Add Agency', parent,
+        Gtk.Dialog.__init__(self, _('Add Agency'), parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Add', Gtk.ResponseType.ACCEPT,
-                             'Cancel', Gtk.ResponseType.CANCEL))
+                            (_('Add'), Gtk.ResponseType.ACCEPT,
+                             _('Cancel'), Gtk.ResponseType.CANCEL))
 
         self.content = AddAgency()
         self.get_content_area().add(self.content)
 
 class EditAgencyDialog(Gtk.Dialog):
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, 'Edit Agency', parent,
+        Gtk.Dialog.__init__(self, _('Edit Agency'), parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Edit', Gtk.ResponseType.ACCEPT,
-                             'Cancel', Gtk.ResponseType.CANCEL))
+                            (_('Edit'), Gtk.ResponseType.ACCEPT,
+                             _('Cancel'), Gtk.ResponseType.CANCEL))
 
         self.content = AddAgency()
         self.get_content_area().add(self.content)
@@ -48,7 +49,7 @@ class AddAgency(Gtk.VBox):
 
         # name
         name_hbox = Gtk.HBox(False)
-        name_lbl = Gtk.Label('Name: ')
+        name_lbl = Gtk.Label(_('Name: '))
         size_group.add_widget(name_lbl)       
         name_hbox.pack_start(name_lbl, False, False, 0)
         self.name_txt = Gtk.Entry()
@@ -57,7 +58,7 @@ class AddAgency(Gtk.VBox):
 
         # url
         url_hbox = Gtk.HBox(False)
-        url_lbl = Gtk.Label('URL: ')
+        url_lbl = Gtk.Label(_('URL: '))
         size_group.add_widget(url_lbl)       
         url_hbox.pack_start(url_lbl, False, False, 0)
         self.url_txt = Gtk.Entry()
@@ -66,7 +67,7 @@ class AddAgency(Gtk.VBox):
 
         # timezone
         timezone_hbox = Gtk.HBox(False)
-        timezone_lbl = Gtk.Label('Timezone: ')
+        timezone_lbl = Gtk.Label(_('Timezone: '))
         size_group.add_widget(timezone_lbl)       
         timezone_hbox.pack_start(timezone_lbl, False, False, 0)
         self.timezone_combo = Gtk.ComboBoxText.new()
@@ -77,7 +78,7 @@ class AddAgency(Gtk.VBox):
 
         # language
         language_hbox = Gtk.HBox(False)
-        language_lbl = Gtk.Label('Language: ')
+        language_lbl = Gtk.Label(_('Language: '))
         size_group.add_widget(language_lbl)       
         language_hbox.pack_start(language_lbl, False, False, 0)
         self.language_combo = Gtk.ComboBoxText.new()
@@ -88,7 +89,7 @@ class AddAgency(Gtk.VBox):
 
         # phone
         phone_hbox = Gtk.HBox(False)
-        phone_lbl = Gtk.Label('Phone: ')
+        phone_lbl = Gtk.Label(_('Phone: '))
         size_group.add_widget(phone_lbl)       
         phone_hbox.pack_start(phone_lbl, False, False, 0)
         self.phone_txt = Gtk.Entry()
@@ -97,7 +98,7 @@ class AddAgency(Gtk.VBox):
 
         # fare url
         fare_hbox = Gtk.HBox(False)
-        fare_url_lbl = Gtk.Label('Fare URL: ')
+        fare_url_lbl = Gtk.Label(_('Fare URL: '))
         size_group.add_widget(fare_url_lbl)       
         fare_hbox.pack_start(fare_url_lbl, False, False, 0)
         self.fare_url_txt = Gtk.Entry()
@@ -147,7 +148,7 @@ class AgencyChoice(Gtk.HBox):
     def __init__(self):
         Gtk.HBox.__init__(self, False)
 
-        self.lbl = Gtk.Label('Agency: ')
+        self.lbl = Gtk.Label(_('Agency: '))
         self.pack_start(self.lbl, False, False, 0)
 
         # our choices

@@ -18,14 +18,15 @@
 from gi.repository import Gtk, GObject
 
 import libsubte
+from Locale import _
 
 from CalendarDialog import CalendarChoice
 
 class TripListDialog(Gtk.Dialog):
     def __init__(self, parent, trip_route):
-        Gtk.Dialog.__init__(self, 'Edit Trips', parent,
+        Gtk.Dialog.__init__(self, _('Edit Trips'), parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Close', Gtk.ResponseType.CLOSE,))
+                            (_('Close'), Gtk.ResponseType.CLOSE,))
 
         self.get_content_area().pack_start(TripList(trip_route), True, True, 5)
 
@@ -51,7 +52,7 @@ class TripList(Gtk.VBox):
                 if i == self:
                     continue
                 if i.calendar == trip_route.calendar:
-                    direction = 'Outbound' if i.direction == 0 else 'Inbound'
+                    direction = _('Outbound') if i.direction == 0 else _('Inbound')
                     for j in i.trips:
                         if len(j.stops) > 0:
                             self.next_block_model.append((j.trip_id, '%s @ %s' % (direction, j.stops[0].arrival)))
@@ -90,7 +91,7 @@ class TripList(Gtk.VBox):
         combo_renderer.set_property("has-entry", False)
         #combo_renderer.connect("edited", self.on_next_block_edited)
         combo_renderer.connect("changed", self.on_next_block_changed)
-        column = Gtk.TreeViewColumn("Next Trip", combo_renderer, text = cp)
+        column = Gtk.TreeViewColumn(_("Next Trip"), combo_renderer, text = cp)
         self.treeview.append_column(column)
         
 

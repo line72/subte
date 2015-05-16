@@ -19,6 +19,7 @@ from gi.repository import Gtk
 import weakref
 
 import libsubte
+from Locale import _
 
 from CalendarDialog import CalendarChoice
 from PathDialog import PathChoice
@@ -29,10 +30,10 @@ from FrequencyList import FrequencyListDialog
 
 class AddTripRouteDialog(Gtk.Dialog):
     def __init__(self, parent, trip_route):
-        Gtk.Dialog.__init__(self, 'Add Trip', parent,
+        Gtk.Dialog.__init__(self, _('Add Trip'), parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Add', Gtk.ResponseType.ACCEPT,
-                             'Cancel', Gtk.ResponseType.CANCEL))
+                            (_('Add'), Gtk.ResponseType.ACCEPT,
+                             _('Cancel'), Gtk.ResponseType.CANCEL))
 
         self.content = AddTripRoute(trip_route)
         self.get_content_area().add(self.content)
@@ -40,9 +41,9 @@ class AddTripRouteDialog(Gtk.Dialog):
 
 class EditTripRouteDialog(Gtk.Dialog):
     def __init__(self, parent, trip_route):
-        Gtk.Dialog.__init__(self, 'Edit Trip', parent,
+        Gtk.Dialog.__init__(self, _('Edit Trip'), parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Edit', Gtk.ResponseType.ACCEPT,))
+                            (_('Edit'), Gtk.ResponseType.ACCEPT,))
 
         self.content = AddTripRoute(trip_route)
         self.get_content_area().add(self.content)
@@ -60,7 +61,7 @@ class AddTripRoute(Gtk.VBox):
 
         # name
         hbox = Gtk.HBox(False)
-        name_lbl = Gtk.Label('Name: ')
+        name_lbl = Gtk.Label(_('Name: '))
         size_group.add_widget(name_lbl)       
         hbox.pack_start(name_lbl, False, False, 0)
         self.name_txt = Gtk.Entry()
@@ -84,7 +85,7 @@ class AddTripRoute(Gtk.VBox):
 
         # headsign
         hbox = Gtk.HBox(False)
-        headsign_lbl = Gtk.Label('Headsign: ')
+        headsign_lbl = Gtk.Label(_('Headsign: '))
         size_group.add_widget(headsign_lbl)       
         hbox.pack_start(headsign_lbl, False, False, 0)
         self.headsign_txt = Gtk.Entry()
@@ -93,20 +94,20 @@ class AddTripRoute(Gtk.VBox):
 
         # direction
         hbox = Gtk.HBox(False)
-        direction_lbl = Gtk.Label('Direction: ')
+        direction_lbl = Gtk.Label(_('Direction: '))
         size_group.add_widget(direction_lbl)
         hbox.pack_start(direction_lbl, False, False, 0)
         self.direction = Gtk.ComboBoxText.new()
         hbox.pack_start(self.direction, True, True, 5)
         self.pack_start(hbox, True, True, 5)
 
-        self.direction.append_text('Outbound')
-        self.direction.append_text('Inbound')
+        self.direction.append_text(_('Outbound'))
+        self.direction.append_text(_('Inbound'))
         self.direction.set_active(0)
 
         # edit trips
         hbox = Gtk.HBox(False)
-        edit_trips_lbl = Gtk.Label('Edit Trips: ')
+        edit_trips_lbl = Gtk.Label(_('Edit Trips: '))
         size_group.add_widget(edit_trips_lbl)
         hbox.pack_start(edit_trips_lbl, False, False, 0)
         edit_trip_btn = Gtk.Button.new_from_stock(Gtk.STOCK_INFO)
@@ -116,7 +117,7 @@ class AddTripRoute(Gtk.VBox):
 
         # edit frequencies
         hbox = Gtk.HBox(False)
-        edit_frequencies_lbl = Gtk.Label('Edit Frequencies: ')
+        edit_frequencies_lbl = Gtk.Label(_('Edit Frequencies: '))
         size_group.add_widget(edit_frequencies_lbl)
         hbox.pack_start(edit_frequencies_lbl, False, False, 0)
         edit_frequencies_btn = Gtk.Button.new_from_stock(Gtk.STOCK_INFO)
@@ -126,7 +127,7 @@ class AddTripRoute(Gtk.VBox):
 
         # and all our stops
         hbox = Gtk.HBox(False)
-        stops_lbl = Gtk.Label('Stops: ')
+        stops_lbl = Gtk.Label(_('Stops: '))
         size_group.add_widget(stops_lbl)
         hbox.pack_start(stops_lbl, False, False, 0)
         self.stops = StopListGui()
@@ -182,7 +183,7 @@ class AddTripRoute(Gtk.VBox):
 
     def get_direction(self):
         selection = self.direction.get_active_text()
-        if selection == 'Outbound':
+        if selection == _('Outbound'):
             return 0
         return 1 # inbound
 

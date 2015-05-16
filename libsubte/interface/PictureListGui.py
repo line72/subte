@@ -18,6 +18,7 @@
 from gi.repository import Gtk, GObject
 
 import libsubte
+from Locale import _
 
 class PictureListGui(object):
     def __init__(self):
@@ -32,7 +33,7 @@ class PictureListGui(object):
  
         # add the columns to the tree
         renderer = Gtk.CellRendererText()
-        column = Gtk.TreeViewColumn('Picture', renderer, text = 1)
+        column = Gtk.TreeViewColumn(_('Picture'), renderer, text = 1)
         column.set_sort_column_id(0)
         self.treeview.append_column(column)
 

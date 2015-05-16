@@ -24,6 +24,7 @@ import weakref
 from gi.repository import Gtk, Gio
 
 import libsubte
+from Locale import _
 
 from GTMap import GTMap
 from Controller import Controller
@@ -69,11 +70,11 @@ class GTGui(Gtk.Window):
         box.pack_start(notebook, True, True, 5)
 
         self.stop_list_widget = StopListGui()
-        notebook.append_page(self.stop_list_widget.get_widget(), Gtk.Label('Stops'))
+        notebook.append_page(self.stop_list_widget.get_widget(), Gtk.Label(_('Stops')))
         self.trip_list_widget = TripRouteListGui()
-        notebook.append_page(self.trip_list_widget.get_widget(), Gtk.Label('Trips'))
+        notebook.append_page(self.trip_list_widget.get_widget(), Gtk.Label(_('Trips')))
         self.path_list_widget = PathListGui()
-        notebook.append_page(self.path_list_widget.get_widget(), Gtk.Label('Paths'))
+        notebook.append_page(self.path_list_widget.get_widget(), Gtk.Label(_('Paths')))
 
         self.info_frame.add(box)
 
@@ -116,17 +117,17 @@ class GTGui(Gtk.Window):
 
         ## LOAD/SAVE/CLOSE DB
         load_db = Gtk.ToolButton.new_from_stock(Gtk.STOCK_OPEN)
-        load_db.set_tooltip_text('Load a project')
+        load_db.set_tooltip_text(_('Load a project'))
         load_db.connect('clicked', self.controller.on_load_project_clicked)
         toolbar.add(load_db)
         
         save_db = Gtk.ToolButton.new_from_stock(Gtk.STOCK_SAVE)
-        save_db.set_tooltip_text('Save a project')
+        save_db.set_tooltip_text(_('Save a project'))
         save_db.connect('clicked', self.controller.on_save_project_clicked)
         toolbar.add(save_db)
         
         close_db = Gtk.ToolButton.new_from_stock(Gtk.STOCK_CLOSE)
-        close_db.set_tooltip_text('Close a project')
+        close_db.set_tooltip_text(_('Close a project'))
         close_db.connect('clicked', self.controller.on_close_project_clicked)
         toolbar.add(close_db)
 
@@ -140,23 +141,23 @@ class GTGui(Gtk.Window):
         #toolbar.add(stop_lbl)
 
         add_stop = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)
-        add_stop.set_tooltip_text('Add a new stop')
+        add_stop.set_tooltip_text(_('Add a new stop'))
         add_stop.connect('clicked', self.controller.on_add_stop_clicked)
         toolbar.add(add_stop)
 
         edit_stop = Gtk.ToolButton.new_from_stock(Gtk.STOCK_EDIT)
-        edit_stop.set_tooltip_text('Edit a new stop')
+        edit_stop.set_tooltip_text(_('Edit a new stop'))
         edit_stop.connect('clicked', self.controller.on_edit_stop_clicked)
         toolbar.add(edit_stop)
 
         remove_stop = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
-        remove_stop.set_tooltip_text('Remove a stop')
+        remove_stop.set_tooltip_text(_('Remove a stop'))
         remove_stop.connect('clicked', self.controller.on_remove_stop_clicked)
         toolbar.add(remove_stop)
 
         merge_stop = Gtk.ToolButton()
         merge_stop.set_icon_name('gtk-copy')
-        merge_stop.set_tooltip_text('Merge two stops')
+        merge_stop.set_tooltip_text(_('Merge two stops'))
         merge_stop.connect('clicked', self.controller.on_merge_stops_clicked)
         toolbar.add(merge_stop)
 
@@ -164,23 +165,23 @@ class GTGui(Gtk.Window):
 
         ## TRIPS
         add_trip = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)
-        add_trip.set_tooltip_text('Add a new trip')
+        add_trip.set_tooltip_text(_('Add a new trip'))
         add_trip.connect('clicked', self.controller.on_add_trip_clicked)
         toolbar.add(add_trip)
 
         edit_trip = Gtk.ToolButton.new_from_stock(Gtk.STOCK_EDIT)
-        edit_trip.set_tooltip_text('Edit a trip')
+        edit_trip.set_tooltip_text(_('Edit a trip'))
         edit_trip.connect('clicked', self.controller.on_edit_trip_clicked)
         toolbar.add(edit_trip)
 
         remove_trip = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
-        remove_trip.set_tooltip_text('Remove a trip')
+        remove_trip.set_tooltip_text(_('Remove a trip'))
         remove_trip.connect('clicked', self.controller.on_remove_trip_clicked)
         toolbar.add(remove_trip)
 
         copy_trip = Gtk.ToolButton()
         copy_trip.set_icon_name('gtk-copy')
-        copy_trip.set_tooltip_text('Copy a trip')
+        copy_trip.set_tooltip_text(_('Copy a trip'))
         copy_trip.connect('clicked', self.controller.on_copy_trip_clicked)
         toolbar.add(copy_trip)
 
@@ -188,7 +189,7 @@ class GTGui(Gtk.Window):
 
         ## PICTURES
         add_picture = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)
-        add_picture.set_tooltip_text('Add a new picture')
+        add_picture.set_tooltip_text(_('Add a new picture'))
         add_picture.connect('clicked', self.controller.on_add_picture_clicked)
         toolbar.add(add_picture)
         
@@ -202,12 +203,12 @@ class GTGui(Gtk.Window):
 
         ## PATHS
         add_path = Gtk.ToolButton.new_from_stock(Gtk.STOCK_ADD)
-        add_path.set_tooltip_text('Add a new path from a .kml (or .kmz) file')
+        add_path.set_tooltip_text(_('Add a new path from a .kml (or .kmz) file'))
         add_path.connect('clicked', self.controller.on_add_path_clicked)
         toolbar.add(add_path)
 
         remove_path = Gtk.ToolButton.new_from_stock(Gtk.STOCK_REMOVE)
-        remove_path.set_tooltip_text('Remove a path')
+        remove_path.set_tooltip_text(_('Remove a path'))
         remove_path.connect('clicked', self.controller.on_remove_path_clicked)
         toolbar.add(remove_path)
 
@@ -216,14 +217,14 @@ class GTGui(Gtk.Window):
         ## Import
         import_gtfs = Gtk.ToolButton('Import')
         import_gtfs.set_icon_name('document-import')
-        import_gtfs.set_tooltip_text('Import GTFS')
+        import_gtfs.set_tooltip_text(_('Import GTFS'))
         import_gtfs.connect('clicked', self.controller.on_import_gtfs)
         toolbar.add(import_gtfs)
 
         ## EXPORT
         export = Gtk.ToolButton('Export')
         export.set_icon_name('document-send')
-        export.set_tooltip_text('Export to Google')
+        export.set_tooltip_text(_('Export to Google'))
         export.connect('clicked', self.controller.on_export)
         toolbar.add(export)
 

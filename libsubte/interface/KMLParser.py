@@ -19,6 +19,7 @@ from lxml import etree
 import zipfile
 
 import libsubte
+from Locale import _
 
 class KMLParser(object):
     def __init__(self):

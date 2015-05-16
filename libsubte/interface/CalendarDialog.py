@@ -20,6 +20,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 import libsubte
+from Locale import _
 from libsubte import TripRoute
 from libsubte import Trip
 
@@ -34,20 +35,20 @@ def yyyymmdd(s):
 
 class AddCalendarDialog(Gtk.Dialog):
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, 'Add Calendar', parent,
+        Gtk.Dialog.__init__(self, _('Add Calendar'), parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Add', Gtk.ResponseType.ACCEPT,
-                             'Cancel', Gtk.ResponseType.CANCEL))
+                            (_('Add'), Gtk.ResponseType.ACCEPT,
+                             _('Cancel'), Gtk.ResponseType.CANCEL))
 
         self.content = AddCalendar()
         self.get_content_area().add(self.content)
 
 class EditCalendarDialog(Gtk.Dialog):
     def __init__(self, parent):
-        Gtk.Dialog.__init__(self, 'Edit Calendar', parent,
+        Gtk.Dialog.__init__(self, _('Edit Calendar'), parent,
                             Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            ('Edit', Gtk.ResponseType.ACCEPT,
-                             'Cancel', Gtk.ResponseType.CANCEL))
+                            (_('Edit'), Gtk.ResponseType.ACCEPT,
+                             _('Cancel'), Gtk.ResponseType.CANCEL))
 
         self.content = AddCalendar()
         self.get_content_area().add(self.content)
@@ -61,7 +62,7 @@ class AddCalendar(Gtk.VBox):
 
         # name
         namebox = Gtk.HBox(False)
-        name_lbl = Gtk.Label('Name: ')
+        name_lbl = Gtk.Label(_('Name: '))
         size_group.add_widget(name_lbl)       
         namebox.pack_start(name_lbl, False, False, 0)
         self.name_txt = Gtk.Entry()
@@ -70,25 +71,25 @@ class AddCalendar(Gtk.VBox):
 
         # days
         weekbox = Gtk.HBox(True)
-        self.monday = Gtk.CheckButton('Monday')
+        self.monday = Gtk.CheckButton(_('Monday'))
         self.monday.set_active(True)
         weekbox.pack_start(self.monday, False, False, 0)
-        self.tuesday = Gtk.CheckButton('Tuesday')
+        self.tuesday = Gtk.CheckButton(_('Tuesday'))
         self.tuesday.set_active(True)
         weekbox.pack_start(self.tuesday, False, False, 0)
-        self.wednesday = Gtk.CheckButton('Wednesday')
+        self.wednesday = Gtk.CheckButton(_('Wednesday'))
         self.wednesday.set_active(True)
         weekbox.pack_start(self.wednesday, False, False, 0)
-        self.thursday = Gtk.CheckButton('Thursday')
+        self.thursday = Gtk.CheckButton(_('Thursday'))
         self.thursday.set_active(True)
         weekbox.pack_start(self.thursday, False, False, 0)
-        self.friday = Gtk.CheckButton('Friday')
+        self.friday = Gtk.CheckButton(_('Friday'))
         self.friday.set_active(True)
         weekbox.pack_start(self.friday, False, False, 0)
-        self.saturday = Gtk.CheckButton('Saturday')
+        self.saturday = Gtk.CheckButton(_('Saturday'))
         self.saturday.set_active(True)
         weekbox.pack_start(self.saturday, False, False, 0)
-        self.sunday = Gtk.CheckButton('Sunday')
+        self.sunday = Gtk.CheckButton(_('Sunday'))
         self.sunday.set_active(True)
         weekbox.pack_start(self.sunday, False, False, 0)
         self.pack_start(weekbox, True, True, 5)
@@ -96,12 +97,12 @@ class AddCalendar(Gtk.VBox):
         #!lukstafi - TODO: perhaps on-demand dialog with two calendars?
         # start date and end date
         datebox = Gtk.HBox(False)
-        start_date_lbl = Gtk.Label('Start date: ')
+        start_date_lbl = Gtk.Label(_('Start date: '))
         datebox.pack_start(start_date_lbl, False, False, 0)
         self.start_date_txt = Gtk.Entry()
         self.start_date_txt.set_text(yyyymmdd(datetime.now().isoformat()))
         datebox.pack_start(self.start_date_txt, True, True, 5)
-        end_date_lbl = Gtk.Label('End date: ')
+        end_date_lbl = Gtk.Label(_('End date: '))
         datebox.pack_start(end_date_lbl, False, False, 0)
         self.end_date_txt = Gtk.Entry()
         self.end_date_txt.set_text(
@@ -112,14 +113,14 @@ class AddCalendar(Gtk.VBox):
         #!lukstafi - TODO: perhaps add nicer interface?
         # exceptions
         added_excnbox = Gtk.HBox(False)
-        added_excn_lbl = Gtk.Label('Added days: ')
+        added_excn_lbl = Gtk.Label(_('Added days: '))
         added_excnbox.pack_start(added_excn_lbl, False, False, 0)
         self.added_excn_txt = Gtk.Entry()
         added_excnbox.pack_start(self.added_excn_txt, True, True, 5)
         self.pack_start(added_excnbox, True, True, 5)
 
         remov_excnbox = Gtk.HBox(False)
-        remov_excn_lbl = Gtk.Label('Removed days: ')
+        remov_excn_lbl = Gtk.Label(_('Removed days: '))
         remov_excnbox.pack_start(remov_excn_lbl, False, False, 0)
         self.remov_excn_txt = Gtk.Entry()
         remov_excnbox.pack_start(self.remov_excn_txt, True, True, 5)
@@ -149,7 +150,7 @@ class CalendarChoice(Gtk.HBox):
     def __init__(self):
         Gtk.HBox.__init__(self, False)
 
-        self.lbl = Gtk.Label('Calendar: ')
+        self.lbl = Gtk.Label(_('Calendar: '))
         self.pack_start(self.lbl, False, False, 0)
 
         # our choices
