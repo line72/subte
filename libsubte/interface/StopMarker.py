@@ -115,7 +115,7 @@ class StopMarker(Champlain.CustomMarker):
         #self.emit('button-press-event', event)
 
         #!lukstafi - instead of signals we self-call and invoke the hook
-        self.clicked(self, True)
+        self.clicked(True)
         if libsubte.Stop.activate_stop_hook:
             libsubte.Stop.activate_stop_hook(self.stop)
 

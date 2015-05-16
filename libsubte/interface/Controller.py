@@ -63,6 +63,12 @@ class Controller(object):
         # update all the stops
         self.gui.map_widget.update_stops()
 
+        # center on the first stop
+        if len(libsubte.Stop.stops) > 0 and libsubte.Stop.stops[0]:
+            i = libsubte.Stop.stops[0]
+            self.gui.map_widget.view.go_to(i.latitude, i.longitude)
+
+
     def connect(self, signal, fn, *args):
         if signal not in self._registered_events:
             self._registered_events[signal] = []
