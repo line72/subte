@@ -62,9 +62,11 @@ class AddTripRoute(Gtk.VBox):
         # name
         hbox = Gtk.HBox(False)
         name_lbl = Gtk.Label(_('Name: '))
+        name_lbl.set_tooltip_text(_('A group of trips sharing a route and days of operation'))
         size_group.add_widget(name_lbl)       
         hbox.pack_start(name_lbl, False, False, 0)
         self.name_txt = Gtk.Entry()
+        self.name_txt.set_tooltip_text(_('A group of trips sharing a route and days of operation'))
         hbox.pack_start(self.name_txt, True, True, 5)
         self.pack_start(hbox, True, True, 5)
 
@@ -86,15 +88,18 @@ class AddTripRoute(Gtk.VBox):
         # headsign
         hbox = Gtk.HBox(False)
         headsign_lbl = Gtk.Label(_('Headsign: '))
+        headsign_lbl.set_tooltip_text(_('A sign on the bus identifying the destination'))
         size_group.add_widget(headsign_lbl)       
         hbox.pack_start(headsign_lbl, False, False, 0)
         self.headsign_txt = Gtk.Entry()
+        self.headsign_txt.set_tooltip_text(_('A sign on the bus identifying the destination'))
         hbox.pack_start(self.headsign_txt, True, True, 5)
         self.pack_start(hbox, True, True, 5)
 
         # direction
         hbox = Gtk.HBox(False)
         direction_lbl = Gtk.Label(_('Direction: '))
+        direction_lbl.set_tooltip_text(_('Distinguish trips on routes that go both ways'))
         size_group.add_widget(direction_lbl)
         hbox.pack_start(direction_lbl, False, False, 0)
         self.direction = Gtk.ComboBoxText.new()
@@ -108,6 +113,7 @@ class AddTripRoute(Gtk.VBox):
         # edit trips
         hbox = Gtk.HBox(False)
         edit_trips_lbl = Gtk.Label(_('Edit Trips: '))
+        edit_trips_lbl.set_tooltip_text(_('Enter times at which trips leave stops'))
         size_group.add_widget(edit_trips_lbl)
         hbox.pack_start(edit_trips_lbl, False, False, 0)
         edit_trip_btn = Gtk.Button.new_from_stock(Gtk.STOCK_INFO)
@@ -128,10 +134,13 @@ class AddTripRoute(Gtk.VBox):
         # and all our stops
         hbox = Gtk.HBox(False)
         stops_lbl = Gtk.Label(_('Stops: '))
+        stops_lbl.set_tooltip_text(_('Click a stop on the map to add'))
         size_group.add_widget(stops_lbl)
         hbox.pack_start(stops_lbl, False, False, 0)
         self.stops = StopListGui()
-        hbox.pack_start(self.stops.get_widget(), True, True, 5)
+        stops_list = self.stops.get_widget()
+        stops_list.set_tooltip_text(_('Click a stop on the map to add'))
+        hbox.pack_start(stops_list, True, True, 5)
         # actions
         vbox = Gtk.VBox(True)
         #add_btn = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)

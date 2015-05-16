@@ -48,9 +48,11 @@ class AddStop(Gtk.VBox):
         # name
         hbox = Gtk.HBox(False)
         name_lbl = Gtk.Label(_('Name: '))
+        name_lbl.set_tooltip_text(_('Stop name understandable to riders'))
         size_group.add_widget(name_lbl)       
         hbox.pack_start(name_lbl, False, False, 0)
         self.name_txt = Gtk.Entry()
+        self.name_txt.set_tooltip_text(_('Stop name understandable to riders'))
         hbox.pack_start(self.name_txt, True, True, 5)
 
         self.pack_start(hbox, True, True, 5)
@@ -58,9 +60,11 @@ class AddStop(Gtk.VBox):
         # description
         hbox = Gtk.HBox(False)
         description_lbl = Gtk.Label(_('Description: '))
+        description_lbl.set_tooltip_text(_('Additional information about the stop'))
         size_group.add_widget(description_lbl)       
         hbox.pack_start(description_lbl, False, False, 0)
         self.description_txt = Gtk.TextView()
+        self.description_txt.set_tooltip_text(_('Additional information about the stop'))
         hbox.pack_start(self.description_txt, True, True, 5)
 
         self.pack_start(hbox, True, True, 5)
@@ -68,15 +72,19 @@ class AddStop(Gtk.VBox):
         # lat long
         hbox = Gtk.HBox(False)
         lat_lbl = Gtk.Label(_('Latitude: '))
+        lat_lbl.set_tooltip_text(_('Click on the map to enter coordinates'))
         size_group.add_widget(lat_lbl)
         hbox.pack_start(lat_lbl, False, False, 0)
         self.latitude_txt = Gtk.Entry()
+        self.latitude_txt.set_tooltip_text(_('Click on the map to enter coordinates'))
         hbox.pack_start(self.latitude_txt, True, True, 5)
 
         long_lbl = Gtk.Label(_('Longitude: '))
+        long_lbl.set_tooltip_text(_('Click on the map to enter coordinates'))
         size_group.add_widget(long_lbl)
         hbox.pack_start(long_lbl, False, False, 0)
         self.longitude_txt = Gtk.Entry()
+        self.longitude_txt.set_tooltip_text(_('Click on the map to enter coordinates'))
         hbox.pack_start(self.longitude_txt, True, True, 5)
 
         self.pack_start(hbox, True, True, 5)

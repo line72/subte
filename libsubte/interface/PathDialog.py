@@ -25,6 +25,7 @@ class PathChoice(Gtk.HBox):
         Gtk.HBox.__init__(self, False)
 
         self.lbl = Gtk.Label(_('Path: '))
+        self.lbl.set_tooltip_text(_('Paths (optional) provide Google Maps the exact curve that a bus follows'))
         self.pack_start(self.lbl, False, False, 0)
 
         # our choices

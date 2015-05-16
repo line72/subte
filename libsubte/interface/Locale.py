@@ -103,7 +103,24 @@ dict_pl = {
     'Headsign: ': u'Tablica na autobusie: ',
     'Direction: ': u'Kierunek: ',
     'Edit Frequencies: ': u'Edit Frequencies: ',
-    ' Copy': u' kopia'    
+    ' Copy': u' kopia',
+    'What riders use to identify a route, e.g. a number': u'Jak pasażerowie nazywają trasę, np. numer',
+    'More descriptive name, e.g. including destination': u'Bardziej opisowa nazwa, np. zawierająca cel',
+    'Useful information on how the route operates': u'Użyteczna informacja o działaniu trasy',
+    'Click a stop on the map to add': u'Kliknij przystanek na mapie żeby dodać',
+    'Stop name understandable to riders': u'Nazwa przystanku zrozumiała dla pasażerów',
+    'Additional information about the stop': u'Dodatkowe informacje o przystanku',
+    'Full name of the agency': u'Pełna nazwa przewoźnika',
+    'Must begin with http:// or https://': u'Musi zaczynać się od http:// lub https://',
+    'A calendar specifies dates on which a group of trips run': u'Daty wyznaczają dni w których dana grupa kursów jeździ',
+    'Date format: eight digits YYYYMMDD': u'Format daty: osiem cyfr RRRRMMDD (rok miesiąc dzień)',
+    'Days in YYYYMMDD format separated by spaces': u'Dni w formacie RRRRMMDD rozdzielone spacjami',
+    'Paths (optional) provide Google Maps the exact curve that a bus follows': u'Ścieżki (opcjonalne) dostarczają Google Maps dokładnej krzywej po której porusza się autobus',
+    'A group of trips sharing a route and days of operation': u'Grupa kursów na tej samej trasie operujących w tych samych dniach',
+    'A sign on the bus identifying the destination': u'Tablica lub napis na autobusie identyfikująca cel podróży',
+    'Distinguish trips on routes that go both ways': u'Rozróżnij kursy na trasach z kursami w dwie strony',
+    'Enter times at which trips leave stops': u'Wprowadź godziny odjazdów kursów z przystanków',
+    'Click on the map to enter coordinates': u'Kliknij na mapie żeby wprowadzić współrzędne'    
 }
 
 def _(s):

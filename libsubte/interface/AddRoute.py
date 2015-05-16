@@ -60,9 +60,11 @@ class AddRoute(Gtk.VBox):
         # name
         hbox = Gtk.HBox(False)
         name_lbl = Gtk.Label(_('Short Name: '))
+        name_lbl.set_tooltip_text(_('What riders use to identify a route, e.g. a number'))
         size_group.add_widget(name_lbl)       
         hbox.pack_start(name_lbl, False, False, 0)
         self.name_txt = Gtk.Entry()
+        self.name_txt.set_tooltip_text(_('What riders use to identify a route, e.g. a number'))
         hbox.pack_start(self.name_txt, True, True, 5)
 
         self.pack_start(hbox, True, False, 5)
@@ -70,9 +72,11 @@ class AddRoute(Gtk.VBox):
         # name
         hbox = Gtk.HBox(False)
         name_lbl = Gtk.Label(_('Long Name: '))
+        name_lbl.set_tooltip_text(_('More descriptive name, e.g. including destination'))
         size_group.add_widget(name_lbl)       
         hbox.pack_start(name_lbl, False, False, 0)
         self.long_name_txt = Gtk.Entry()
+        self.long_name_txt.set_tooltip_text(_('More descriptive name, e.g. including destination'))
         hbox.pack_start(self.long_name_txt, True, True, 5)
 
         self.pack_start(hbox, True, False, 5)
@@ -81,9 +85,11 @@ class AddRoute(Gtk.VBox):
         # description
         hbox = Gtk.HBox(False)
         description_lbl = Gtk.Label(_('Description: '))
+        description_lbl.set_tooltip_text(_('Useful information on how the route operates'))
         size_group.add_widget(description_lbl)       
         hbox.pack_start(description_lbl, False, False, 0)
         self.description_txt = Gtk.TextView()
+        self.description_txt.set_tooltip_text(_('Useful information on how the route operates'))
         hbox.pack_start(self.description_txt, True, True, 5)
 
         self.pack_start(hbox, True, True, 5)
@@ -101,6 +107,7 @@ class AddRoute(Gtk.VBox):
         # stop list
         hbox = Gtk.HBox(False)
         stop_lbl = Gtk.Label(_('Stops: '))
+        stop_lbl.set_tooltip_text(_('Click a stop on the map to add'))
         size_group.add_widget(stop_lbl)
         hbox.pack_start(stop_lbl, False, False, 0)
         self.stop_list = StopListGui()

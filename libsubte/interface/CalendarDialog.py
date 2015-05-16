@@ -63,9 +63,11 @@ class AddCalendar(Gtk.VBox):
         # name
         namebox = Gtk.HBox(False)
         name_lbl = Gtk.Label(_('Name: '))
-        size_group.add_widget(name_lbl)       
+        name_lbl.set_tooltip_text(_('A calendar specifies dates on which a group of trips run'))
+        size_group.add_widget(name_lbl)
         namebox.pack_start(name_lbl, False, False, 0)
         self.name_txt = Gtk.Entry()
+        self.name_txt.set_tooltip_text(_('A calendar specifies dates on which a group of trips run'))
         namebox.pack_start(self.name_txt, True, True, 5)
         self.pack_start(namebox, True, True, 5)
 
@@ -98,13 +100,17 @@ class AddCalendar(Gtk.VBox):
         # start date and end date
         datebox = Gtk.HBox(False)
         start_date_lbl = Gtk.Label(_('Start date: '))
+        start_date_lbl.set_tooltip_text(_('Date format: eight digits YYYYMMDD'))
         datebox.pack_start(start_date_lbl, False, False, 0)
         self.start_date_txt = Gtk.Entry()
+        self.start_date_txt.set_tooltip_text(_('Date format: eight digits YYYYMMDD'))
         self.start_date_txt.set_text(yyyymmdd(datetime.now().isoformat()))
         datebox.pack_start(self.start_date_txt, True, True, 5)
         end_date_lbl = Gtk.Label(_('End date: '))
+        end_date_lbl.set_tooltip_text(_('Date format: eight digits YYYYMMDD'))
         datebox.pack_start(end_date_lbl, False, False, 0)
         self.end_date_txt = Gtk.Entry()
+        self.end_date_txt.set_tooltip_text(_('Date format: eight digits YYYYMMDD'))
         self.end_date_txt.set_text(
             yyyymmdd((datetime.now() + relativedelta(years=+2)).isoformat()))
         datebox.pack_start(self.end_date_txt, True, True, 5)
@@ -114,15 +120,19 @@ class AddCalendar(Gtk.VBox):
         # exceptions
         added_excnbox = Gtk.HBox(False)
         added_excn_lbl = Gtk.Label(_('Added days: '))
+        added_excn_lbl.set_tooltip_text(_('Days in YYYYMMDD format separated by spaces'))
         added_excnbox.pack_start(added_excn_lbl, False, False, 0)
         self.added_excn_txt = Gtk.Entry()
+        self.added_excn_txt.set_tooltip_text(_('Days in YYYYMMDD format separated by spaces'))
         added_excnbox.pack_start(self.added_excn_txt, True, True, 5)
         self.pack_start(added_excnbox, True, True, 5)
 
         remov_excnbox = Gtk.HBox(False)
         remov_excn_lbl = Gtk.Label(_('Removed days: '))
+        remov_excn_lbl.set_tooltip_text(_('Days in YYYYMMDD format separated by spaces'))
         remov_excnbox.pack_start(remov_excn_lbl, False, False, 0)
         self.remov_excn_txt = Gtk.Entry()
+        self.remov_excn_txt.set_tooltip_text(_('Days in YYYYMMDD format separated by spaces'))
         remov_excnbox.pack_start(self.remov_excn_txt, True, True, 5)
         self.pack_start(remov_excnbox, True, True, 5)
 

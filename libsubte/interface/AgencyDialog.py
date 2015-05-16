@@ -50,18 +50,22 @@ class AddAgency(Gtk.VBox):
         # name
         name_hbox = Gtk.HBox(False)
         name_lbl = Gtk.Label(_('Name: '))
+        name_lbl.set_tooltip_text(_('Full name of the agency'))
         size_group.add_widget(name_lbl)       
         name_hbox.pack_start(name_lbl, False, False, 0)
         self.name_txt = Gtk.Entry()
+        self.name_txt.set_tooltip_text(_('Full name of the agency'))
         name_hbox.pack_start(self.name_txt, True, True, 5)
         self.pack_start(name_hbox, True, True, 5)
 
         # url
         url_hbox = Gtk.HBox(False)
         url_lbl = Gtk.Label(_('URL: '))
+        url_lbl.set_tooltip_text(_('Must begin with http:// or https://'))
         size_group.add_widget(url_lbl)       
         url_hbox.pack_start(url_lbl, False, False, 0)
         self.url_txt = Gtk.Entry()
+        self.url_txt.set_tooltip_text(_('Must begin with http:// or https://'))
         url_hbox.pack_start(self.url_txt, True, True, 5)
         self.pack_start(url_hbox, True, True, 5)
 
@@ -99,9 +103,11 @@ class AddAgency(Gtk.VBox):
         # fare url
         fare_hbox = Gtk.HBox(False)
         fare_url_lbl = Gtk.Label(_('Fare URL: '))
+        fare_url_lbl.set_tooltip_text(_('Must begin with http:// or https://'))
         size_group.add_widget(fare_url_lbl)       
         fare_hbox.pack_start(fare_url_lbl, False, False, 0)
         self.fare_url_txt = Gtk.Entry()
+        self.fare_url_txt.set_tooltip_text(_('Must begin with http:// or https://'))
         fare_hbox.pack_start(self.fare_url_txt, True, True, 5)
         self.pack_start(fare_hbox, True, True, 5)
 
