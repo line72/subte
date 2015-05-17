@@ -56,11 +56,12 @@ function buildTimetable(name, date, disp) {
     var header = document.createElement('h2');
     header.appendChild(document.createTextNode(name));
     disp.appendChild(header);
-    for (route in bus_tbl) { // actually, route or stop
+    for (i in bus_tbl) { // actually, route or stop
+        var route = bus_tbl[i][0]
         var subheader = document.createElement('h3');
         subheader.appendChild(document.createTextNode(route));
         disp.appendChild(subheader);
-        var route_tbl = bus_tbl[route];
+        var route_tbl = bus_tbl[i][1];
         for (cal in route_tbl) {
             if (!dayInCalendar (date, calendars[cal])) {
                 continue;

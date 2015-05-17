@@ -480,7 +480,8 @@ class Controller(object):
         resp = dlg.run()
         messages = (_('Select a bus stop or a bus route. Time: '),
                     _('Showing times for day '),
-                    _(' after hour '))
+                    _(' after hour '),
+                    (_('Outb.'), _('Inb.')))
         if resp == Gtk.ResponseType.ACCEPT:
             directory = dlg.get_filename()
             libsubte.Database.export(directory, messages)

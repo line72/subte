@@ -123,7 +123,9 @@ dict_pl = {
     'Click on the map to enter coordinates': u'Kliknij na mapie żeby wprowadzić współrzędne',
     'Select a bus stop or a bus route. Time: ': u'Wybierz przystanek lub trasę. Godzina: ',
     'Showing times for day ': u'Odjazdy dla dnia ',
-    ' after hour ': u' po godzinie '
+    ' after hour ': u' po godzinie ',
+    'Outb.': u'Wyj.',
+    'Inb.': u'Przyj.'
 }
 
 def _(s):
