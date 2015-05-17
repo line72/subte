@@ -478,9 +478,12 @@ class Controller(object):
                                     (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                                      Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
         resp = dlg.run()
+        messages = (_('Select a bus stop or a bus route. Time: '),
+                    _('Showing times for day '),
+                    _(' after hour '))
         if resp == Gtk.ResponseType.ACCEPT:
             directory = dlg.get_filename()
-            libsubte.Database.export(directory)
+            libsubte.Database.export(directory, messages)
 
         dlg.destroy()
 

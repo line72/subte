@@ -47,13 +47,12 @@ function buildTimetable(name, date, disp) {
         bus_tbl = route_tables[name];
     } else {
         disp.innerHtml =
-            'Select a bus stop or a bus route. Time: ' +
-            showTime(date.toLocaleString());
+            msg1 + showTime(date.toLocaleString());
         return;
     }
     disp.innerHTML =
-        'Showing times for day ' + date.toLocaleDateString() +
-        ' after hour ' + showTime(date.toLocaleTimeString()) + '.';
+        msg2 + date.toLocaleDateString() +
+        msg3 + showTime(date.toLocaleTimeString()) + '.';
     var header = document.createElement('h2');
     header.appendChild(document.createTextNode(name));
     disp.appendChild(header);

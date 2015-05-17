@@ -120,7 +120,10 @@ dict_pl = {
     'A sign on the bus identifying the destination': u'Tablica lub napis na autobusie identyfikująca cel podróży',
     'Distinguish trips on routes that go both ways': u'Rozróżnij kursy na trasach z kursami w dwie strony',
     'Enter times at which trips leave stops': u'Wprowadź godziny odjazdów kursów z przystanków',
-    'Click on the map to enter coordinates': u'Kliknij na mapie żeby wprowadzić współrzędne'    
+    'Click on the map to enter coordinates': u'Kliknij na mapie żeby wprowadzić współrzędne',
+    'Select a bus stop or a bus route. Time: ': u'Wybierz przystanek lub trasę. Godzina: ',
+    'Showing times for day ': u'Odjazdy dla dnia ',
+    ' after hour ': u' po godzinie '
 }
 
 def _(s):

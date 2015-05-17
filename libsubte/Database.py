@@ -562,7 +562,7 @@ class Database(object):
         Picture.clear()
 
     @classmethod
-    def export_kml_and_js(cls, directory, calendars_as_placemark = True):
+    def export_kml_and_js(cls, directory, messages, calendars_as_placemark = True):
         """Export a self-contained KML file with timetable information,
         and a JSON file with timetable mapping with the names of stops
         and routes as keys. The keys are the same as the 'name' property
@@ -775,6 +775,9 @@ class Database(object):
         tree.write(os.path.join(directory, 'doc.kml'), encoding = 'UTF-8')
 
         with open(os.path.join(directory, 'doc.js'), 'w') as outfile:
+            outfile.write('var msg1 = "' + messages[0] + '"\n')
+            outfile.write('var msg2 = "' + messages[1] + '"\n')
+            outfile.write('var msg3 = "' + messages[2] + '"\n')
             outfile.write('var calendars = ')
             json.dump(calendars_js, outfile, sort_keys = True, indent = 4, ensure_ascii=False)
             outfile.write('\nvar stop_tables = ')
@@ -784,7 +787,7 @@ class Database(object):
                            
 
     @classmethod
-    def export(cls, directory):
+    def export(cls, directory, messages):
         Agency.write_agencies(directory)
         Calendar.write_calendars(directory)
         Stop.write_stops(directory)
@@ -792,7 +795,7 @@ class Database(object):
         Trip.write_trips(directory)
         Frequency.write_frequencies(directory)
         Path.write_paths(directory)
-        cls.export_kml_and_js(directory)
+        cls.export_kml_and_js(directory, messages)
 
     @classmethod
     def import_gtfs(cls, directory):
@@ -847,6 +850,7 @@ def split_time(t):
 
 def times_table (root, times):
     table = ElementTree.SubElement(root, 'table')
+    times = filter(lambda x: x, times)
     times = map(split_time, times)
     for h, minutes in groupby(times, key=(lambda x: x[0])):
         node = ElementTree.SubElement(table, 'tr')
