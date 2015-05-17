@@ -645,21 +645,24 @@ class Database(object):
         # Tabulate the times at stops and on routes.
         # stop->route->calendar->list of departure times
         # route->stop->calendar->list of departure times (transpose of above)
+        # We do not display (arrival = departure) time of the last stop
+        # of a trip, but we display it for the route timetable.
         stop_tables_js = dict()
         route_tables_js = dict()
         for t in Trip.trips:
-            for rs in t.stops:
+            for i, rs in enumerate(t.stops):
+                ends = i == len(t.stops) - 1
                 s_name = rs.stop.code or rs.stop.name or rs.stop.description
                 r_name = t.trip_route.route.short_name or t.trip_route.route.long_name or t.trip_route.route.description
                 #!lukstafi - FIXME: we need trip route calendar rather than
                 # trip calendar, find out why old trip calendars are reset
                 c_name = t.trip_route.calendar.name
 
-                if s_name not in stop_tables_js:
+                if not ends and s_name not in stop_tables_js:
                     stop_tables_js[s_name] = dict()
-                if r_name not in stop_tables_js[s_name]:
+                if not ends and r_name not in stop_tables_js[s_name]:
                     stop_tables_js[s_name][r_name] = dict()
-                if c_name not in stop_tables_js[s_name][r_name]:
+                if not ends and c_name not in stop_tables_js[s_name][r_name]:
                     stop_tables_js[s_name][r_name][c_name] = list()
                 if r_name not in route_tables_js:
                     route_tables_js[r_name] = dict()
@@ -667,7 +670,8 @@ class Database(object):
                     route_tables_js[r_name][s_name] = dict()
                 if c_name not in route_tables_js[r_name][s_name]:
                     route_tables_js[r_name][s_name][c_name] = list()
-                stop_tables_js[s_name][r_name][c_name].append(rs.departure)
+                if not ends:
+                    stop_tables_js[s_name][r_name][c_name].append(rs.departure)
                 route_tables_js[r_name][s_name][c_name].append(rs.departure)
 
         #!lukstafi - TODO: handle the frequencies!
