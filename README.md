@@ -4,7 +4,32 @@ This software was developed by Marcus Dillavou <line72@line72.net> (http://line7
 
 http://line72.net/index.php/software/subte/
 
+The software was enhanced by Lukasz Stafiniak <lukstafi@gmail.com> with:
+* changes that appear to improve reliability (the program did not work out of the box for Lukasz),
+* a dialog to edit transit agency data,
+* export of KML and JSON / Javascript files with transit data, and `utils/display_map.html`, `utils/display_map.js` files, that together form a minimalistic Google Maps based web application to access bus timetables,
+* a translation of the interface into Polish, the localization is determined by system settings.
+
 This software is licensed under the GPLv3 or later.
+
+== Usage ==
+
+Hover the mouse pointer over a GUI element to see its description in the tooltip. To enter new times in the ''Trips'' or ''Frequencies'' tables: click on the `Add` button, double-click (or click) on the cell corresponding to a stop until an edit field appears, enter the departure time in the HH:MM or HH:MM:SS format, press `enter`. The times should always increase along a route, using `24:05` for five minutes after midnight on next day of the trip, `25:00` for 1 AM of the next day, etc. Before clicking on a stop, you may need to click on the balloon of the previously clicked stop, to dismiss it.
+
+To provide the minimalistic web-based timetables interface:
+* export the transit data by clicking on the `Export To Google` button,
+* move the files `doc.kml` and `doc.js` into the target web hosting directory,
+* edit the files `utils/display_map.html`, `utils/display_map.js`: replace each occurrence of `https://ENTER YOUR URL HERE/` with the web-facing address,
+* copy the files `utils/display_map.html`, `utils/display_map.js` into the target web hosting directory,
+* the interface is now available at the web-facing address of `display_map.html`.
+
+(The `doc.kml` file is cached by the browser, so you may need to rename it, also in `display_map.js`, or alternatively clear the cache, for testing during development.)
+
+To provide data to the Google Transit service, package the exported files with the `.txt` extension as a `.zip` archive and follow the instructions in [Google Transit Partner Program](https://maps.google.com/help/maps/mapcontent/transit/participate.html). But this requires authorization from the transit agencies.
+
+The data can also be used with [Open Trip Planner](http://www.opentripplanner.org/) appliations, for example [OpenTripPlanner for Android](https://github.com/CUTR-at-USF/OpenTripPlanner-for-Android/wiki). But that requires setting up and maintaining an Open Trip Planner server. See [Birmingham, AL's public transit](http://line72.net//index.php?cID=130) for a "case study".
+
+The application should be available in an executable form under https://github.com/lukstafi/subte/releases . Instructions on installing from source:
 
 == Dependencies ==
 
