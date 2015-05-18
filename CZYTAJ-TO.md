@@ -5,14 +5,14 @@ Program zaimplementował Marcus Dillavou <line72@line72.net> (http://line72.net)
 http://line72.net/index.php/software/subte/
 
 Program został rozwinięty przez Łukasza Stafiniaka <lukstafi@gmail.com> o:
-* zmiany które zdają się poprawiać niezawodność interfejsu (program nie działał u Łukasza bez nich),
+* drobne zmiany które zdają się poprawiać niezawodność interfejsu (program nie działał u Łukasza bez nich),
 * pola dialogowe do edycji danych przewoźników,
 * eksport plików KML i JSON /Javascript z danymi, i pliki `utils/display_map.html`, `utils/display_map.js`, które razem tworzą minimalistyczną aplikację webową opartą o Google Maps do odczytywania rozkładów jazdy,
 * przetłumaczenie interfejsu na język polski, lokalizacja jest ustalana przez ustawienia systemowe.
 
 To oprogramowanie jest na licencji GPLv3 lub późniejszej.
 
-== Obsługa ==
+## Obsługa
 
 Przytrzymaj wskaźnik myszy nad elementem interfejsu żeby zobaczyć pomoc w dymku. Żeby wprowadzić nowe godziny w tabeli ''Kursy'': kliknij na przycisk ''Dodaj'', kliknij dwa-trzy razy na komórce odpowiadającej przystankowi, aż pojawi się pole edycyjne, wpisz godzinę odjazdu z przystanku w formacie GG:MM lub GG:MM:SS, wciśnij `enter`. Czasy powinny zawsze wzrastać wzdłuż trasy, użyj `24:05` na odjazd 5 minut kolejnego dnia, `25:00` na pierwszą w nocy kolejnego dnia, itd. Przed kliknięciem na przystanek na mapie, możesz potrzebować kliknąć na dymek poprzednio klikniętego przystanku, żeby znikł.
 
@@ -29,9 +29,9 @@ By dostarczyć dane serwisowi Google Transit, spakuj pliki z rozszerzeniem `.txt
 
 Dane mogą być też użyte z aplikacjami [Open Trip Planner](http://www.opentripplanner.org/), na przykład [OpenTripPlanner for Android](https://github.com/CUTR-at-USF/OpenTripPlanner-for-Android/wiki). Ale to wymaga postawienia serwera Open Trip Planner.
 
-Aplikacja powinna być dostępna w postaci skompilowanej pod https://github.com/lukstafi/subte/releases . Instrukcje instalowania programu ze źródeł są w języku angielskim poniżej.
+Instrukcje instalowania programu ze źródeł są w języku angielskim poniżej.
 
-== Dependencies ==
+## Dependencies
 
 python2.7
 gobject-introspection
@@ -46,11 +46,15 @@ PIL or python-pillow
 python-lxml
 python-dateutil
 
-== Building Under Linux ==
+## Building Under Linux
 
 On Fedora Linux, you will need to install the following packages with yum
 
 $ yum install gobject-introspection libchamplain-gtk python-exif python-pillo python-lxml python-dateutil clutter-gtk
+
+On Ubuntu Linux:
+
+$ sudo apt-get install gobject-introspection libchamplain-gtk-0.12-0 python-exif python-pil python-lxml python-dateutil libclutter-gtk-1.0-0
 
 You can then run directly:
 
@@ -62,11 +66,11 @@ $ python setup.py build
 $ python setup.py install
 $ subte
 
-== Building Under Mac OSX ==
+## Building Under Mac OSX
 
 I have successfully run this under OSX using macports. You will need to install all the dependencies listed above. This requires having X (http://xquartz.macosforge.org/landing/) installed
 
-== Building Under Windows ==
+## Building Under Windows
 
 Install python2.7 from python.org
 
