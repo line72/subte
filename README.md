@@ -52,7 +52,7 @@ $ yum install gobject-introspection libchamplain-gtk python-exif python-pillo py
 
 On Ubuntu Linux:
 
-$ sudo apt-get install gobject-introspection libchamplain-gtk-0.12-0 python-exif python-pil python-lxml python-dateutil libclutter-gtk-1.0-0
+$ sudo apt-get install gobject-introspection libchamplain-gtk-0.12-0 python-exif python-pil python-lxml python-dateutil libclutter-gtk-1.0-0 gir1.2-gtkclutter-1.0
 
 You can then run directly:
 
