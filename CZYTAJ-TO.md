@@ -50,14 +50,14 @@ python-dateutil
 
 On Fedora Linux, you will need to install the following packages with yum
 
-$ yum install gobject-introspection libchamplain-gtk python-exif \
+$ yum install gobject-introspection libchamplain-gtk python-exif \\
  python-pillo python-lxml python-dateutil clutter-gtk
 
 On Ubuntu Linux:
 
-$ sudo apt-get install gobject-introspection libchamplain-gtk-0.12-0 \
- python-exif python-pil python-lxml python-dateutil \
- libclutter-gtk-1.0-0 gir1.2-gtkclutter-1.0 gir1.2-champlain-0.12 \
+$ sudo apt-get install gobject-introspection libchamplain-gtk-0.12-0 \\
+ python-exif python-pil python-lxml python-dateutil \\
+ libclutter-gtk-1.0-0 gir1.2-gtkclutter-1.0 gir1.2-champlain-0.12 \\
  gir1.2-gtk-3.0 gir1.2-gtkchamplain-0.12
 
 You can then run directly:
