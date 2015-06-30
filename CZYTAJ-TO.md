@@ -16,6 +16,8 @@ To oprogramowanie jest na licencji GPLv3 lub późniejszej.
 
 Przytrzymaj wskaźnik myszy nad elementem interfejsu żeby zobaczyć pomoc w dymku. Żeby wprowadzić nowe godziny w tabeli ''Kursy'': kliknij na przycisk ''Dodaj'', kliknij dwa-trzy razy na komórce odpowiadającej przystankowi, aż pojawi się pole edycyjne, wpisz godzinę odjazdu z przystanku w formacie GG:MM lub GG:MM:SS, wciśnij `enter`. Czasy powinny zawsze wzrastać wzdłuż trasy, użyj `24:05` na odjazd 5 minut kolejnego dnia, `25:00` na pierwszą w nocy kolejnego dnia, itd. Przed kliknięciem na przystanek na mapie, możesz potrzebować kliknąć na dymek poprzednio klikniętego przystanku, żeby znikł.
 
+Pamiętaj żeby wypełnić wszystkie pola z rozwijanymi opcjami przed dodaniem nowego zestawu kursów, nowego przystanku itd. Jeśli rozwijana lista dla danego pola jest pusta, musisz dodać nową opcję przez kliknięcie guzika `Dodaj` na prawo od danego pola.
+
 By dostarczyć minimalistycznego webowego interfejsu do rozkładów jazdy:
 * wyeksportuj dane klikając na przycisk `Eksportuj do Google`,
 * przenieś pliki `doc.kml` i `doc.js` do docelowego katalogu z web-hostingiem,

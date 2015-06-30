@@ -16,6 +16,8 @@ This software is licensed under the GPLv3 or later.
 
 Hover the mouse pointer over a GUI element to see its description in the tooltip. To enter new times in the ''Trips'' or ''Frequencies'' tables: click on the `Add` button, double-click (or click) on the cell corresponding to a stop until an edit field appears, enter the departure time in the HH:MM or HH:MM:SS format, press `enter`. The times should always increase along a route, using `24:05` for five minutes after midnight on next day of the trip, `25:00` for 1 AM of the next day, etc. Before clicking on a stop, you may need to click on the balloon of the previously clicked stop, to dismiss it.
 
+Remember to fill all pull-down option lists before adding a new entity like a trip route (a group of trips) or a bus stop. If some pull-down list is empty, you need to create a new entry for it by clicking the `Add` button to the right.
+
 To provide the minimalistic web-based timetables interface:
 * export the transit data by clicking on the `Export To Google` button,
 * move the files `doc.kml` and `doc.js` into the target web hosting directory,
