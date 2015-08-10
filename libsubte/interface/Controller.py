@@ -471,9 +471,24 @@ class Controller(object):
 
         return True
 
-    def on_export(self, toolbutton, user_data = None):
+    def on_export_gtfs(self, toolbutton, user_data = None):
         # pop up a save dialg
-        dlg = Gtk.FileChooserDialog(_('Export to...'), self._gui(),
+        dlg = Gtk.FileChooserDialog(_('Export GTFS to...'), self._gui(),
+                                    Gtk.FileChooserAction.SELECT_FOLDER,
+                                    (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                     Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
+        resp = dlg.run()
+        if resp == Gtk.ResponseType.ACCEPT:
+            directory = dlg.get_filename()
+            libsubte.Database.export_gtfs(directory)
+
+        dlg.destroy()
+        return True
+
+
+    def on_export_kml_routes(self, toolbutton, user_data = None):
+        # pop up a save dialg
+        dlg = Gtk.FileChooserDialog(_('Export KML & JS to...'), self._gui(),
                                     Gtk.FileChooserAction.SELECT_FOLDER,
                                     (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                                      Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
@@ -484,10 +499,28 @@ class Controller(object):
                     (_('Outb.'), _('Inb.')))
         if resp == Gtk.ResponseType.ACCEPT:
             directory = dlg.get_filename()
-            libsubte.Database.export(directory, messages)
+            libsubte.Database.export_kml_and_js(directory, messages, False)
 
         dlg.destroy()
+        return True
 
+    def on_export_kml_agencies(self, toolbutton, user_data = None):
+        # pop up a save dialg
+        dlg = Gtk.FileChooserDialog(_('Export KML & JS w. agencies...'),
+                                    self._gui(),
+                                    Gtk.FileChooserAction.SELECT_FOLDER,
+                                    (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                     Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
+        resp = dlg.run()
+        messages = (_('Select a bus stop or a bus route. Time: '),
+                    _('Showing times for day '),
+                    _(' after hour '),
+                    (_('Outb.'), _('Inb.')))
+        if resp == Gtk.ResponseType.ACCEPT:
+            directory = dlg.get_filename()
+            libsubte.Database.export_kml_and_js(directory, messages, True)
+
+        dlg.destroy()
         return True
 
     def on_import_gtfs(self, toolbutton, user_data = None):
