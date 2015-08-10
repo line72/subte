@@ -16,7 +16,39 @@ To oprogramowanie jest na licencji GPLv3 lub późniejszej.
 
 Przytrzymaj wskaźnik myszy nad elementem interfejsu żeby zobaczyć pomoc w dymku. Żeby wprowadzić nowe godziny w tabeli ''Kursy'': kliknij na przycisk ''Dodaj'', kliknij dwa-trzy razy na komórce odpowiadającej przystankowi, aż pojawi się pole edycyjne, wpisz godzinę odjazdu z przystanku w formacie GG:MM lub GG:MM:SS, wciśnij `enter`. Czasy powinny zawsze wzrastać wzdłuż trasy, użyj `24:05` na odjazd 5 minut kolejnego dnia, `25:00` na pierwszą w nocy kolejnego dnia, itd. Przed kliknięciem na przystanek na mapie, możesz potrzebować kliknąć na dymek poprzednio klikniętego przystanku, żeby znikł.
 
-Pamiętaj żeby wypełnić wszystkie pola z rozwijanymi opcjami przed dodaniem nowego zestawu kursów, nowego przystanku itd. Jeśli rozwijana lista dla danego pola jest pusta, musisz dodać nową opcję przez kliknięcie guzika `Dodaj` na prawo od danego pola.
+Pamiętaj żeby wypełnić wszystkie pola z rozwijanymi opcjami przed dodaniem nowego zestawu kursów, nowego przystanku itd. Jeśli rozwijana lista dla danego pola jest pusta, musisz dodać nową opcję przez kliknięcie guzika `Dodaj` na prawo od danego pola. Patrz uwagi o polach wymaganych poniżej.
+
+Terminologia:
+* ''Kalendarz'' podaje dni kursów autobusowych, tzn. w które dni dokładnie jedzie autobus.
+* ''Trasa'' (pomimo nazwy) podaje przewoźnika i kalendarz (tzn. dni kursowania) kursów autobusowych.
+* ''Grupa kursów'' podaje przystanki i godziny kursów autobusowych (i informacje powyżej, przez wybór trasy i kalendarza).
+
+Niestety, jeśli kurs kursuje o pewnej godzinie z wyjątkiem specyficznych dni, albo dodatkowo w specyficzne dni, musisz stworzyć nowy kalendarz i nową grupę kursów specjalnie dla tej godziny i dla innych godzin mających ten sam wyjątek, tzn. kursujących w dokładnie te same dni.
+
+Zamierzone znaczenie pól w programie pochodzi ze specyfikacji GTFS:
+[General Transit Feed Specification Reference](https://developers.google.com/transit/gtfs/reference).
+Jednak, na potrzeby minimalistycznego interfejsu webowego wspomnianego poniżej, tylko następujące pola są wymagane:
+* Albo nazwa (preferowane), albo opis przystanku.
+* Położenie przystanku (które możesz wprowadzić klikając na mapie podczas gdy okno `Dodaj przystanek` jest otwarte).
+* Trasa grupy kursów (kliknij przycisk `Dodaj` na prawo od menu rozwijalnego jeśli dana grupa kursów potrzebuje nowej trasy).
+* Kalendarz grupy kursów (kliknij przycisk `Dodaj` na prawo od menu rozwijalnego jeśli dana grupa kursów potrzebuje nowego kalendarza).
+* Wszystkie pola w kalendarzu z wyjątkiem daty początku i końca obowiązywania:
+** nazwa kalendarza,
+** dni kursowania,
+** dodatkowe dni "też kursuje", jeśli są takie,
+** wykluczone dni "nie kursuje", jeśli są takie.
+* Czasy odjazdów, po kliknięciu guzika na prawo od `Edytuj kursy:` (frekwencje kursów, jak w przycisku poniżej, nie są obsługiwane przez minimalistyczny interfejs webowy);
+** uwaga: najpierw dodaj przystanki grupy kursów, dodatkowo możesz potrzebować powiększyć okno `Edytuj kursy`.
+* Albo skrócona nazwa, albo pełna nazwa trasy.
+* Przewoźnik trasy (kliknij przycisk `Dodaj` na prawo od menu rozwijalnego jeśli trasa potrzebuje nowego przewoźnika).
+* Nazwa przewoźnika.
+
+Poniższe pola są obecnie ignorowane przez minimalistyczny interfejs webowy:
+* nazwa grupy kursów,
+* tablica na autobusie dla grupy kursów,
+* frekwencje grupy kursów,
+* data początku i końca obowiązywania kalendarza,
+* informacje o przewoźnikach inne niż ich nazwa.
 
 By dostarczyć minimalistycznego webowego interfejsu do rozkładów jazdy:
 * wyeksportuj dane klikając na przycisk `Eksportuj do Google`,
@@ -31,33 +63,22 @@ By dostarczyć dane serwisowi Google Transit, spakuj pliki z rozszerzeniem `.txt
 
 Dane mogą być też użyte z aplikacjami [Open Trip Planner](http://www.opentripplanner.org/), na przykład [OpenTripPlanner for Android](https://github.com/CUTR-at-USF/OpenTripPlanner-for-Android/wiki). Ale to wymaga postawienia serwera Open Trip Planner.
 
-Instrukcje instalowania programu ze źródeł są w języku angielskim poniżej.
+## Instalowanie pod Linuxem
 
-## Dependencies
+Pobierz i rozpakuj źródła: np. kliknij na guzik `Download ZIP` na [https://github.com/lukstafi/subte](https://github.com/lukstafi/subte) i rozpakuj archiwum. Wejdź do katalogu, np.:
 
-python2.7
-gobject-introspection
-glib (with gobject introspection)
-gtk3 (with gobject introspection)
-clutter (with gobject introspection)
-clutter-gtk (with gobject introspection)
-libchamplain (with gobject introspection)
-libchamplain-gtk (with gobject introspection)
-python-exif
-PIL or python-pillow
-python-lxml
-python-dateutil
+```
+$ cd subte-master
+```
 
-## Building Under Linux
-
-On Fedora Linux, you will need to install the following packages with yum
+Pod Fedora Linux, zainstaluj:
 
 ```
 $ yum install gobject-introspection libchamplain-gtk python-exif \
  python-pillo python-lxml python-dateutil clutter-gtk
 ```
 
-On Ubuntu Linux:
+Pod Ubuntu Linux, zainstaluj:
 
 ```
 $ sudo apt-get install gobject-introspection libchamplain-gtk-0.12-0 \
@@ -66,15 +87,21 @@ $ sudo apt-get install gobject-introspection libchamplain-gtk-0.12-0 \
  gir1.2-gtk-3.0 gir1.2-gtkchamplain-0.12
 ```
 
-You can then run directly:
+Potem możesz uruchomić bezpośrednio:
 
+```
 $ ./subte
+```
 
-or you can install
+lub możesz zainstalować
 
+```
 $ python setup.py build
 $ python setup.py install
 $ subte
+```
+
+Poniższe informacje tylko po angielsku.
 
 ## Building Under Mac OSX
 
@@ -90,3 +117,18 @@ http://opensourcepack.blogspot.com/p/pygobject-pygi-aio.html
 Any additional python dependencies (python-exif, python-pillow, python-lxml, python-dateutil) can be installed using pip (https://pypi.python.org/pypi/pip/) or easy_install (http://peak.telecommunity.com/DevCenter/EasyInstall)
 
 Under windows, there is a bug with the map widget (libchamplain) that is causing events to not be handled correctly. This causes issues when clicking on the map and invalid coordinates being sent making subte almost useless. We are still investigating this.
+
+## Dependencies
+
+python2.7
+gobject-introspection
+glib (with gobject introspection)
+gtk3 (with gobject introspection)
+clutter (with gobject introspection)
+clutter-gtk (with gobject introspection)
+libchamplain (with gobject introspection)
+libchamplain-gtk (with gobject introspection)
+python-exif
+PIL or python-pillow
+python-lxml
+python-dateutil
