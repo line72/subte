@@ -486,7 +486,7 @@ class Controller(object):
         return True
 
 
-    def on_export_kml_routes(self, toolbutton, user_data = None):
+    def on_export_kml_tables(self, toolbutton, user_data = None):
         # pop up a save dialg
         dlg = Gtk.FileChooserDialog(_('Export KML & JS to...'), self._gui(),
                                     Gtk.FileChooserAction.SELECT_FOLDER,
@@ -496,15 +496,16 @@ class Controller(object):
         messages = (_('Select a bus stop or a bus route. Time: '),
                     _('Showing times for day '),
                     _(' after hour '),
-                    (_('Outb.'), _('Inb.')))
+                    (_('Outb.'), _('Inb.')),
+                    _('Underlined are times of buses that will depart today.'))
         if resp == Gtk.ResponseType.ACCEPT:
             directory = dlg.get_filename()
-            libsubte.Database.export_kml_and_js(directory, messages, False)
+            libsubte.Database.export_kml_and_js(directory, messages, True)
 
         dlg.destroy()
         return True
 
-    def on_export_kml_agencies(self, toolbutton, user_data = None):
+    def on_export_kml_buttons(self, toolbutton, user_data = None):
         # pop up a save dialg
         dlg = Gtk.FileChooserDialog(_('Export KML & JS w. agencies...'),
                                     self._gui(),
@@ -515,10 +516,11 @@ class Controller(object):
         messages = (_('Select a bus stop or a bus route. Time: '),
                     _('Showing times for day '),
                     _(' after hour '),
-                    (_('Outb.'), _('Inb.')))
+                    (_('Outb.'), _('Inb.')),
+                    _('Underlined are times of buses that will depart today.'))
         if resp == Gtk.ResponseType.ACCEPT:
             directory = dlg.get_filename()
-            libsubte.Database.export_kml_and_js(directory, messages, True)
+            libsubte.Database.export_kml_and_js(directory, messages, False)
 
         dlg.destroy()
         return True

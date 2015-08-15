@@ -230,14 +230,14 @@ class GTGui(Gtk.Window):
 
         export = Gtk.ToolButton('Export')
         export.set_icon_name('document-send')
-        export.set_tooltip_text(_('Export to KML by agencies'))
-        export.connect('clicked', self.controller.on_export_kml_agencies)
+        export.set_tooltip_text(_('Export to KML with tables'))
+        export.connect('clicked', self.controller.on_export_kml_tables)
         toolbar.add(export)
 
         export = Gtk.ToolButton('Export')
         export.set_icon_name('document-send')
-        export.set_tooltip_text(_('Export to KML by routes'))
-        export.connect('clicked', self.controller.on_export_kml_routes)
+        export.set_tooltip_text(_('Export to KML with buttons'))
+        export.connect('clicked', self.controller.on_export_kml_buttons)
         toolbar.add(export)
 
         toolbar.add(Gtk.SeparatorToolItem())

@@ -97,8 +97,8 @@ dict_pl = {
     'Import GTFS': u'Importuj GTFS',
     'Export': u'Eksportuj',
     'Export to GTFS': u'Eksportuj do GTFS',
-    'Export to KML by routes': u'Eksportuj do KML bez przewoźników',
-    'Export to KML by agencies': u'Eksportuj do KML z przewoźnikami',
+    'Export to KML with tables': u'Eksportuj do KML z tablicami',
+    'Export to KML with buttons': u'Eksportuj do KML z przyciskami',
     'Stops: ': u'Przystanki: ',
     'Trips: ': u'Kursy: ',
     'Modify Trips': u'Modyfikuj kursy',
@@ -130,7 +130,8 @@ dict_pl = {
     'Showing times for day ': u'Odjazdy dla dnia ',
     ' after hour ': u' po godzinie ',
     'Outb.': u'Wyj.',
-    'Inb.': u'Przyj.'
+    'Inb.': u'Przyj.',
+    'Underlined are times of buses that will depart today.': u'Podkreślone są czasy autobusów które odjadą dzisiaj.'
 }
 
 def _(s):

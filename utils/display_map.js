@@ -39,6 +39,11 @@ function loadKmlLayer(src, map) {
   });
 }
 
+function showStopRoute(s_name, r_name) {
+    var sidebar = document.getElementById('cur-timetable');
+    buildStopRouteTbl(s_name, r_name, new Date(), sidebar);
+}
+
 function buildTimetable(name, date, disp) {
     var bus_tbl;
     if (name in stop_tables) {
@@ -72,6 +77,42 @@ function buildTimetable(name, date, disp) {
                     disp.appendChild(
                         document.createTextNode(showTime(times[i]) + ' '));
                 }
+            }
+        }
+    }
+}
+
+
+// def times_table (root, times):
+//     table = ElementTree.SubElement(root, 'table')
+//     times = filter(lambda x: x, times)
+//     times = map(split_time, times)
+//     for h, minutes in groupby(times, key=(lambda x: x[0])):
+//         node = ElementTree.SubElement(table, 'tr')
+//         e = ElementTree.SubElement(node, 'td')
+//         e = ElementTree.SubElement(e, 'b')
+//         e.text = h
+//         for m in minutes:
+//             e = ElementTree.SubElement(node, 'td')
+//             e.text = m[1]
+
+function buildStopRoute(s_name, r_name, date, disp) {
+    var route_tbl = stop_route_tables[s_name][r_name];
+    // disp.innerHTML =
+    //     msg2 + date.toLocaleDateString() +
+    //     msg3 + showTime(date.toLocaleTimeString()) + '.';
+    var header = document.createElement('h3');
+    header.appendChild(document.createTextNode(s_name + ' - ' + r_name));
+    disp.appendChild(header);
+    for (cal in route_tbl) {
+        if (!dayInCalendar (date, calendars[cal])) {
+            continue;
+        }
+        var times = route_tbl[cal];
+        for (i in times) {
+            if (timeAfter (times[i], date)) {
+                disp.appendChild(
+                    document.createTextNode(showTime(times[i]) + ' '));
             }
         }
     }

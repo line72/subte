@@ -21,6 +21,7 @@ import os
 import weakref
 import cPickle as pickle
 import string
+import re
 import random
 from itertools import groupby
 import collections
@@ -563,13 +564,13 @@ class Database(object):
         Picture.clear()
 
     @classmethod
-    def export_kml_and_js(cls, directory, messages, by_agencies,
+    def export_kml_and_js(cls, directory, messages, with_tables,
                           calendars_as_placemark = True):
         """Export a self-contained KML file with timetable information,
         and a JSON file with timetable mapping with the names of stops
         and routes as keys. The keys are the same as the 'name' property
-        of corresponding placemarks. If 'by_agencies=True', organize
-        information in the KML by agencies.
+        of corresponding placemarks. If 'with_tables=False', only
+        show links in the stop balloons KML rather than whole tables.
         """
         # save the kml
         root = ElementTree.Element('kml')
@@ -742,38 +743,80 @@ class Database(object):
             e = ElementTree.SubElement(e, 'coordinates')
             e.text = '%s,%s' % (s.longitude, s.latitude)
             stop_tbl = ElementTree.Element('div')
+            stop_file = ElementTree.Element('html')
+            stop_head = ElementTree.SubElement(stop_file, 'head')
+            e = ElementTree.SubElement(stop_head, 'script')
+            e.set('src', 'https://ENTER YOUR URL HERE/14907848/doc.js')
+            e.text = '   '
+            e = ElementTree.SubElement(stop_head, 'script')
+            e.set('src', 'https://ENTER YOUR URL HERE/display_stop.js')
+            e.text = '   '
+            stop_disp = ElementTree.SubElement(stop_file, 'body')
+            f = ElementTree.SubElement(stop_disp, 'p')
+            f.text = messages[4]
             e = ElementTree.SubElement(stop_tbl, 'span')
-            # e = ElementTree.SubElement(stop_tbl, 'b')
+            f = ElementTree.SubElement(stop_disp, 'b')
             e.text = s.name + (' - ' + s.description if s.description else '')
+            f.text = s.name + (' - ' + s.description if s.description else '')
             for a_name, a_tbl in stop_tables[s_name].viewitems():
-                if by_agencies:
-                    e = ElementTree.SubElement(stop_tbl, 'br')
-                    e = ElementTree.SubElement(stop_tbl, 'span')
-                    e = ElementTree.SubElement(e, 'b')
-                    e.text = a_name
+                e = ElementTree.SubElement(stop_tbl, 'br')
+                e = ElementTree.SubElement(stop_tbl, 'span')
+                e = ElementTree.SubElement(e, 'b')
+                e.text = a_name
+                f = ElementTree.SubElement(stop_disp, 'br')
+                f = ElementTree.SubElement(stop_disp, 'b')
+                f.text = a_name
                 for r_name, tbl in a_tbl.viewitems():
                     tbl_e = ElementTree.SubElement(stop_tbl, 'table')
+                    tbl_f = ElementTree.SubElement(stop_disp, 'table')
                     # route name
                     e = ElementTree.SubElement(tbl_e, 'tr')
                     e = ElementTree.SubElement(e, 'th')
+                    e = ElementTree.SubElement(e, 'a')
                     e.text = r_name
-                    # calendars
-                    cals = ElementTree.SubElement(tbl_e, 'tr')
+                    s = clean_ref (s_name) + '.html#' + clean_ref (r_name)
+                    e.set('href', s)
+                    f = ElementTree.SubElement(tbl_f, 'tr')
+                    f = ElementTree.SubElement(f, 'th')
+                    f = ElementTree.SubElement(f, 'a')
+                    f.text = r_name
+                    f.set('id', clean_ref (r_name))
+                    if with_tables:
+                        # calendars
+                        cals = ElementTree.SubElement(tbl_e, 'tr')
+                        for c_name in calendars:
+                            if c_name not in tbl:
+                                continue
+                            e = ElementTree.SubElement(cals, 'th')
+                            e.text = c_name
+                        cals = ElementTree.SubElement(tbl_e, 'tr')
+                        for c_name in calendars:
+                            if c_name not in tbl:
+                                continue
+                            e = ElementTree.SubElement(cals, 'td')
+                            times_table(e, tbl[c_name], False)
+                    cals = ElementTree.SubElement(tbl_f, 'tr')
                     for c_name in calendars:
                         if c_name not in tbl:
                             continue
-                        e = ElementTree.SubElement(cals, 'th')
-                        e.text = c_name
-                    cals = ElementTree.SubElement(tbl_e, 'tr')
+                        f = ElementTree.SubElement(cals, 'th')
+                        f.text = c_name
+                    cals = ElementTree.SubElement(tbl_f, 'tr')
                     for c_name in calendars:
                         if c_name not in tbl:
                             continue
-                        e = ElementTree.SubElement(cals, 'td')
-                        times_table(e, tbl[c_name])
+                        f = ElementTree.SubElement(cals, 'td')
+                        times_table(f, tbl[c_name], True, c_name)
 
             e = ElementTree.SubElement(node, 'description')
             #stop_tree = ElementTree.ElementTree(stop_tbl)
             e.text = ElementTree.tostring(stop_tbl, encoding = 'utf-8', method = 'html')
+            with open(os.path.join(directory, clean_ref(s_name) + '.html'),
+                      'w') as outfile:
+                indent(stop_file)
+                tree = ElementTree.ElementTree(stop_file)
+                outfile.write('<!DOCTYPE html>\n')
+                tree.write(outfile, encoding = 'UTF-8')
 
         #!lukstafi - TODO: perhaps split the routes with different
         #   sets of stops into route-calenadar groups
@@ -796,11 +839,14 @@ class Database(object):
         stop_tables_js = dict()
         route_tables_js = dict()
         agency_tables_js = dict()
+        stop_route_tables_js = dict()
         for s_name, s_tbl in stop_tables.viewitems():
             for a_name, a_tbl in s_tbl.viewitems():
                 stop_tables_js[s_name] = list()
+                stop_route_tables_js[s_name] = dict()
                 for r_name, r_tbl in a_tbl.viewitems():
                     stop_tables_js[s_name].append((r_name, r_tbl))
+                    stop_route_tables_js[s_name][r_name] = r_tbl
 
         # the routes
         seen_routes = dict()
@@ -858,7 +904,7 @@ class Database(object):
                     if c_name not in s_tbl:
                         continue
                     e = ElementTree.SubElement(cals, 'td')
-                    times_table(e, s_tbl[c_name])
+                    times_table(e, s_tbl[c_name], False)
 
             e = ElementTree.SubElement(node, 'description')
             # route_tree = ElementTree.ElementTree(route_tbl)
@@ -879,6 +925,8 @@ class Database(object):
             json.dump(stop_tables_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
             outfile.write('\nvar route_tables = ')
             json.dump(route_tables_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar stop_route_rtables = ')
+            json.dump(stop_route_tables_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
             outfile.write('\nvar agency_tables = ')
             json.dump(agency_tables_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
 
@@ -942,9 +990,9 @@ def split_time(t):
             else:
                 pos1 = 2
                 pos2 = 2
-    return (t[0:pos1], t[pos2:pos3])
+    return (t[0:pos1], t[pos2:pos3], t)
 
-def times_table (root, times):
+def times_table (root, times, inStopFile, calName = ''):
     table = ElementTree.SubElement(root, 'table')
     times = filter(lambda x: x, times)
     times = map(split_time, times)
@@ -955,8 +1003,15 @@ def times_table (root, times):
         e.text = h
         for m in minutes:
             e = ElementTree.SubElement(node, 'td')
+            if inStopFile:
+                e = ElementTree.SubElement(e, 'span')
+                e.set('cal-name', calName)
+                e.set('trip-time', m[2])
             e.text = m[1]
 
+def clean_ref (s):
+    s = re.sub('[^A-Za-z0-9_]', '', s)
+    return s
 
 """
 <?xml>
