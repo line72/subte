@@ -51,15 +51,14 @@ The following fields are currently ignored by the minimalistic web interface:
 * information about agencies other than their name.
 
 To provide the minimalistic web-based timetables interface:
-* export the transit data by clicking on the `Export To Google` button,
-* move the files `doc.kml` and `doc.js` into the target web hosting directory,
-* edit the files `utils/display_map.html`, `utils/display_map.js`: replace each occurrence of `https://ENTER YOUR URL HERE/` with the web-facing address,
-* copy the files `utils/display_map.html`, `utils/display_map.js` into the target web hosting directory,
+* export the transit data by clicking either on the `Export to KML with tables` toolbox button or the `Export to KML with links` toolbox button and selecting an empty directory,
+* move all the files generated in the directory above into the target web hosting directory,
+* copy the files `utils/display_map.html`, `utils/display_map.js` and `utils/display_stop.js` into the target web hosting directory,
 * the interface is now available at the web-facing address of `display_map.html`.
 
 (The `doc.kml` file is cached by the browser, so you may need to rename it, also in `display_map.js`, or alternatively clear the cache, for testing during development.)
 
-To provide data to the Google Transit service, package the exported files with the `.txt` extension as a `.zip` archive and follow the instructions in [Google Transit Partner Program](https://maps.google.com/help/maps/mapcontent/transit/participate.html). But this requires authorization from the transit agencies.
+To provide data to the Google Transit service, click on the `Export to GTFS` toolbox button, package the exported files with the `.txt` extension as a `.zip` archive and follow the instructions in [Google Transit Partner Program](https://maps.google.com/help/maps/mapcontent/transit/participate.html). But this requires authorization from the transit agencies.
 
 The data can also be used with [Open Trip Planner](http://www.opentripplanner.org/) appliations, for example [OpenTripPlanner for Android](https://github.com/CUTR-at-USF/OpenTripPlanner-for-Android/wiki). But that requires setting up and maintaining an Open Trip Planner server. See [Birmingham, AL's public transit](http://line72.net//index.php?cID=130) for a "case study".
 

@@ -16,9 +16,9 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA.
 
 var map;
-var src = 'https://ENTER YOUR URL HERE/doc.kml';
 
 function initialize() {
+  var src = document.URL.substr(0,document.URL.lastIndexOf('/')) + '/doc.kml';
   map = new google.maps.Map(document.getElementById('map-canvas'), {
     center: new google.maps.LatLng(-19.257753, 146.823688),
     zoom: 2,

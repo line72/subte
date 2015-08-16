@@ -746,10 +746,10 @@ class Database(object):
             stop_file = ElementTree.Element('html')
             stop_head = ElementTree.SubElement(stop_file, 'head')
             e = ElementTree.SubElement(stop_head, 'script')
-            e.set('src', 'https://ENTER YOUR URL HERE/14907848/doc.js')
+            e.set('src', 'doc.js')
             e.text = '   '
             e = ElementTree.SubElement(stop_head, 'script')
-            e.set('src', 'https://ENTER YOUR URL HERE/display_stop.js')
+            e.set('src', 'display_stop.js')
             e.text = '   '
             stop_disp = ElementTree.SubElement(stop_file, 'body')
             f = ElementTree.SubElement(stop_disp, 'p')

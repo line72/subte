@@ -488,7 +488,7 @@ class Controller(object):
 
     def on_export_kml_tables(self, toolbutton, user_data = None):
         # pop up a save dialg
-        dlg = Gtk.FileChooserDialog(_('Export KML & JS to...'), self._gui(),
+        dlg = Gtk.FileChooserDialog(_('Export KML w. tables & JS to...'), self._gui(),
                                     Gtk.FileChooserAction.SELECT_FOLDER,
                                     (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                                      Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
@@ -507,7 +507,7 @@ class Controller(object):
 
     def on_export_kml_buttons(self, toolbutton, user_data = None):
         # pop up a save dialg
-        dlg = Gtk.FileChooserDialog(_('Export KML & JS w. agencies...'),
+        dlg = Gtk.FileChooserDialog(_('Export KML w. links only & JS...'),
                                     self._gui(),
                                     Gtk.FileChooserAction.SELECT_FOLDER,
                                     (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,

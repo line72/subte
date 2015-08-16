@@ -51,15 +51,14 @@ Poniższe pola są obecnie ignorowane przez minimalistyczny interfejs webowy:
 * informacje o przewoźnikach inne niż ich nazwa.
 
 By dostarczyć minimalistycznego webowego interfejsu do rozkładów jazdy:
-* wyeksportuj dane klikając na przycisk `Eksportuj do Google`,
-* przenieś pliki `doc.kml` i `doc.js` do docelowego katalogu z web-hostingiem,
-* edytuj pliki `utils/display_map.html`, `utils/display_map.js`: zamień wszystkie wystąpienia `https://ENTER YOUR URL HERE/` przez adres webowy,
-* skopiuj pliki `utils/display_map.html`, `utils/display_map.js` do docelowego katalogu z web-hostingiem,
+* wyeksportuj dane klikając na przycisk `Eksportuj do KML z tablicami` lub przycisk `Eksportuj do KML z linkami` i wybierając pusty katalog,
+* przenieś wszystkie pliki wygenerowane w powyższym katalogu do docelowego katalogu z web-hostingiem,
+* skopiuj pliki `utils/display_map.html`, `utils/display_map.js` i `utils/display_stop.js` do docelowego katalogu z web-hostingiem,
 * interfejs będzie dostępny pod adresem webowym pliku `display_map.html`.
 
 (Plik `doc.kml` jest cache'owany przez przeglądarkę, więc możesz potrzebować zmieniać jego nazwę, również w pliku `display_map.js`, ewentualnie czyścić cache przeglądarki, by testować rezultaty podczas rozwijania aplikacji.)
 
-By dostarczyć dane serwisowi Google Transit, spakuj pliki z rozszerzeniem `.txt` jako archiwum `.zip`, i wykonaj polecenia z [Google Transit Partner Program](https://maps.google.com/help/maps/mapcontent/transit/participate.html). Ale to wymaga autoryzacji od firm przewoźniczych.
+By dostarczyć dane serwisowi Google Transit, kliknij na przycisk `Eksportuj do GTFS`, spakuj wygenerowane pliki z rozszerzeniem `.txt` jako archiwum `.zip`, i wykonaj polecenia z [Google Transit Partner Program](https://maps.google.com/help/maps/mapcontent/transit/participate.html). Ale to wymaga autoryzacji od firm przewoźniczych.
 
 Dane mogą być też użyte z aplikacjami [Open Trip Planner](http://www.opentripplanner.org/), na przykład [OpenTripPlanner for Android](https://github.com/CUTR-at-USF/OpenTripPlanner-for-Android/wiki). Ale to wymaga postawienia serwera Open Trip Planner.
 

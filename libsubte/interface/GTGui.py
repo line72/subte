@@ -236,7 +236,7 @@ class GTGui(Gtk.Window):
 
         export = Gtk.ToolButton('Export')
         export.set_icon_name('document-send')
-        export.set_tooltip_text(_('Export to KML with buttons'))
+        export.set_tooltip_text(_('Export to KML with links'))
         export.connect('clicked', self.controller.on_export_kml_buttons)
         toolbar.add(export)
 
