@@ -148,12 +148,10 @@ class RouteChoice(Gtk.HBox):
         rm_btn.connect('clicked', self.on_rm_route)
         self.pack_start(rm_btn, False, False, 5)
 
-        # add our agencies
+        # add our routes
         for route in libsubte.Route.routes:
-            #!mwd - we shouldn't be referencing by name 
-            #  but by id, just incase we have two with the 
-            #  same name
-            self.choice.append_text(route.short_name)
+            r_name = (route.short_name + ' (' + route.agency.name + ')')
+            self.choice.append_text(r_name)
         self.choice.set_active(0)
 
     def get_label(self):
@@ -165,7 +163,8 @@ class RouteChoice(Gtk.HBox):
     def get_selection(self):
         selection = self.choice.get_active_text()
         for route in libsubte.Route.routes:
-            if route.short_name == selection:
+            r_name = (route.short_name + ' (' + route.agency.name + ')')
+            if r_name == selection:
                 return route
         return None
 
@@ -175,8 +174,9 @@ class RouteChoice(Gtk.HBox):
 
         model = self.choice.get_model()
         it = model.get_iter_first()
+        r_name = (v.short_name + ' (' + v.agency.name + ')')
         while it:
-            if model.get_value(it, 0) == v.short_name:
+            if model.get_value(it, 0) == r_name:
                 self.choice.set_active_iter(it)
                 return True
             it = model.iter_next(it)
@@ -195,8 +195,9 @@ class RouteChoice(Gtk.HBox):
             agency = dlg.content.get_agency()
 
             a = libsubte.Route(agency, name, long_name, description)
+            r_name = (a.short_name + ' (' + a.agency.name + ')')
             # if ok, refresh the combo box
-            self.choice.append_text(a.short_name)
+            self.choice.append_text(r_name)
 
             index = len(self.choice.get_model())
 

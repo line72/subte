@@ -29,7 +29,6 @@ from Locale import _
 from GTMap import GTMap
 from Controller import Controller
 from StopListGui import StopListGui
-from RouteListGui import RouteListGui
 from TripRouteListGui import TripRouteListGui
 from PathListGui import PathListGui
 
