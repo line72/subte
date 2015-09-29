@@ -7,7 +7,7 @@ http://line72.net/index.php/software/subte/
 The software was enhanced by Lukasz Stafiniak <lukstafi@gmail.com> with:
 * minor changes that appear to improve reliability (the program did not work out of the box for Lukasz),
 * a dialog to edit transit agency data,
-* export of KML and JSON / Javascript files with transit data, and `utils/display_map.html`, `utils/display_map.js` files, that together form a minimalistic Google Maps based web application to access bus timetables,
+* export of KML and JSON / Javascript files with transit data, and `utils/display_map.html/js`, `utils/display_stop.js`, `utils/display_route.html/js` files, that together form a minimalistic Google Maps based web application to access bus timetables,
 * a translation of the interface into Polish, the localization is determined by system settings.
 
 This software is licensed under the GPLv3 or later.
@@ -49,6 +49,8 @@ The following fields are currently ignored by the minimalistic web interface:
 * the frequencies of a group of trips,
 * start and expiry dates of a calendar,
 * information about agencies other than their name.
+
+Remember to add the destination stop of a trip. The time of the destination stop is the arrival at destination time. Destination stops are not shown by some "windows" of the minimalistic web interface. The last stop of a trip is always assumed to be the destination stop.
 
 To provide the minimalistic web-based timetables interface:
 * export the transit data by clicking either on the `Export to KML with tables` toolbox button or the `Export to KML with links` toolbox button and selecting an empty directory,

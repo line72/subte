@@ -7,7 +7,7 @@ http://line72.net/index.php/software/subte/
 Program został rozwinięty przez Łukasza Stafiniaka <lukstafi@gmail.com> o:
 * drobne zmiany które zdają się poprawiać niezawodność interfejsu (program nie działał u Łukasza bez nich),
 * pola dialogowe do edycji danych przewoźników,
-* eksport plików KML i JSON /Javascript z danymi, i pliki `utils/display_map.html`, `utils/display_map.js`, które razem tworzą minimalistyczną aplikację webową opartą o Google Maps do odczytywania rozkładów jazdy,
+* eksport plików KML i JSON /Javascript z danymi, i pliki `utils/display_map.html/js`, `utils/display_stop.js`, `utils/display_route.html/js`, które razem tworzą minimalistyczną aplikację webową opartą o Google Maps do odczytywania rozkładów jazdy,
 * przetłumaczenie interfejsu na język polski, lokalizacja jest ustalana przez ustawienia systemowe.
 
 To oprogramowanie jest na licencji GPLv3 lub późniejszej.
@@ -49,6 +49,8 @@ Poniższe pola są obecnie ignorowane przez minimalistyczny interfejs webowy:
 * frekwencje grupy kursów,
 * data początku i końca obowiązywania kalendarza,
 * informacje o przewoźnikach inne niż ich nazwa.
+
+Pamiętaj aby dodać przystanek docelowy dla każdej grupy kursów. Czas na przystanku docelowym to czas dojazdu do celu. Przystanki docelowe nie są pokazywane przez niektóre "okna" minimalistycznego interfejsu webowego. Ostatni przystanek grupy kursów jest zawsze traktowany jako docelowy.
 
 By dostarczyć minimalistycznego webowego interfejsu do rozkładów jazdy:
 * wyeksportuj dane klikając na przycisk `Eksportuj do KML z tablicami` lub przycisk `Eksportuj do KML z linkami` i wybierając pusty katalog,
