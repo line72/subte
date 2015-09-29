@@ -39,17 +39,28 @@ function loadKmlLayer(src, map) {
   });
 }
 
-function showStopRoute(s_name, r_name) {
+function showStopRoute(s_id, r_id) {
     var sidebar = document.getElementById('cur-timetable');
-    buildStopRouteTbl(s_name, r_name, new Date(), sidebar);
+    buildStopRouteTbl(s_id, r_id, new Date(), sidebar);
 }
 
 function buildTimetable(name, date, disp) {
     var bus_tbl;
-    if (name in stop_tables) {
-        bus_tbl = stop_tables[name];
-    } else if (name in route_tables) {
-        bus_tbl = route_tables[name];
+    var name_tbl;
+    var id;
+    if (name in stop_js_id) {
+        name_tbl = route_names;
+        id = stop_js_id[name];
+        bus_tbl = stop_route_tables[id];
+    } else if (name in route_js_id) {
+        bus_tbl = {};
+        id = route_js_id[name];
+        name_tbl = stop_names;
+        // skipping the destination stop
+        for (var i = 0; i < route_stops[id].length - 1; i++) {
+            var s_id = route_stops[id][i];
+            bus_tbl[s_id] = stop_route_tables[s_id][id];
+        }
     } else {
         disp.innerHtml =
             msg1 + showTime(date.toLocaleString());
@@ -61,21 +72,21 @@ function buildTimetable(name, date, disp) {
     var header = document.createElement('h2');
     header.appendChild(document.createTextNode(name));
     disp.appendChild(header);
-    for (i in bus_tbl) { // actually, route or stop
-        var route = bus_tbl[i][0]
+    for (i in bus_tbl) { // route or stop
+        var subname = name_tbl[i];
         var subheader = document.createElement('h3');
-        subheader.appendChild(document.createTextNode(route));
+        subheader.appendChild(document.createTextNode(subname));
         disp.appendChild(subheader);
-        var route_tbl = bus_tbl[i][1];
-        for (cal in route_tbl) {
+        var sub_tbl = bus_tbl[i];
+        for (cal in sub_tbl) {
             if (!dayInCalendar (date, calendars[cal])) {
                 continue;
             }
-            var times = route_tbl[cal];
-            for (i in times) {
-                if (timeAfter (times[i], date)) {
+            var times = sub_tbl[cal];
+            for (j in times) {
+                if (timeAfter (times[j], date)) {
                     disp.appendChild(
-                        document.createTextNode(showTime(times[i]) + ' '));
+                        document.createTextNode(showTime(times[j]) + ' '));
                 }
             }
         }
@@ -83,25 +94,14 @@ function buildTimetable(name, date, disp) {
 }
 
 
-// def times_table (root, times):
-//     table = ElementTree.SubElement(root, 'table')
-//     times = filter(lambda x: x, times)
-//     times = map(split_time, times)
-//     for h, minutes in groupby(times, key=(lambda x: x[0])):
-//         node = ElementTree.SubElement(table, 'tr')
-//         e = ElementTree.SubElement(node, 'td')
-//         e = ElementTree.SubElement(e, 'b')
-//         e.text = h
-//         for m in minutes:
-//             e = ElementTree.SubElement(node, 'td')
-//             e.text = m[1]
-
-function buildStopRoute(s_name, r_name, date, disp) {
-    var route_tbl = stop_route_tables[s_name][r_name];
+function buildStopRoute(s_id, r_id, date, disp) {
+    var route_tbl = stop_route_tables[s_id][r_id];
     // disp.innerHTML =
     //     msg2 + date.toLocaleDateString() +
     //     msg3 + showTime(date.toLocaleTimeString()) + '.';
     var header = document.createElement('h3');
+    var s_name = stop_names[s_id];
+    var r_name = route_names[r_id];
     header.appendChild(document.createTextNode(s_name + ' - ' + r_name));
     disp.appendChild(header);
     for (cal in route_tbl) {

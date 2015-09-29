@@ -44,6 +44,7 @@ dict_pl = {
     'Picture': u'Obrazek',
     'Trip Route': u'Kursy trasy',
     'Stop': u'Przystanek',
+    'Stop: ': u'Przystanek: ',
     'Merge Stops': u'Połącz przystanki',
     'Merge': u'Połącz',
     'Stop 1: ': u'Przystanek 1',

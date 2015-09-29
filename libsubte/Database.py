@@ -25,6 +25,7 @@ import re
 import random
 from itertools import groupby
 import collections
+import urllib
 
 import xml.etree.ElementTree as ElementTree
 import xml.parsers.expat
@@ -571,6 +572,8 @@ class Database(object):
         and routes as keys. The keys are the same as the 'name' property
         of corresponding placemarks. If 'with_tables=False', only
         show links in the stop balloons KML rather than whole tables.
+        In the JSON file, calendars are adressed by name, while agencies,
+        stops and routes (including direction) are adressed by an ID.
         """
         # save the kml
         root = ElementTree.Element('kml')
@@ -612,7 +615,9 @@ class Database(object):
         calendars = list(Calendar.calendars)
         calendars.sort(key = lambda c: c.days, reverse = True)
         calendars_js = dict()
+        calendar_names_js = list()
         for c in calendars:
+            calendar_names_js.append(c.name)
             calendars_js[c.name] = {'days': c.days, 'added_excn': c.added_excn, 'remov_excn': c.remov_excn}
         # the calendars
         for c in calendars:
@@ -697,14 +702,28 @@ class Database(object):
                 route_name[tr.route.route_id] = dict()
             route_name[tr.route.route_id][di] = r_name
 
+        stop_routes_js = dict()
+        stop_names_js = dict()
+        stop_route_tables_js = dict()
+        agency_js_id = dict()
+        stop_js_id = dict()
+        route_js_id = dict()
+
         # We do not display (arrival = departure) time of the last stop
         # of a trip, but we display it for the route timetable.
         for t in Trip.trips:
+            a_name = t.trip_route.route.agency.name
+            r_name = route_name[t.trip_route.route.route_id][t.trip_route.direction]
+            r_js = "R" + str(t.trip_route.route.route_id + (Route.route_id + 1) * t.trip_route.direction)
+            a_js = "A" + str(t.trip_route.route.agency.agency_id)
+            if a_name not in agency_js_id:
+                agency_js_id[a_name] = a_js
+            if r_name not in route_js_id:
+                route_js_id[r_name] = r_js
             for i, rs in enumerate(t.stops):
                 ends = i == len(t.stops) - 1
                 s_name = rs.stop.code or rs.stop.name or rs.stop.description
-                a_name = t.trip_route.route.agency.name
-                r_name = route_name[t.trip_route.route.route_id][t.trip_route.direction]
+                s_js = "S" + str(rs.stop.stop_id)
                 #!lukstafi - FIXME: we need trip route calendar rather than
                 # trip calendar, find out why old trip calendars are reset
                 c_name = t.trip_route.calendar.name
@@ -712,13 +731,21 @@ class Database(object):
                 if not ends:
                     if s_name not in stop_tables:
                         stop_tables[s_name] = dict()
+                        stop_names_js[s_js] = s_name
+                        stop_js_id[s_name] = s_js
+                        stop_routes_js[s_js] = list()
+                        stop_route_tables_js[s_js] = dict()
                     if a_name not in stop_tables[s_name]:
                         stop_tables[s_name][a_name] = dict()
                     if r_name not in stop_tables[s_name][a_name]:
                         stop_tables[s_name][a_name][r_name] = dict()
+                        stop_routes_js[s_js].append(r_js)
+                        stop_route_tables_js[s_js][r_js] = dict()
                     if c_name not in stop_tables[s_name][a_name][r_name]:
                         stop_tables[s_name][a_name][r_name][c_name] = list()
+                        stop_route_tables_js[s_js][r_js][c_name] = list()
                     stop_tables[s_name][a_name][r_name][c_name].append(rs.departure)
+                    stop_route_tables_js[s_js][r_js][c_name].append(rs.departure)
                 if r_name not in route_tables:
                     route_tables[r_name] = dict()
                 if s_name not in route_tables[r_name]:
@@ -732,6 +759,7 @@ class Database(object):
         # the stops
         for s in Stop.stops:
             s_name = s.code or s.name or s.description
+            s_js = "S" + str(s.stop_id)
             if s_name not in stop_tables:
                 continue
             node = ElementTree.SubElement(docu, 'Placemark')
@@ -754,11 +782,13 @@ class Database(object):
             stop_disp = ElementTree.SubElement(stop_file, 'body')
             f = ElementTree.SubElement(stop_disp, 'p')
             f.text = messages[4]
-            e = ElementTree.SubElement(stop_tbl, 'span')
+            e = ElementTree.SubElement(stop_tbl, 'a')
             f = ElementTree.SubElement(stop_disp, 'b')
             e.text = s.name + (' - ' + s.description if s.description else '')
             f.text = s.name + (' - ' + s.description if s.description else '')
+            e.set('href', clean_ref (s_name) + '.html')
             for a_name, a_tbl in stop_tables[s_name].viewitems():
+                a_js = agency_js_id[a_name]
                 e = ElementTree.SubElement(stop_tbl, 'br')
                 e = ElementTree.SubElement(stop_tbl, 'span')
                 e = ElementTree.SubElement(e, 'b')
@@ -767,6 +797,7 @@ class Database(object):
                 f = ElementTree.SubElement(stop_disp, 'b')
                 f.text = a_name
                 for r_name, tbl in a_tbl.viewitems():
+                    r_js = route_js_id[r_name]
                     tbl_e = ElementTree.SubElement(stop_tbl, 'table')
                     tbl_f = ElementTree.SubElement(stop_disp, 'table')
                     # route name
@@ -774,7 +805,8 @@ class Database(object):
                     e = ElementTree.SubElement(e, 'th')
                     e = ElementTree.SubElement(e, 'a')
                     e.text = r_name
-                    s = clean_ref (s_name) + '.html#' + clean_ref (r_name)
+                    s = ('display_route.html?stop=' + s_js +
+                           '&route=' + r_js + '&agency=' + a_js)
                     e.set('href', s)
                     f = ElementTree.SubElement(tbl_f, 'tr')
                     f = ElementTree.SubElement(f, 'th')
@@ -836,54 +868,58 @@ class Database(object):
                 route_stops[r_id][di] = tr.stops
 
 
-        stop_tables_js = dict()
-        route_tables_js = dict()
-        agency_tables_js = dict()
-        stop_route_tables_js = dict()
-        for s_name, s_tbl in stop_tables.viewitems():
-            for a_name, a_tbl in s_tbl.viewitems():
-                stop_tables_js[s_name] = list()
-                stop_route_tables_js[s_name] = dict()
-                for r_name, r_tbl in a_tbl.viewitems():
-                    stop_tables_js[s_name].append((r_name, r_tbl))
-                    stop_route_tables_js[s_name][r_name] = r_tbl
-
         # the routes
+        agency_names_js = dict()
+        agency_routes_js = dict()
+        route_names_js = dict()
+        route_stops_js = dict()
         seen_routes = dict()
         for tr in TripRoute.trip_routes:
+            r_id = tr.route.route_id
             di = tr.direction
-            if tr.route.route_id not in seen_routes:
-                seen_routes[tr.route.route_id] = list()
-            elif di in seen_routes[tr.route.route_id]:
+            r_js = "R" + str(r_id + (Route.route_id + 1) * di)
+            r_name = route_name[r_id][di]
+            if r_js not in route_names_js:
+                route_names_js[r_js] = r_name
+            if r_id not in seen_routes:
+                seen_routes[r_id] = list()
+            elif di in seen_routes[r_id]:
                 continue
-            seen_routes[tr.route.route_id].append(di)
-            r_name = route_name[tr.route.route_id][di]
+            seen_routes[r_id].append(di)
             if r_name not in route_tables:
                 continue
             tbl = route_tables[r_name]
             a_name = tr.route.agency.name
-            if a_name not in agency_tables_js:
-                agency_tables_js[a_name] = list()
-            agency_tables_js[a_name].append(r_name)
-            route_tables_js[r_name] = list()
+            a_js = "A" + str(tr.route.agency.agency_id)
+            if a_js not in agency_routes_js:
+                agency_routes_js[a_js] = list()
+                agency_names_js[a_js] = a_name
+            agency_routes_js[a_js].append(r_name)
             node = ElementTree.SubElement(docu, 'Placemark')
             e = ElementTree.SubElement(node, 'name')
             e.text = r_name
             e = ElementTree.SubElement(node, 'LineString')
             #!lukstafi - TODO: use user-defined paths when available
             e = ElementTree.SubElement(e, 'coordinates')
-            stops = route_stops[tr.route.route_id][di]
+            stops = route_stops[r_id][di]
+            stop0 = stops[0]
             coords = map(lambda s: '%s,%s' % (s.longitude, s.latitude), stops)
             stops = map(lambda s: ((s.code or s.name or s.description), s), stops)
             e.text = '\n'.join(coords)
             route_h = ElementTree.Element('div')
-            e = ElementTree.SubElement(route_h, 'span')
-            # e = ElementTree.SubElement(stop_tbl, 'b')
+            e = ElementTree.SubElement(route_h, 'a')
             e.text = tr.route.long_name + (' - ' + tr.route.description if tr.route.description else '')
+            s0_js = "S" + str(stop0.stop_id)
+            s = ('display_route.html?stop=' + s0_js +
+                 '&route=' + r_js + '&agency=' + a_js)
+            e.set('href', s)
             route_tbl = ElementTree.SubElement(route_h, 'table')
             # stops
             stops_e = ElementTree.SubElement(route_tbl, 'tr')
+            route_stops_js[r_js] = list()
             for s_name, s in stops:
+                s_js = "S" + str(s.stop_id)
+                route_stops_js[r_js].append(s_js)
                 e = ElementTree.SubElement(stops_e, 'th')
                 e.text = s_name
             stops_e = ElementTree.SubElement(route_tbl, 'tr')
@@ -891,7 +927,6 @@ class Database(object):
                 tbl_e = ElementTree.SubElement(stops_e, 'td')
                 tbl_e = ElementTree.SubElement(tbl_e, 'table')
                 s_tbl = tbl[s_name]
-                route_tables_js[r_name].append((s_name, s_tbl))
                 # calendars
                 cals = ElementTree.SubElement(tbl_e, 'tr')
                 for c_name in calendars:
@@ -919,16 +954,33 @@ class Database(object):
             outfile.write('var msg1 = "' + messages[0] + '"\n')
             outfile.write('var msg2 = "' + messages[1] + '"\n')
             outfile.write('var msg3 = "' + messages[2] + '"\n')
-            outfile.write('var calendars = ')
+            outfile.write('var msg4 = "' + messages[5] + '"\n')
+            outfile.write('var msg5 = "' + messages[6] + '"\n')
+            outfile.write('var msg6 = "' + messages[7] + '"\n')
+            outfile.write('\nvar calendar_names = ')
+            json.dump(calendar_names_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar calendars = ')
             json.dump(calendars_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
-            outfile.write('\nvar stop_tables = ')
-            json.dump(stop_tables_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
-            outfile.write('\nvar route_tables = ')
-            json.dump(route_tables_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
-            outfile.write('\nvar stop_route_rtables = ')
+            outfile.write('\nvar stop_names = ')
+            json.dump(stop_names_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar stop_js_id = ')
+            json.dump(stop_js_id, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar stop_routes = ')
+            json.dump(stop_routes_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar route_names = ')
+            json.dump(route_names_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar route_js_id = ')
+            json.dump(route_js_id, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar route_stops = ')
+            json.dump(route_stops_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar agency_names = ')
+            json.dump(agency_names_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar agency_js_id = ')
+            json.dump(agency_js_id, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar agency_routes = ')
+            json.dump(agency_routes_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
+            outfile.write('\nvar stop_route_tables = ')
             json.dump(stop_route_tables_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
-            outfile.write('\nvar agency_tables = ')
-            json.dump(agency_tables_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
 
 
     @classmethod

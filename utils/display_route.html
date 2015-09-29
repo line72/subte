@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<?xml version='1.0' encoding='UTF-8'?>
+<html>
+  <head>
+    <style>
+      div.rightpane {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 30%;
+        border: 3px solid #550055;
+      }
+    </style>
+    <style>
+      div.toppane {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 69%;
+        height: 77px;
+        border: 3px solid #880088;
+      }
+    </style>
+    <style>
+      div.midpane {
+        position: fixed;
+        top: 83px;
+        bottom: 0;
+        left: 0;
+        width: 69%;
+        border: 3px solid #BB00BB;
+      }
+    </style>
+    <script src="doc.js">   </script>
+    <script src="display_route.js">   </script>
+  </head><body>
+    <div class="toppane" id="routeheading">
+    </div>
+    <div class="rightpane" id="routelist">
+    </div>
+    <div class="midpane" id="timetable">
+    </div>
+  </body>
+</html>

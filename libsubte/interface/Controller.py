@@ -497,7 +497,10 @@ class Controller(object):
                     _('Showing times for day '),
                     _(' after hour '),
                     (_('Outb.'), _('Inb.')),
-                    _('Underlined are times of buses that will depart today.'))
+                    _('Underlined are times of buses that will depart today.'),
+                    _('Agency: '),
+                    _('Stop: '),
+                    _('Route: '))
         if resp == Gtk.ResponseType.ACCEPT:
             directory = dlg.get_filename()
             libsubte.Database.export_kml_and_js(directory, messages, True)
@@ -517,7 +520,10 @@ class Controller(object):
                     _('Showing times for day '),
                     _(' after hour '),
                     (_('Outb.'), _('Inb.')),
-                    _('Underlined are times of buses that will depart today.'))
+                    _('Underlined are times of buses that will depart today.'),
+                    _('Agency: '),
+                    _('Stop: '),
+                    _('Route: '))
         if resp == Gtk.ResponseType.ACCEPT:
             directory = dlg.get_filename()
             libsubte.Database.export_kml_and_js(directory, messages, False)
