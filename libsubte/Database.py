@@ -274,6 +274,11 @@ class Database(object):
                 headway = frequency_node.findtext('headway')
 
                 trip_route = TripRoute.get(int(trip_route_id))
+                if trip_route is None:
+                    print "Missing trip route id ", trip_route_id
+                    print "for frequency id ", frequency_id
+                    continue
+                    
 
                 frequency = trip_route.add_frequency(start, end, headway)
                 frequency.frequency_id = int(frequency_id)

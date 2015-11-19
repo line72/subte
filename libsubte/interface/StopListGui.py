@@ -90,12 +90,12 @@ class StopListGui(object):
         self.model.clear()
 
     def add_stop(self, s):
-        print 'add_stop', s
+        # print 'add_stop', s
         if s:
             name = s.name
             if name is None:
                 name = s.stop_id
-            print 'appending'
+            # print 'appending'
             self.model.append([s.stop_id, '(%s) %s' % (s.stop_id, name)])
 
     def update_stop(self, s):
