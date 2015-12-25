@@ -55,7 +55,7 @@ Remember to add the destination stop of a trip. The time of the destination stop
 To provide the minimalistic web-based timetables interface:
 * export the transit data by clicking either on the `Export to KML with tables` toolbox button or the `Export to KML with links` toolbox button and selecting an empty directory,
 * move all the files generated in the directory above into the target web hosting directory,
-* copy the files `utils/display_map.html`, `utils/display_map.js` and `utils/display_stop.js` into the target web hosting directory,
+* copy the files `utils/display_map.html`, `utils/display_map.js`, `utils/display_route.html`, `utils/display_route.js` and `utils/display_stop.js` into the target web hosting directory,
 * the interface is now available at the web-facing address of `display_map.html`.
 
 (The `doc.kml` file is cached by the browser, so you may need to rename it, also in `display_map.js`, or alternatively clear the cache, for testing during development.)

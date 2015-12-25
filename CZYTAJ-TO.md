@@ -7,7 +7,7 @@ http://line72.net/index.php/software/subte/
 Program został rozwinięty przez Łukasza Stafiniaka <lukstafi@gmail.com> o:
 * drobne zmiany które zdają się poprawiać niezawodność interfejsu (program nie działał u Łukasza bez nich),
 * pola dialogowe do edycji danych przewoźników,
-* eksport plików KML i JSON /Javascript z danymi, i pliki `utils/display_map.html/js`, `utils/display_stop.js`, `utils/display_route.html/js`, które razem tworzą minimalistyczną aplikację webową opartą o Google Maps do odczytywania rozkładów jazdy,
+* eksport plików KML i JSON /Javascript z danymi, i pliki `utils/display_map.html`, `utils/display_map.js`, `utils/display_stop.js`, `utils/display_route.html`, `utils/display_route.js`, które razem tworzą minimalistyczną aplikację webową opartą o Google Maps do odczytywania rozkładów jazdy,
 * przetłumaczenie interfejsu na język polski, lokalizacja jest ustalana przez ustawienia systemowe.
 
 To oprogramowanie jest na licencji GPLv3 lub późniejszej.
@@ -55,7 +55,7 @@ Pamiętaj aby dodać przystanek docelowy dla każdej grupy kursów. Czas na przy
 By dostarczyć minimalistycznego webowego interfejsu do rozkładów jazdy:
 * wyeksportuj dane klikając na przycisk `Eksportuj do KML z tablicami` lub przycisk `Eksportuj do KML z linkami` i wybierając pusty katalog,
 * przenieś wszystkie pliki wygenerowane w powyższym katalogu do docelowego katalogu z web-hostingiem,
-* skopiuj pliki `utils/display_map.html`, `utils/display_map.js` i `utils/display_stop.js` do docelowego katalogu z web-hostingiem,
+* skopiuj pliki `utils/display_map.html`, `utils/display_map.js`, `utils/display_route.html`, `utils/display_route.js` i `utils/display_stop.js` do docelowego katalogu z web-hostingiem,
 * interfejs będzie dostępny pod adresem webowym pliku `display_map.html`.
 
 (Plik `doc.kml` jest cache'owany przez przeglądarkę, więc możesz potrzebować zmieniać jego nazwę, również w pliku `display_map.js`, ewentualnie czyścić cache przeglądarki, by testować rezultaty podczas rozwijania aplikacji.)

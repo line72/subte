@@ -1022,7 +1022,7 @@ def indent(elem, level = 0):
             elem.tail = i
 
 def split_time(t):
-    if len(t) <= 2: assert False
+    if len(t) <= 2: return (t, '00', t)
     if len(t) <= 5:
         pos3 = len(t)
     else:
