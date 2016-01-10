@@ -136,13 +136,13 @@ function showTime(t) {
 }
 
 function dayInCalendar(d, cal) {
-    var yymmdd = "" + d.getFullYear() +
+    var yyyymmdd = "" + d.getFullYear() +
         (d.getMonth() < 9 ? "0" : "") + (d.getMonth()+1) +
         (d.getDate() < 10 ? "0" : "") + d.getDate();
-    if (cal['added_excn'].indexOf(yymmdd) > -1) {
+    if (cal['added_excn'].indexOf(yyyymmdd) > -1) {
         return true;
     }
-    if (cal['remov_excn'].indexOf(yymmdd) > -1) {
+    if (cal['remov_excn'].indexOf(yyyymmdd) > -1) {
         return false;
     }
     var day_no = d.getDay() == 0 ? 6 : d.getDay() - 1;

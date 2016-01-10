@@ -33,10 +33,11 @@ Jednak, na potrzeby minimalistycznego interfejsu webowego wspomnianego poniżej,
 * Trasa grupy kursów (kliknij przycisk `Dodaj` na prawo od menu rozwijalnego jeśli dana grupa kursów potrzebuje nowej trasy).
 * Kalendarz grupy kursów (kliknij przycisk `Dodaj` na prawo od menu rozwijalnego jeśli dana grupa kursów potrzebuje nowego kalendarza).
 * Wszystkie pola w kalendarzu z wyjątkiem daty początku i końca obowiązywania:
-** nazwa kalendarza,
-** dni kursowania,
-** dodatkowe dni "też kursuje", jeśli są takie,
-** wykluczone dni "nie kursuje", jeśli są takie.
+  * nazwa kalendarza,
+  * dni kursowania,
+  * dodatkowe dni "też kursuje", jeśli są takie,
+  * wykluczone dni "nie kursuje", jeśli są takie.
+  * Pamiętaj, że dodatkowe i wykluczone dni muszą być w formacie RRRRMMDD, np. 20170102 oznacza drugiego stycznia 2017, i oddzielone tylko spacjami!
 * Czasy odjazdów, po kliknięciu guzika na prawo od `Edytuj kursy:` (frekwencje kursów, jak w przycisku poniżej, nie są obsługiwane przez minimalistyczny interfejs webowy);
 ** uwaga: najpierw dodaj przystanki grupy kursów, dodatkowo możesz potrzebować powiększyć okno `Edytuj kursy`.
 * Albo skrócona nazwa, albo pełna nazwa trasy.

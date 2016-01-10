@@ -33,10 +33,11 @@ However, for the purposes of the minimalistic web-based interface mentioned belo
 * The route of a group of trips (click the `Add` button to the right of the pulldown menu if the group of trips needs a new route).
 * The calendar of a group of trips (click the `Add` button to the right of the pulldown menu if the group of trips needs a new calendar).
 * All the fields in a calendar except the start and expiry date:
-** name of the calendar,
-** days of operation,
-** additional specific days if any,
-** specific excluded days if any.
+  * name of the calendar,
+  * days of operation,
+  * additional specific days if any,
+  * specific excluded days if any.
+  * Remember that the additional and excluded days need to be in the format YYYYMMDD, for example 20170102 means January 2nd 2017, and be separated only by spaces!
 * The trip departure times under the button to the right of `Edit Trips:` (the trip frequencies, as in the button below, are not supported by the minimalistic web interface);
 ** note: first add the stops of the group of trips, also the `Edit trips` window might need expanding.
 * Either the short name or the long name of a route.
