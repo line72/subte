@@ -486,9 +486,9 @@ class Controller(object):
         return True
 
 
-    def on_export_kml_tables(self, toolbutton, user_data = None):
+    def on_export_kml(self, toolbutton, user_data = None):
         # pop up a save dialg
-        dlg = Gtk.FileChooserDialog(_('Export KML w. tables & JS to...'), self._gui(),
+        dlg = Gtk.FileChooserDialog(_('Export KML/JS/HTML to...'), self._gui(),
                                     Gtk.FileChooserAction.SELECT_FOLDER,
                                     (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                                      Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
@@ -497,36 +497,15 @@ class Controller(object):
                     _('Showing times for day '),
                     _(' after hour '),
                     (_('Outb.'), _('Inb.')),
-                    _('Underlined are times of buses that will depart today.'),
+                    _('Underlined are times of buses that will depart today and calendars valid for tomorrow.'),
                     _('Agency: '),
                     _('Stop: '),
-                    _('Route: '))
+                    _('Route: '),
+                    _('today'),
+                    _('tomorrow'))
         if resp == Gtk.ResponseType.ACCEPT:
             directory = dlg.get_filename()
-            libsubte.Database.export_kml_and_js(directory, messages, True)
-
-        dlg.destroy()
-        return True
-
-    def on_export_kml_buttons(self, toolbutton, user_data = None):
-        # pop up a save dialg
-        dlg = Gtk.FileChooserDialog(_('Export KML w. links only & JS...'),
-                                    self._gui(),
-                                    Gtk.FileChooserAction.SELECT_FOLDER,
-                                    (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                                     Gtk.STOCK_OPEN, Gtk.ResponseType.ACCEPT))
-        resp = dlg.run()
-        messages = (_('Select a bus stop or a bus route. Time: '),
-                    _('Showing times for day '),
-                    _(' after hour '),
-                    (_('Outb.'), _('Inb.')),
-                    _('Underlined are times of buses that will depart today.'),
-                    _('Agency: '),
-                    _('Stop: '),
-                    _('Route: '))
-        if resp == Gtk.ResponseType.ACCEPT:
-            directory = dlg.get_filename()
-            libsubte.Database.export_kml_and_js(directory, messages, False)
+            libsubte.Database.export_kml_and_js(directory, messages)
 
         dlg.destroy()
         return True

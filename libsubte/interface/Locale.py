@@ -132,7 +132,11 @@ dict_pl = {
     ' after hour ': u' po godzinie ',
     'Outb.': u'Wyj.',
     'Inb.': u'Przyj.',
-    'Underlined are times of buses that will depart today.': u'Podkreślone są czasy autobusów które odjadą dzisiaj.'
+    'Underlined are times of buses that will depart today and calendars valid for tomorrow.': u'Podkreślone są czasy autobusów które odjadą dzisiaj i kalendarze obowiązujące jutro.',
+    'today': u'dzisiaj',
+    'tomorrow': u'jutro',
+    'Export to KML/JS/HTML': u'Eksportuj do KML/JS/HTML',
+    'Export KML/JS/HTML to...': u'Eksportuj KML/JS/HTML do...'
 }
 
 def _(s):

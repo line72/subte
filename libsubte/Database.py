@@ -570,13 +570,11 @@ class Database(object):
         Picture.clear()
 
     @classmethod
-    def export_kml_and_js(cls, directory, messages, with_tables,
-                          calendars_as_placemark = True):
+    def export_kml_and_js(cls, directory, messages):
         """Export a self-contained KML file with timetable information,
         and a JSON file with timetable mapping with the names of stops
         and routes as keys. The keys are the same as the 'name' property
-        of corresponding placemarks. If 'with_tables=False', only
-        show links in the stop balloons KML rather than whole tables.
+        of corresponding placemarks.
         In the JSON file, calendars are adressed by name, while agencies,
         stops and routes (including direction) are adressed by an ID.
         """
@@ -640,21 +638,8 @@ class Database(object):
         calendars = map(lambda c: c.name, calendars)
 
         cal_table = ElementTree.tostring(cal_table, encoding = 'utf-8', method = 'html')
-        if calendars_as_placemark:
-            node = ElementTree.SubElement(docu, 'Placemark')
-            e = ElementTree.SubElement(node, 'name')
-            e.text = 'Days of operation'
-            e = ElementTree.SubElement(node, 'Point')
-            e = ElementTree.SubElement(e, 'coordinates')
-            #!lukstafi - TODO: better location selection
-            e.text = '%s,%s' % (Stop.stops[0].longitude,
-                                Stop.stops[1].latitude)
-            e = ElementTree.SubElement(node, 'description')
-            e.text = cal_table
-        else:
-            node = ElementTree.SubElement(docu, 'description')
-            node.text = cal_table
-            # no Point element
+        node = ElementTree.SubElement(docu, 'description')
+        node.text = cal_table
 
         # Resolve unique names of routes, conflating directions into
         # route names if needed.
@@ -678,6 +663,7 @@ class Database(object):
             route_names[r_name + ' ' + msg4[di] + ' (' + tr.route.agency.name + ')'] += 1
         seen_routes = dict()
         route_name = dict()
+        route_name_with_stops = dict()
         # Visit each (route, direction) pair once, building a map
         # route_id->direction->route name.
         for tr in TripRoute.trip_routes:
@@ -706,6 +692,12 @@ class Database(object):
             if tr.route.route_id not in route_name:
                 route_name[tr.route.route_id] = dict()
             route_name[tr.route.route_id][di] = r_name
+            if r_name not in route_name_with_stops:
+                rs = tr.stops[0]
+                beg_stop = rs.code or rs.name or rs.description
+                rs = tr.stops[-1]
+                end_stop = rs.code or rs.name or rs.description
+                route_name_with_stops[r_name] = r_name + ": " + beg_stop + " ... " + end_stop
 
         stop_routes_js = dict()
         stop_names_js = dict()
@@ -761,6 +753,23 @@ class Database(object):
 
         #!lukstafi - TODO: handle the frequencies!
 
+        #!lukstafi - TODO: perhaps split the routes with different
+        #   sets of stops into route-calenadar groups
+        # route->list of stops on the route
+        route_stops = dict()
+        for tr in TripRoute.trip_routes:
+            r_id = tr.route.route_id
+            di = tr.direction
+            if tr.route.route_id in route_stops:
+                if di in route_stops[r_id]:
+                    if len(tr.stops) > len(route_stops[r_id][di]):
+                        route_stops[r_id][di] = tr.stops
+                else:
+                    route_stops[r_id][di] = tr.stops
+            else:
+                route_stops[r_id] = dict()
+                route_stops[r_id][di] = tr.stops
+
         # the stops
         for s in Stop.stops:
             s_name = s.code or s.name or s.description
@@ -809,7 +818,7 @@ class Database(object):
                     e = ElementTree.SubElement(tbl_e, 'tr')
                     e = ElementTree.SubElement(e, 'th')
                     e = ElementTree.SubElement(e, 'a')
-                    e.text = r_name
+                    e.text = route_name_with_stops[r_name]
                     s = ('display_route.html?stop=' + s_js +
                            '&route=' + r_js + '&agency=' + a_js)
                     e.set('href', s)
@@ -818,26 +827,14 @@ class Database(object):
                     f = ElementTree.SubElement(f, 'a')
                     f.text = r_name
                     f.set('id', clean_ref (r_name))
-                    if with_tables:
-                        # calendars
-                        cals = ElementTree.SubElement(tbl_e, 'tr')
-                        for c_name in calendars:
-                            if c_name not in tbl:
-                                continue
-                            e = ElementTree.SubElement(cals, 'th')
-                            e.text = c_name
-                        cals = ElementTree.SubElement(tbl_e, 'tr')
-                        for c_name in calendars:
-                            if c_name not in tbl:
-                                continue
-                            e = ElementTree.SubElement(cals, 'td')
-                            times_table(e, tbl[c_name], False)
                     cals = ElementTree.SubElement(tbl_f, 'tr')
                     for c_name in calendars:
                         if c_name not in tbl:
                             continue
                         f = ElementTree.SubElement(cals, 'th')
-                        f.text = c_name
+                        g = ElementTree.SubElement(f, 'span')
+                        g.set('cal-label', c_name)
+                        g.text = c_name
                     cals = ElementTree.SubElement(tbl_f, 'tr')
                     for c_name in calendars:
                         if c_name not in tbl:
@@ -854,23 +851,6 @@ class Database(object):
                 tree = ElementTree.ElementTree(stop_file)
                 outfile.write('<!DOCTYPE html>\n')
                 tree.write(outfile, encoding = 'UTF-8')
-
-        #!lukstafi - TODO: perhaps split the routes with different
-        #   sets of stops into route-calenadar groups
-        # route->list of stops on the route
-        route_stops = dict()
-        for tr in TripRoute.trip_routes:
-            r_id = tr.route.route_id
-            di = tr.direction
-            if tr.route.route_id in route_stops:
-                if di in route_stops[r_id]:
-                    if len(tr.stops) > len(route_stops[r_id][di]):
-                        route_stops[r_id][di] = tr.stops
-                else:
-                    route_stops[r_id][di] = tr.stops
-            else:
-                route_stops[r_id] = dict()
-                route_stops[r_id][di] = tr.stops
 
 
         # the routes
@@ -962,6 +942,8 @@ class Database(object):
             outfile.write('var msg4 = "' + messages[5] + '"\n')
             outfile.write('var msg5 = "' + messages[6] + '"\n')
             outfile.write('var msg6 = "' + messages[7] + '"\n')
+            outfile.write('var msg7 = "' + messages[8] + '"\n')
+            outfile.write('var msg8 = "' + messages[9] + '"\n')
             outfile.write('\nvar calendar_names = ')
             json.dump(calendar_names_js, outfile, sort_keys = False, indent = 4, ensure_ascii=False)
             outfile.write('\nvar calendars = ')
