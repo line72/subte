@@ -24,6 +24,8 @@ function initialize() {
     var stop_n = stop_names[stop_id];
     var agency_n = agency_names[agency_id];
     var date = new Date();
+    var tomorrow = new Date();
+    tomorrow.setDate(date.getDate() + 1);
     var heading_doc = document.getElementById('routeheading');
     var timetable_doc = document.getElementById('timetable');
     var routelist_doc = document.getElementById('routelist');
@@ -63,6 +65,9 @@ function initialize() {
         if (!(cal_n in tbl)) continue;
         var cal_h = document.createElement('th');
         cal_h.appendChild(document.createTextNode(cal_n));
+        if (dayInCalendar (tomorrow, calendars[cal_n])) {
+            cal_h.style.textDecoration = "underline";
+        }
         cals.appendChild(cal_h);
     }
     timetable.appendChild(cals);

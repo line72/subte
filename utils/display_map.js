@@ -45,6 +45,8 @@ function showStopRoute(s_id, r_id) {
 }
 
 function buildTimetable(name, date, disp) {
+    var tomorrow = new Date();
+    tomorrow.setDate(date.getDate() + 1);
     var bus_tbl;
     var name_tbl;
     var id;
@@ -66,20 +68,34 @@ function buildTimetable(name, date, disp) {
             msg1 + showTime(date.toLocaleString());
         return;
     }
-    disp.innerHTML =
+    disp.innerHTML = ""
+    var header1 = document.createElement('h2');
+    header1.appendChild(document.createTextNode(name + ": " + msg7));
+    disp.appendChild(header1);
+    disp.appendChild(document.createTextNode(
         msg2 + date.toLocaleDateString() +
-        msg3 + showTime(date.toLocaleTimeString()) + '.';
-    var header = document.createElement('h2');
-    header.appendChild(document.createTextNode(name));
-    disp.appendChild(header);
+            msg3 + showTime(date.toLocaleTimeString()) + '.'));
     for (i in bus_tbl) { // route or stop
+        var sub_tbl = bus_tbl[i];
+        var empty_case = true;
+        for (cal in sub_tbl) {
+            if (!dayInCalendar(date, calendars[cal])) {
+                continue;
+            }
+            var times = sub_tbl[cal];
+            for (j in times) {
+                if (timeAfter (times[j], date)) {
+                    empty_case = false;
+                }
+            }
+        }
+        if (empty_case) continue;
         var subname = name_tbl[i];
         var subheader = document.createElement('h3');
         subheader.appendChild(document.createTextNode(subname));
         disp.appendChild(subheader);
-        var sub_tbl = bus_tbl[i];
         for (cal in sub_tbl) {
-            if (!dayInCalendar (date, calendars[cal])) {
+            if (!dayInCalendar(date, calendars[cal])) {
                 continue;
             }
             var times = sub_tbl[cal];
@@ -88,6 +104,36 @@ function buildTimetable(name, date, disp) {
                     disp.appendChild(
                         document.createTextNode(showTime(times[j]) + ' '));
                 }
+            }
+        }
+    }
+    var header2 = document.createElement('h2');
+    header2.appendChild(document.createTextNode(name + ": " + msg8));
+    disp.appendChild(header2);
+    disp.appendChild(document.createTextNode(
+        msg2 + tomorrow.toLocaleDateString() + '.'));
+    for (i in bus_tbl) { // route or stop
+        var sub_tbl = bus_tbl[i];
+        var empty_case = true;
+        for (cal in sub_tbl) {
+            if (dayInCalendar(tomorrow, calendars[cal]) &&
+                sub_tbl[cal].length > 0) {
+                empty_case = false;
+            }
+        }
+        if (empty_case) continue;
+        var subname = name_tbl[i];
+        var subheader = document.createElement('h3');
+        subheader.appendChild(document.createTextNode(subname));
+        disp.appendChild(subheader);
+        for (cal in sub_tbl) {
+            if (!dayInCalendar(tomorrow, calendars[cal])) {
+                continue;
+            }
+            var times = sub_tbl[cal];
+            for (j in times) {
+                disp.appendChild(
+                    document.createTextNode(showTime(times[j]) + ' '));
             }
         }
     }

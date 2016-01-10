@@ -17,12 +17,20 @@
 
 function initialize() {
     var date = new Date();
+    var tomorrow = new Date();
+    tomorrow.setDate(date.getDate() + 1);
     var spans = document.getElementsByTagName('span');
     for (i = 0; i < spans.length; i++) {
         if (spans[i].hasAttribute("cal-name") &&
             dayInCalendar
               (date, calendars[spans[i].getAttribute("cal-name")]) &&
                timeAfter (spans[i].getAttribute("trip-time"), date)) {
+            // spans[i].style.color = "red";
+            spans[i].style.textDecoration = "underline";
+        }
+        if (spans[i].hasAttribute("cal-label") &&
+            dayInCalendar
+              (tomorrow, calendars[spans[i].getAttribute("cal-label")])) {
             // spans[i].style.color = "red";
             spans[i].style.textDecoration = "underline";
         }
