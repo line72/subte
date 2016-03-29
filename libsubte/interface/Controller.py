@@ -502,7 +502,19 @@ class Controller(object):
                     _('Stop: '),
                     _('Route: '),
                     _('today'),
-                    _('tomorrow'))
+                    _('tomorrow'),
+                    _('Mon'),
+                    _('Tue'),
+                    _('Wed'),
+                    _('Thu'),
+                    _('Fri'),
+                    _('Sat'),
+                    _('Sun'),
+                    _('Also goes on'),
+                    _('Does not go on'),
+                    _('Subscript'),
+                    _('(no exceptions)'),
+        )
         if resp == Gtk.ResponseType.ACCEPT:
             directory = dlg.get_filename()
             libsubte.Database.export_kml_and_js(directory, messages)

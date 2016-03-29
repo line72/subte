@@ -136,7 +136,18 @@ dict_pl = {
     'today': u'dzisiaj',
     'tomorrow': u'jutro',
     'Export to KML/JS/HTML': u'Eksportuj do KML/JS/HTML',
-    'Export KML/JS/HTML to...': u'Eksportuj KML/JS/HTML do...'
+    'Export KML/JS/HTML to...': u'Eksportuj KML/JS/HTML do...',
+    'Mon': u'Pon',
+    'Tue': u'Wto',
+    'Wed': u'Śro',
+    'Thu': u'Czw',
+    'Fri': u'Pt',
+    'Sat': u'Sob',
+    'Sun': u'Nie',
+    'Also goes on': u'Kursuje również w dni',
+    'Does not go on': u'Nie kursuje w dni',
+    'Subscript': u'Przypis',
+    '(no exceptions)': u'(brak wyjątków)',
 }
 
 def _(s):

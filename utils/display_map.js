@@ -41,7 +41,7 @@ function loadKmlLayer(src, map) {
 
 function showStopRoute(s_id, r_id) {
     var sidebar = document.getElementById('cur-timetable');
-    buildStopRouteTbl(s_id, r_id, new Date(), sidebar);
+    buildStopRoute(s_id, r_id, new Date(), sidebar);
 }
 
 function buildTimetable(name, date, disp) {
