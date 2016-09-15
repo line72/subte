@@ -170,19 +170,21 @@ class Controller(object):
 
         handler = self.connect('on-map-clicked', stop_dialog.on_map_clicked)
 
-        resp = win.run()
-        self.disconnect('on-map-clicked', handler)
+        def on_response(widget, resp):
+            self.disconnect('on-map-clicked', handler)
+            if resp == Gtk.ResponseType.ACCEPT:
+                # create a new stop
+                s = libsubte.Stop(name = stop_dialog.get_name(),
+                                   description = stop_dialog.get_description(),
+                                   latitude = stop_dialog.get_latitude(),
+                                   longitude = stop_dialog.get_longitude())
 
-        if resp == Gtk.ResponseType.ACCEPT:
-            # create a new stop
-            s = libsubte.Stop(name = stop_dialog.get_name(),
-                               description = stop_dialog.get_description(),
-                               latitude = stop_dialog.get_latitude(),
-                               longitude = stop_dialog.get_longitude())
+                self.add_stop(s)
+
+            win.destroy()
             
-            self.add_stop(s)
+        win.connect('response', on_response)
 
-        win.destroy()
 
     def on_edit_stop_clicked(self, toolbutton, user_data = None):
         print 'on edit stop'
@@ -199,20 +201,22 @@ class Controller(object):
 
         handler = self.connect('on-map-clicked', stop_dialog.on_map_clicked)
 
-        resp = win.run()
-        self.disconnect('on-map-clicked', handler)
+        def on_response(widget, resp):
+            self.disconnect('on-map-clicked', handler)
 
-        if resp == Gtk.ResponseType.ACCEPT:
-            # update the stop
-            stop.name = stop_dialog.get_name()
-            stop.description = stop_dialog.get_description()
-            stop.latitude = stop_dialog.get_latitude()
-            stop.longitude = stop_dialog.get_longitude()
+            if resp == Gtk.ResponseType.ACCEPT:
+                # update the stop
+                stop.name = stop_dialog.get_name()
+                stop.description = stop_dialog.get_description()
+                stop.latitude = stop_dialog.get_latitude()
+                stop.longitude = stop_dialog.get_longitude()
 
-            # update the stop
-            self.update_stop(stop)
+                # update the stop
+                self.update_stop(stop)
 
-        win.destroy()
+            win.destroy()
+
+        win.connect('response', on_response)
 
     def on_remove_stop_clicked(self, toolbutton, user_data = None):
         print 'removing stop'
@@ -288,37 +292,39 @@ class Controller(object):
         handler = self.connect('on-stop-selected', dlg.on_stop_selected)
         libsubte.Stop.activate_stop_hook = dlg.on_stop_selected
 
-        resp = win.run()
-        self.disconnect('on-stop-selected', handler)
-        libsubte.Stop.activate_stop_hook = None
+        def on_response(widget, resp):
+            self.disconnect('on-stop-selected', handler)
+            libsubte.Stop.activate_stop_hook = None
 
-        if resp == Gtk.ResponseType.ACCEPT:
-            name = dlg.get_name()
-            route = dlg.get_route()
-            calendar = dlg.get_calendar()
-            headsign = dlg.get_headsign()
-            direction = dlg.get_direction()
-            path = dlg.get_path()
+            if resp == Gtk.ResponseType.ACCEPT:
+                name = dlg.get_name()
+                route = dlg.get_route()
+                calendar = dlg.get_calendar()
+                headsign = dlg.get_headsign()
+                direction = dlg.get_direction()
+                path = dlg.get_path()
 
-            if route != trip.route and route != None:
-                if trip.route:
-                    trip.route.remove_trip_route(trip)
-                route.add_trip_route(trip)
+                if route != trip.route and route != None:
+                    if trip.route:
+                        trip.route.remove_trip_route(trip)
+                    route.add_trip_route(trip)
 
-            trip.name = name
-            trip.route = route
-            trip.calendar = calendar
-            trip.headsign = headsign
-            trip.direction = direction
-            trip.path = path
+                trip.name = name
+                trip.route = route
+                trip.calendar = calendar
+                trip.headsign = headsign
+                trip.direction = direction
+                trip.path = path
 
-            self.add_trip(trip)
-        else:
-            trip.destroy()
+                self.add_trip(trip)
+            else:
+                trip.destroy()
 
-        win.destroy()
+            win.destroy()
 
-        return True
+            return True
+
+        win.connect('response', on_response)
 
     def on_edit_trip_clicked(self, toolbutton, user_data = None):
         trip = self.gui.trip_list_widget.get_selected()
@@ -333,33 +339,35 @@ class Controller(object):
         handler = self.connect('on-stop-selected', dlg.on_stop_selected)
         libsubte.Stop.activate_stop_hook = dlg.on_stop_selected
 
-        resp = win.run()
-        self.disconnect('on-stop-selected', handler)
+        def on_response(widget, resp):
+            self.disconnect('on-stop-selected', handler)
 
-        if resp == Gtk.ResponseType.ACCEPT:
-            name = dlg.get_name()
-            route = dlg.get_route()
-            calendar = dlg.get_calendar()
-            headsign = dlg.get_headsign()
-            direction = dlg.get_direction()
-            path = dlg.get_path()
+            if resp == Gtk.ResponseType.ACCEPT:
+                name = dlg.get_name()
+                route = dlg.get_route()
+                calendar = dlg.get_calendar()
+                headsign = dlg.get_headsign()
+                direction = dlg.get_direction()
+                path = dlg.get_path()
 
-            if route != trip.route:
-                trip.route.remove_trip_route(trip)
-                route.add_trip_route(trip)
+                if route != trip.route:
+                    trip.route.remove_trip_route(trip)
+                    route.add_trip_route(trip)
 
-            trip.name = name
-            trip.route = route
-            trip.calendar = calendar
-            trip.headsign = headsign
-            trip.direction = direction
-            trip.path = path
+                trip.name = name
+                trip.route = route
+                trip.calendar = calendar
+                trip.headsign = headsign
+                trip.direction = direction
+                trip.path = path
 
-            self.update_trip(trip)
+                self.update_trip(trip)
 
-        win.destroy()
+            win.destroy()
 
-        return True
+            return True
+        
+        win.connect('response', on_response)
 
     def on_remove_trip_clicked(self, toolbutton, user_data = None):
         trip_route = self.gui.trip_list_widget.get_selected()
