@@ -167,7 +167,7 @@ class Database(object):
                 short_name = route_node.findtext('short_name')
                 long_name = route_node.findtext('long_name')
                 description = route_node.findtext('description')
-                route_type = route_node.findtext('route_node')
+                route_type = route_node.findtext('route_type')
                 url = route_node.findtext('url')
                 color = route_node.findtext('color')
                 text_color = route_node.findtext('text_color')
