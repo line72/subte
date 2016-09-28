@@ -341,6 +341,7 @@ class Controller(object):
 
         def on_response(widget, resp):
             self.disconnect('on-stop-selected', handler)
+            libsubte.Stop.activate_stop_hook = None
 
             if resp == Gtk.ResponseType.ACCEPT:
                 name = dlg.get_name()
